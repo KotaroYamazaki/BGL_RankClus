@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
@@ -33,47 +34,84 @@ int main()
     }
 }
 
-graph construct_graph()
-{
+struct edge_property add_edge_property(string s, int w){
+    struct edge_property a;
+    a.label = s;
+    a.weight = w;
+    return a;
+}
+
+graph construct_graph(){
     // エッジのリスト
     std::vector<edge> edge_vector;
     // 各エッジの属性値の構造体のリスト
     std::vector<edge_property> property_vector;
 
-    int from, to;
-    // 0 -> 1
-    struct edge_property a;
-    from = 0, to = 1;
-    a.label = "target";
-    a.weight = 1.0;
-    property_vector.push_back(a);
-    edge_vector.push_back(edge(from, to));
-
-    // 0 -> 2
-    struct edge_property b;
-    from = 0, to = 2;
-    b.label = "target";
-    b.weight = 1.0;
-    property_vector.push_back(b);
-    edge_vector.push_back(edge(from, to));
-
-    // 2 -> 1
-    struct edge_property c;
-    from = 2, to = 1;
-    c.label = "attribute";
-    c.weight = 1.0;
-    property_vector.push_back(c);
-    edge_vector.push_back(edge(from, to));
-
+    string str;
+    string fnameWXY = "AVWeight.csv";
+	ifstream ifs(fnameWXY);
+    int from, to, val;
+	while(getline(ifs,str)){
+		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
+        struct edge_property a;
+        a.label = "target";
+        a.weight = val;
+        property_vector.push_back(a);
+		edge_vector.push_back(edge(from, to));
+	}
 
     // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
     auto tag = boost::edges_are_unsorted_multi_pass;
     // グラフのコンストラクタ
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
-    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 3);
+    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 5639);
 
     return g;
 }
+
+// graph construct_graph()
+// {
+//     // エッジのリスト
+//     std::vector<edge> edge_vector;
+//     // 各エッジの属性値の構造体のリスト
+//     std::vector<edge_property> property_vector;
+
+
+//     int from, to;
+//     // 0 -> 1
+//     //struct edge_property a;
+//     from = 0, to = 1;
+//     // a.label = "target";
+//     // a.weight = 1.0;
+//     struct edge_property a = add_edge_property("target", 1);
+//     property_vector.push_back(a);
+//     edge_vector.push_back(edge(from, to));
+
+//     // 0 -> 2
+//     struct edge_property b;
+//     from = 0, to = 2;
+//     b.label = "target";
+//     b.weight = 1.0;
+//     property_vector.push_back(b);
+//     edge_vector.push_back(edge(from, to));
+
+//     // 2 -> 1
+//     struct edge_property c;
+//     from = 2, to = 1;
+//     c.label = "attribute";
+//     c.weight = 1.0;
+//     property_vector.push_back(c);
+//     edge_vector.push_back(edge(from, to));
+
+
+//     // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
+//     auto tag = boost::edges_are_unsorted_multi_pass;
+//     // グラフのコンストラクタ
+//     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
+//     graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 3);
+
+//     return g;
+// }
 
 // グラフの初期化
 void init_graph(graph& g)
@@ -84,7 +122,7 @@ void init_graph(graph& g)
         // (*vertex_iterator) で vertex_descriptor になる
         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
         g[*i].label = "target";
-        g[*i].previous_rank = 1.0/num_vertices(g);
+        //g[*i].previous_rank = 1.0/num_vertices(g);
         g[*i].next_rank = 1.0/num_vertices(g);
         g[*i].int_descriptor = static_cast<int>(*i);
     }
