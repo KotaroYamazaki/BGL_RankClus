@@ -49,12 +49,24 @@ graph construct_graph(){
 
     string str;
     string fnameWXY = "AVWeight.csv";
+    string fnameWYY = "AAWeight.csv";
 	ifstream ifs(fnameWXY);
     int from, to, val;
+    // Target type
 	while(getline(ifs,str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         struct edge_property a;
         a.label = "target";
+        a.weight = val;
+        property_vector.push_back(a);
+		edge_vector.push_back(edge(from, to));
+	}
+    //Attribute Type
+    ifstream ifs2(fnameWYY);
+    while(getline(ifs2,str)){
+		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
+        struct edge_property a;
+        a.label = "attribute";
         a.weight = val;
         property_vector.push_back(a);
 		edge_vector.push_back(edge(from, to));
