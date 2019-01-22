@@ -17,7 +17,7 @@ int main()
     // グラフの属性値を初期化
     init_graph(g);
     // グラフの詳細を出力
-	print_detail(g);
+	//print_detail(g);
 
     // 行列ベクトル積
     vertex_iterator i, j;
@@ -49,7 +49,7 @@ graph construct_graph(){
 
     string str;
     string fnameWXY = "AVWeight.csv";
-    string fnameWYY = "AAWeight.csv";
+    string fnameWYY = "AAWeight2.csv";
 	ifstream ifs(fnameWXY);
     int from, to, val;
     // Target type
@@ -65,6 +65,7 @@ graph construct_graph(){
     ifstream ifs2(fnameWYY);
     while(getline(ifs2,str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
+        cout << from << ":" << to << ":" <<val << endl;
         struct edge_property a;
         a.label = "attribute";
         a.weight = val;
