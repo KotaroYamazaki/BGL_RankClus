@@ -8,12 +8,12 @@ using namespace std;
 
 const int N = 20;
 
-struct edge_property add_edge_property(string s, int w){
-    struct edge_property a;
-    a.label = s;
-    a.weight = w;
-    return a;
-}
+// struct edge_property add_edge_property(string s, int w){
+//     struct edge_property a;
+//     a.label = s;
+//     a.weight = w;
+//     return a;
+// }
 
 graph construct_graph(){
     // エッジのリスト
