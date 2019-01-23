@@ -18,9 +18,10 @@ int main()
     graph g = construct_graph();
     // グラフの属性値を初期化
     init_graph(g);
-    // グラフの詳細を出力
-	print_detail(g);
 
     ranking(g);
+
+    // グラフの詳細を出力
+	print_detail(g);
 
 }

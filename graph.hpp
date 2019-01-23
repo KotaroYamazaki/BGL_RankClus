@@ -12,6 +12,8 @@ struct vertex_property
     std::string label;
     double previous_rank;
     double next_rank;
+    double ry;
+    double rx;
     int int_descriptor;
 };
 
