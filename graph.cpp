@@ -6,33 +6,7 @@
 #include "graph.hpp"
 using namespace std;
 
-graph construct_graph();
-void init_graph(graph& g);
-void print_detail(graph& g);
-
-int main()
-{
-    // グラフの構築
-    graph g = construct_graph();
-    // グラフの属性値を初期化
-    init_graph(g);
-    // グラフの詳細を出力
-	print_detail(g);
-
-    // 行列ベクトル積
-    vertex_iterator i, j;
-    //iterator を用いて最初のiterから最後まで回す
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        double tmp = 0;
-        //出る全てのエッジに対してループを回す
-        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-            // ノード *i の入エッジの重み（g[*e.first].weight）と
-            // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
-            tmp += g[*e.first].weight * g[source(*e.first, g)].previous_rank;
-        }
-        g[*i].next_rank = tmp;
-    }
-}
+const int N = 20;
 
 struct edge_property add_edge_property(string s, int w){
     struct edge_property a;
@@ -49,7 +23,6 @@ graph construct_graph(){
 
     string str;
     string fnameWXY = "AVWeight.csv";
-    string fnameWYY = "AAWeight2.csv";
 	ifstream ifs(fnameWXY);
     int from, to, val;
     // Target type
@@ -59,9 +32,11 @@ graph construct_graph(){
         a.label = "target";
         a.weight = val;
         property_vector.push_back(a);
+        from += N;
 		edge_vector.push_back(edge(from, to));
 	}
-    //Attribute Type
+    // Attribute Type
+    string fnameWYY = "AAWeight2.csv";
     ifstream ifs2(fnameWYY);
     while(getline(ifs2,str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
@@ -69,9 +44,10 @@ graph construct_graph(){
         a.label = "attribute";
         a.weight = val;
         property_vector.push_back(a);
+        from += N;
+        to += N;
 		edge_vector.push_back(edge(from, to));
 	}
-
     // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
     auto tag = boost::edges_are_unsorted_multi_pass;
     // グラフのコンストラクタ
@@ -133,8 +109,9 @@ void init_graph(graph& g)
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         // (*vertex_iterator) で vertex_descriptor になる
         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
-        g[*i].label = "target";
-        //g[*i].previous_rank = 1.0/num_vertices(g);
+        if(*i < N ) g[*i].label = "target";
+        else g[*i].label = "attribute";
+        g[*i].previous_rank = 1.0/num_vertices(g);
         g[*i].next_rank = 1.0/num_vertices(g);
         g[*i].int_descriptor = static_cast<int>(*i);
     }
