@@ -17,19 +17,19 @@ int main()
     // グラフの属性値を初期化
     init_graph(g);
     // グラフの詳細を出力
-	//print_detail(g);
+	print_detail(g);
 
     // 行列ベクトル積
     vertex_iterator i, j;
+    //iterator を用いて最初のiterから最後まで回す
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         double tmp = 0;
-        
+        //出る全てのエッジに対してループを回す
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
             // ノード *i の入エッジの重み（g[*e.first].weight）と
             // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
             tmp += g[*e.first].weight * g[source(*e.first, g)].previous_rank;
         }
-
         g[*i].next_rank = tmp;
     }
 }
@@ -65,7 +65,6 @@ graph construct_graph(){
     ifstream ifs2(fnameWYY);
     while(getline(ifs2,str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
-        cout << from << ":" << to << ":" <<val << endl;
         struct edge_property a;
         a.label = "attribute";
         a.weight = val;
@@ -77,7 +76,7 @@ graph construct_graph(){
     auto tag = boost::edges_are_unsorted_multi_pass;
     // グラフのコンストラクタ
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
-    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 5639);
+    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 5639+20);
 
     return g;
 }
