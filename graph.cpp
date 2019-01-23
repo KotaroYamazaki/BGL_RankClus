@@ -14,6 +14,7 @@ int Wsum = 0;
 //     a.weight = w;
 //     return a;
 // }
+vector<string> name_vector;
 
 graph construct_graph(){
     // エッジのリスト
@@ -21,14 +22,23 @@ graph construct_graph(){
     // 各エッジの属性値の構造体のリスト
     std::vector<edge_property> property_vector;
 
-    string str;
+    string str, name_X, name_Y;
     string fnameWXY = "AVWeight.csv";
-	ifstream ifs(fnameWXY);
+    string fnameWYY = "AAWeight2.csv";
+    string file_X = "VenueListSimple.txt";
+    string file_Y = "AuthorList.txt";
+    
+	ifstream ifs_WXY(fnameWXY);
+    ifstream ifs_X(file_X);
+    ifstream ifs_WYY(fnameWYY);
+    ifstream ifs_Y(file_Y);
+
     int from, to, val;
     // Target type
-	while(getline(ifs,str)){
+	while(getline(ifs_WXY, str) && getline(ifs_X, name_X)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         struct edge_property a;
+        name_vector.push_back(name_X);
         a.label = "target";
         a.weight = val;
         property_vector.push_back(a);
@@ -37,11 +47,11 @@ graph construct_graph(){
 		edge_vector.push_back(edge(from, to));
 	}
     // Attribute Type
-    string fnameWYY = "AAWeight2.csv";
-    ifstream ifs2(fnameWYY);
-    while(getline(ifs2,str)){
+    
+    while(getline(ifs_WYY,str) && getline(ifs_Y, name_Y)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         struct edge_property a;
+        name_vector.push_back(name_Y);
         a.label = "attribute";
         a.weight = val;
         property_vector.push_back(a);
@@ -67,12 +77,16 @@ void init_graph(graph& g)
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         // (*vertex_iterator) で vertex_descriptor になる
         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
+        //name の入れ方name_vectorがグローバル変数
         if(*i < N ){
             g[*i].label = "target";
             g[*i].rx = 0;
+            g[*i].name = name_vector[*i];
+            g[*i].belongs_to_cluster = -1;
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
+            g[*i].name = name_vector[*i];
         }
         // g[*i].previous_rank = 1.0/num_vertices(g);
         // g[*i].next_rank = 1.0/num_vertices(g);
@@ -87,7 +101,7 @@ void print_detail(graph& g)
     // cout << "# vertices: " << num_vertices(g) << endl;
     // cout << "# edges   : " << num_edges(g) << endl;
 
-     vertex_iterator i, j;
+    vertex_iterator i, j;
     // cout << " --- adjacent vertices --- " << endl;
     // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
     //     cout <<  *i << " --> " << flush;
@@ -111,12 +125,12 @@ void print_detail(graph& g)
     // }
 
     cout << "ranking" << endl;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        if(*i < N){
-            cout << *i << ":" << g[*i].rx << endl;
-        }else{
+    for (boost::tie(i, j) = vertices(g); *i< N ; i++) {
+        //if(*i < N){
+            cout << g[*i].name << "[" << g[*i].belongs_to_cluster <<"]: " << g[*i].rx << endl;
+        //}else{
             //cout << *i << ":" << g[*i].ry << endl;
-        }
+        //}
     }
 }
 
