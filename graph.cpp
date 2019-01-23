@@ -33,12 +33,18 @@ graph construct_graph(){
     ifstream ifs_WYY(fnameWYY);
     ifstream ifs_Y(file_Y);
 
+    while(getline(ifs_X, name_X)){
+        name_vector.push_back(name_X);
+    }
+    while(getline(ifs_Y, name_Y)){
+        name_vector.push_back(name_Y);
+    }
+
     int from, to, val;
     // Target type
-	while(getline(ifs_WXY, str) && getline(ifs_X, name_X)){
+	while(getline(ifs_WXY, str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         struct edge_property a;
-        name_vector.push_back(name_X);
         a.label = "target";
         a.weight = val;
         property_vector.push_back(a);
@@ -47,11 +53,9 @@ graph construct_graph(){
 		edge_vector.push_back(edge(from, to));
 	}
     // Attribute Type
-    
-    while(getline(ifs_WYY,str) && getline(ifs_Y, name_Y)){
+    while(getline(ifs_WYY,str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         struct edge_property a;
-        name_vector.push_back(name_Y);
         a.label = "attribute";
         a.weight = val;
         property_vector.push_back(a);
