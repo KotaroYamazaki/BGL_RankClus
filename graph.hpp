@@ -40,6 +40,7 @@ struct graph_property
 // bidirected graph -> boost::bidirectionalS
 // あるノードから in_edge と out_edge の両方たどりたい場合は、bidirectionalS が良い
 using graph = boost::compressed_sparse_row_graph<
+    //boost::undirectedS,
     boost::bidirectionalS,
     vertex_property,
     edge_property,
