@@ -8,6 +8,7 @@ using namespace std;
 extern int Wsum;
 int xNum = 20;
 const double alpha = 0.95;
+const int rankiter = 10;
 
 // 行列ベクトル積
 graph ranking(graph &g){
@@ -36,7 +37,6 @@ graph ranking(graph &g){
     }
 
     //authority ranking
-    int rankiter = 10;
     for(int q = 0; q < rankiter; q++){
         double RxSum = 0;
         double RySum = 0;
@@ -85,10 +85,8 @@ graph ranking(graph &g){
 void print_rank_within_cluster(graph& g, int clusterNum){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
-        //if(*i < N){
         if(g[*i].rx > 0){
                 cout << g[*i].name << " : " << g[*i].rx << endl;
         }
-
     }
 }

@@ -35,7 +35,7 @@ int main()
         // init_subgraph(subgraph[clusterNum], clusterNum);
         init_graph(subgraph[clusterNum]);
         ranking(subgraph[clusterNum]);
-        cout << "--- cluster " << clusterNum << "----" << endl;
+        cout << "--- cluster " << clusterNum +  1 << "----" << endl;
         print_rank_within_cluster(subgraph[clusterNum], clusterNum);
     }
     // グラフの詳細を出力

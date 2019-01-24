@@ -9,12 +9,7 @@ using namespace std;
 const int N = 20;
 int Wsum = 0;
 extern int K;
-// struct edge_property add_edge_property(string s, int w){
-//     struct edge_property a;
-//     a.label = s;
-//     a.weight = w;
-//     return a;
-// }
+
 vector<string> name_vector;
 //vector<string> Y_name_vector;
 vector<vector<string>> X_sub_name_vector;
@@ -220,15 +215,6 @@ void print_detail(graph& g){
     //         // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
     //         cout << *i << " --> " << target(*e.first, g) << ": " << g[*e.first].weight << " (" << g[*e.first].label << ")" << endl;
     //     }
-    // }
-
-    // cout << "ranking" << endl;
-    // for (boost::tie(i, j) = vertices(g); *i< N ; i++) {
-    //     //if(*i < N){
-    //         cout << g[*i].name << "[" << g[*i].belongs_to_cluster <<"]: " << g[*i].rx << endl;
-    //     //}else{
-    //         //cout << *i << ":" << g[*i].ry << endl;
-    //     //}
     // }
 }
 
