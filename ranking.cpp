@@ -83,12 +83,11 @@ graph ranking(graph &g){
 }
 
 void print_rank_within_cluster(graph& g, int clusterNum){
-    cout << "ranking" << endl;
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
         //if(*i < N){
         if(g[*i].rx > 0){
-                cout << g[*i].name << "[" << g[*i].belongs_to_cluster << "]: " << g[*i].rx << endl;
+                cout << g[*i].name << " : " << g[*i].rx << endl;
         }
 
     }
