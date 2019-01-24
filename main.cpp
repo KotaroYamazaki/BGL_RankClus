@@ -8,14 +8,16 @@
 using namespace std;
 
 graph construct_graph();
+vector<graph> construct_sub_graph(graph& g);
 void init_graph(graph& g);
+void init_subgraph(graph& g, int clusterNum);
 void print_detail(graph& g);
-graph ranking(graph &g);
-graph get_intial_partitions(graph &g);
+void print_rank_within_cluster(graph& g, int clusterNum);
+graph ranking(graph& g);
+void get_intial_partitions(graph& g);
 const int iterNum = 10;
 extern int xNum;
 int K = 4;
-
 
 int main()
 {
@@ -25,18 +27,24 @@ int main()
     init_graph(g);
     get_intial_partitions(g);
 
-    ranking(g);
+    
+    vector<graph> subgraph = construct_sub_graph(g);
 
+    //for(auto itr = subgraph.begin() ; itr != subgraph.end(); itr++){
+    for(int clusterNum = 0; clusterNum < K; clusterNum++){
+        // init_subgraph(subgraph[clusterNum], clusterNum);
+        init_graph(subgraph[clusterNum]);
+        ranking(subgraph[clusterNum]);
+        cout << "--- cluster " << clusterNum << "----" << endl;
+        print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+    }
     // グラフの詳細を出力
-	print_detail(g);
-
-
+	
     // for(int t = 0; t < iterNum; t++){
-
     // }
 }
 
-graph get_intial_partitions(graph& g){
+void get_intial_partitions(graph& g){
     random_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
@@ -55,6 +63,4 @@ graph get_intial_partitions(graph& g){
             get_intial_partitions(g);
         }
     }
-
-    return g;
 }
