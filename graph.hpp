@@ -30,6 +30,9 @@ struct edge_property
 // グラフの属性値を自由に定義
 struct graph_property
 {
+    int xNum;
+    int yNum;
+    double edge_sum;
 };
 
 // グラフ構造を定義

@@ -31,11 +31,15 @@ graph construct_graph(){
     ifstream ifs_WYY(fnameWYY);
     ifstream ifs_Y(file_Y);
 
+    int xNum = 0;
     while(getline(ifs_X, name_X)){
         name_vector.push_back(name_X);
+        xNum += 1;
     }
+    int yNum = 0;
     while(getline(ifs_Y, name_Y)){
         name_vector.push_back(name_Y);
+        yNum += 1;
     }
 
     int from, to, val;
@@ -73,11 +77,14 @@ graph construct_graph(){
 
         }
 	}
+
+    graph_property graph_prop;
+    graph_prop.edge_sum = Wsum;
     // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
     auto tag = boost::edges_are_unsorted_multi_pass;
     // グラフのコンストラクタ
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
-    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 5639+20);
+    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum, graph_prop);
 
     return g;
 }

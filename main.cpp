@@ -27,19 +27,18 @@ int main()
     // グラフの属性値を初期化
     init_graph(g);
     get_intial_partitions(g);
-
-    
+    //cout << g[boost::graph_bundle] << endl;
     vector<graph> subgraph = construct_sub_graph(g);
 
     //for(auto itr = subgraph.begin() ; itr != subgraph.end(); itr++){
-    for(int clusterNum = 0; clusterNum < K; clusterNum++){
-        // init_subgraph(subgraph[clusterNum], clusterNum);
-        init_graph(subgraph[clusterNum]);
-        within_cluster_ranking(subgraph[clusterNum]);
-        cout << "--- cluster " << clusterNum +  1 << "----" << endl;
-        print_rank_within_cluster(subgraph[clusterNum], clusterNum);
-        print_graph_detail(subgraph[clusterNum]);
-    }
+    // for(int clusterNum = 0; clusterNum < K; clusterNum++){
+    //     // init_subgraph(subgraph[clusterNum], clusterNum);
+    //     init_graph(subgraph[clusterNum]);
+    //     within_cluster_ranking(subgraph[clusterNum]);
+    //     cout << "--- cluster " << clusterNum +  1 << "----" << endl;
+    //     print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+    //     print_graph_detail(subgraph[clusterNum]);
+    // }
     // グラフの詳細を出力
 	
     // for(int t = 0; t < iterNum; t++){
