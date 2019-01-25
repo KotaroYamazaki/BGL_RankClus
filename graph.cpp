@@ -43,14 +43,14 @@ graph construct_graph(){
 	while(getline(ifs_WXY, str)){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         struct edge_property a;
-        a.label = "target";
+        a.label = "AtoT";
         a.weight = val;
         property_vector.push_back(a);
         from += N;
         Wsum += val;
 		edge_vector.push_back(edge(from, to));
         //逆方向
-        a.label = "attribute";
+        a.label = "TtoA";
         property_vector.push_back(a);
         edge_vector.push_back(edge(to, from));
 	}
@@ -59,7 +59,7 @@ graph construct_graph(){
 		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
         if(from != to){
             struct edge_property a;
-            a.label = "attribute";
+            a.label = "AtoA";
             a.weight = val;
             property_vector.push_back(a);
             from += N;
@@ -67,7 +67,7 @@ graph construct_graph(){
             Wsum += val;
             edge_vector.push_back(edge(from, to));
             //　逆方向
-            a.label = "target";
+            a.label = "AtoA";
             property_vector.push_back(a);
             edge_vector.push_back(edge(to, from));
 
@@ -107,25 +107,28 @@ vector<graph> construct_sub_graph(graph& g){
                     // target(edge_descriptor, graph) でエッジの先のノードを取得できる
                     // out_edges() ではなく、in_edges() の場合は source() でエッジの元のノードを取得できる
                     // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
-                    struct edge_property a;
-                    a.label = "target";
-                    a.weight = g[*e.first].weight;
-                    property_vector.push_back(a);
-                    edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
-                    //　逆方向
-                    a.label = "attribute";
-                    property_vector.push_back(a);
-                    edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
+                        struct edge_property a;
+                        a.label = "AtoT";
+                        a.weight = g[*e.first].weight;
+                        property_vector.push_back(a);
+                        edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
+                        //　逆方向
+                        a.label = "TtoA";
+                        property_vector.push_back(a);
+                        edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                     }
                 }else if (g[*i].label == "attribute"){
                     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                         //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
                         if(g[source(*e.first,  g)].label == "attribute"){
                             struct edge_property a;
-                            a.label = "attribute";
+                            a.label = "AtoA";
                             a.weight = g[*e.first].weight;
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
+                            // 逆方向
+                            property_vector.push_back(a);
+                            edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                         }
                     }
                 }
@@ -142,27 +145,28 @@ vector<graph> construct_sub_graph(graph& g){
     return subgraph_vector;
 }
 
-//サブグラフの初期化
-void init_subgraph(graph& g, int clusterNum){
-        // ノードの走査
-    vertex_iterator i, j;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        // (*vertex_iterator) で vertex_descriptor になる
-        // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
-        //name の入れ方name_vectorがグローバル変数
-        if(*i < X_sub_name_vector[clusterNum].size() ){
-            g[*i].label = "target";
-            g[*i].rx = 0;
-            g[*i].name = X_sub_name_vector[clusterNum][*i];
-            g[*i].belongs_to_cluster = clusterNum;
-        } else {
-            g[*i].label = "attribute";
-            g[*i].ry = 0;
-            g[*i].name = name_vector[*i + N];
-        }
-        g[*i].int_descriptor = static_cast<int>(*i);
-    }
-}
+// //サブグラフの初期化
+// void init_subgraph(graph& g, int clusterNum){
+//         // ノードの走査
+//     vertex_iterator i, j;
+//     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+//         // (*vertex_iterator) で vertex_descriptor になる
+//         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
+//         //name の入れ方name_vectorがグローバル変数
+//         if(*i < X_sub_name_vector[clusterNum].size() ){
+//             g[*i].label = "target";
+//             g[*i].rx = 0;
+//             g[*i].name = X_sub_name_vector[clusterNum][*i];
+//             g[*i].belongs_to_cluster = clusterNum;
+//             g[*i].conditional_rank = 0;
+//         } else {
+//             g[*i].label = "attribute";
+//             g[*i].ry = 0;
+//             g[*i].name = name_vector[*i + N];
+//         }
+//         g[*i].int_descriptor = static_cast<int>(*i);
+//     }
+// }
 
 // グラフの初期化
 void init_graph(graph& g){
@@ -176,6 +180,7 @@ void init_graph(graph& g){
             g[*i].label = "target";
             g[*i].rx = 0;
             g[*i].name = name_vector[*i];
+            g[*i].conditional_rank = 0;
             g[*i].belongs_to_cluster = -1;
         } else {
             g[*i].label = "attribute";
@@ -190,9 +195,9 @@ void init_graph(graph& g){
     }
 }
 
-void print_detail(graph& g){
-    // cout << "# vertices: " << num_vertices(g) << endl;
-    // cout << "# edges   : " << num_edges(g) << endl;
+void print_graph_detail(graph& g){
+    cout << "# vertices: " << num_vertices(g) << endl;
+    cout << "# edges   : " << num_edges(g) << endl;
 
     vertex_iterator i, j;
     cout << " --- adjacent vertices --- " << endl;
@@ -206,16 +211,23 @@ void print_detail(graph& g){
     }
 
 
-    // // out_edges(vertex_descriptor, graph) でノードの出エッジが取得できる
-    // cout << " --- edges --- " << endl;
-    // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-    //     for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-    //         // target(edge_descriptor, graph) でエッジの先のノードを取得できる
-    //         // out_edges() ではなく、in_edges() の場合は source() でエッジの元のノードを取得できる
-    //         // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
-    //         cout << *i << " --> " << target(*e.first, g) << ": " << g[*e.first].weight << " (" << g[*e.first].label << ")" << endl;
-    //     }
-    // }
+    // out_edges(vertex_descriptor, graph) でノードの出エッジが取得できる
+    cout << " --- edges --- " << endl;
+    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+        for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+            // target(edge_descriptor, graph) でエッジの先のノードを取得できる
+            // out_edges() ではなく、in_edges() の場合は source() でエッジの元のノードを取得できる
+            // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
+            cout << *i << " --> " << target(*e.first, g) << ": " << g[*e.first].weight << " (" << g[*e.first].label << ")" << endl;
+        }
+    }
 }
 
-
+void print_rank_within_cluster(graph& g, int clusterNum){
+    vertex_iterator i,j;
+    for (boost::tie(i, j) = vertices(g); *i< N ; i++) {
+        if(g[*i].rx > 0){
+                cout << g[*i].name << " : " << g[*i].rx << endl;
+        }
+    }
+}

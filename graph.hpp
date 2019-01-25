@@ -16,6 +16,7 @@ struct vertex_property
     double next_rank;
     double ry;
     double rx;
+    double conditional_rank;
     int int_descriptor;
 };
 

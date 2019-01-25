@@ -10,8 +10,25 @@ int xNum = 20;
 const double alpha = 0.95;
 const int rankiter = 10;
 
+graph conditional_rankning(graph& g){
+    vertex_iterator i,j;
+    double ranksum = 0;
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+        double tmp = 0;
+        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+             tmp += g[*e.first].weight * g[source(*e.first, g)].ry; 
+        }
+        g[*i].conditional_rank = tmp;
+        ranksum += tmp;
+    }
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+        g[*i].conditional_rank /= ranksum;
+    }
+    return g;
+}
+
 // 行列ベクトル積
-graph ranking(graph &g){
+graph within_cluster_ranking(graph &g){
     vertex_iterator i, j;
     //iterator を用いて最初のiterから最後まで回す
 
@@ -51,7 +68,6 @@ graph ranking(graph &g){
                     // cout << "source : " << source(*e.first , g) << endl;
                     // cout <<  "target: " << target(*e.first, g) << endl;
                     // cout << g[*e.first].weight << endl;
-    
                     tmp += g[*e.first].weight * g[source(*e.first, g)].ry;
                 }
                 RxSum += tmp;
@@ -79,14 +95,11 @@ graph ranking(graph &g){
             }
         }
     }
+
+    conditional_rankning(g);
+
     return g;
 }
 
-void print_rank_within_cluster(graph& g, int clusterNum){
-    vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
-        if(g[*i].rx > 0){
-                cout << g[*i].name << " : " << g[*i].rx << endl;
-        }
-    }
-}
+
+

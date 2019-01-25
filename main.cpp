@@ -11,9 +11,10 @@ graph construct_graph();
 vector<graph> construct_sub_graph(graph& g);
 void init_graph(graph& g);
 void init_subgraph(graph& g, int clusterNum);
-void print_detail(graph& g);
+void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
-graph ranking(graph& g);
+graph within_cluster_ranking(graph& g);
+graph conditional_ranking(graph &g);
 void get_intial_partitions(graph& g);
 const int iterNum = 10;
 extern int xNum;
@@ -34,9 +35,10 @@ int main()
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         // init_subgraph(subgraph[clusterNum], clusterNum);
         init_graph(subgraph[clusterNum]);
-        ranking(subgraph[clusterNum]);
+        within_cluster_ranking(subgraph[clusterNum]);
         cout << "--- cluster " << clusterNum +  1 << "----" << endl;
         print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+        print_graph_detail(subgraph[clusterNum]);
     }
     // グラフの詳細を出力
 	
