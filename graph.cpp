@@ -6,8 +6,10 @@
 #include "graph.hpp"
 using namespace std;
 
-const int N = 20;
-int Wsum = 0;
+int xNum;
+int yNum;
+int Wsum;
+vector<int> Wksum;
 extern int K;
 
 vector<string> name_vector;
@@ -31,17 +33,18 @@ graph construct_graph(){
     ifstream ifs_WYY(fnameWYY);
     ifstream ifs_Y(file_Y);
 
-    int xNum = 0;
+    xNum = 0;
     while(getline(ifs_X, name_X)){
         name_vector.push_back(name_X);
         xNum += 1;
     }
-    int yNum = 0;
+    yNum = 0;
     while(getline(ifs_Y, name_Y)){
         name_vector.push_back(name_Y);
         yNum += 1;
     }
 
+    Wsum = 0;
     int from, to, val;
     // Target type
 	while(getline(ifs_WXY, str)){
@@ -50,7 +53,7 @@ graph construct_graph(){
         a.label = "AtoT";
         a.weight = val;
         property_vector.push_back(a);
-        from += N;
+        from += xNum;
         Wsum += val;
 		edge_vector.push_back(edge(from, to));
         //逆方向
@@ -66,8 +69,8 @@ graph construct_graph(){
             a.label = "AtoA";
             a.weight = val;
             property_vector.push_back(a);
-            from += N;
-            to += N;
+            from += xNum;
+            to += xNum;
             Wsum += val;
             edge_vector.push_back(edge(from, to));
             //　逆方向
@@ -78,13 +81,13 @@ graph construct_graph(){
         }
 	}
 
-    graph_property graph_prop;
-    graph_prop.edge_sum = Wsum;
+    //graph_property graph_prop;
+    //graph_prop.edge_sum = Wsum;
     // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
     auto tag = boost::edges_are_unsorted_multi_pass;
     // グラフのコンストラクタ
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
-    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum, graph_prop);
+    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
 
     return g;
 }
@@ -95,6 +98,7 @@ vector<graph> construct_sub_graph(graph& g){
     vector<string> x_name;
     X_sub_name_vector = vector<vector<string>>(K);
     
+    Wksum = vector<int>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         vertex_iterator i,j;
         int cluster_size = 0;
@@ -103,11 +107,13 @@ vector<graph> construct_sub_graph(graph& g){
         // 各エッジの属性値の構造体のリスト
         std::vector<edge_property> property_vector;
 
+        int edge_sum = 0;
+
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
-                if(g[*i].label == "target" && g[*i].belongs_to_cluster == clusterNum){ 
+             if(g[*i].label == "target" && g[*i].belongs_to_cluster == clusterNum){ 
                     cluster_size += 1;
                     x_name.push_back(g[*i].name);
                     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -123,11 +129,13 @@ vector<graph> construct_sub_graph(graph& g){
                         a.label = "TtoA";
                         property_vector.push_back(a);
                         edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
+                        //エッジの重み合計
+                        edge_sum += g[*e.first].weight;
                     }
-                }else if (g[*i].label == "attribute"){
-                    for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                        //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
-                        if(g[source(*e.first,  g)].label == "attribute"){
+            }else if (g[*i].label == "attribute"){
+                for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                    //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
+                    if(g[source(*e.first,  g)].label == "attribute"){
                             struct edge_property a;
                             a.label = "AtoA";
                             a.weight = g[*e.first].weight;
@@ -136,16 +144,19 @@ vector<graph> construct_sub_graph(graph& g){
                             // 逆方向
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
+                            //エッジの重み合計
+                            edge_sum += g[*e.first].weight;
                         }
                     }
-                }
             }
+        }
+        cout << edge_sum << endl;
+        Wksum[clusterNum] = edge_sum;
         // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
         auto tag = boost::edges_are_unsorted_multi_pass;
         // グラフのコンストラクタ
         // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
-        // のーどID は変わっていない？
-        graph sub_g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), 5639 + N);
+        graph sub_g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
         X_sub_name_vector.push_back(x_name);
         subgraph_vector.push_back(sub_g);
     }
@@ -169,7 +180,7 @@ vector<graph> construct_sub_graph(graph& g){
 //         } else {
 //             g[*i].label = "attribute";
 //             g[*i].ry = 0;
-//             g[*i].name = name_vector[*i + N];
+//             g[*i].name = name_vector[*i + xNum];
 //         }
 //         g[*i].int_descriptor = static_cast<int>(*i);
 //     }
@@ -183,7 +194,7 @@ void init_graph(graph& g){
         // (*vertex_iterator) で vertex_descriptor になる
         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
         //name の入れ方name_vectorがグローバル変数
-        if(*i < N ){
+        if(*i < xNum ){
             g[*i].label = "target";
             g[*i].rx = 0;
             g[*i].name = name_vector[*i];
@@ -232,7 +243,7 @@ void print_graph_detail(graph& g){
 
 void print_rank_within_cluster(graph& g, int clusterNum){
     vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i< N ; i++) {
+    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
         if(g[*i].rx > 0){
                 cout << g[*i].name << " : " << g[*i].rx << endl;
         }

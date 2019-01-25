@@ -6,7 +6,7 @@
 #include "graph.hpp"
 using namespace std;
 extern int Wsum;
-int xNum = 20;
+extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 10;
 
