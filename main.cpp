@@ -13,11 +13,11 @@ void init_graph(graph& g);
 void init_subgraph(graph& g, int clusterNum);
 void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
-graph clustering(graph& g, vector<graph>& subgraph);
+void clustering(graph& g, vector<graph>& subgraph);
 graph within_cluster_ranking(graph& g, int clusterNum);
 void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
-const int iterNum = 10;
+const int iterNum = 5;
 extern int xNum;
 int K = 4;
 
@@ -29,23 +29,21 @@ int main()
     init_graph(g);
     get_intial_partitions(g);
     //cout << g[boost::graph_bundle] << endl;
-    vector<graph> subgraph = construct_sub_graph(g);
-
-
-    for(int clusterNum = 0; clusterNum < K; clusterNum++){
-        // init_subgraph(subgraph[clusterNum], clusterNum);
-        init_graph(subgraph[clusterNum]);
-        within_cluster_ranking(subgraph[clusterNum], clusterNum);
-        conditional_ranking(g, subgraph[clusterNum]);
-        cout << "--- cluster " << clusterNum +  1 << "----" << endl;
-        print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+    
+    for(int t = 0; t < iterNum; t++){
+        vector<graph> subgraph = construct_sub_graph(g);
+        cout << "=====iterNum: " << t  << " =======" << endl;
+        for(int clusterNum = 0; clusterNum < K; clusterNum++){
+            // init_subgraph(subgraph[clusterNum], clusterNum);
+            init_graph(subgraph[clusterNum]);
+            within_cluster_ranking(subgraph[clusterNum], clusterNum);
+            conditional_ranking(g, subgraph[clusterNum]);
+            cout << "--- cluster " << clusterNum +  1 << "----" << endl;
+            print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+        }
+        clustering(g,subgraph);
     }
 
-    clustering(g,subgraph);
-    // グラフの詳細を出力
-	
-    // for(int t = 0; t < iterNum; t++){
-    // }
 }
 
 void get_intial_partitions(graph& g){

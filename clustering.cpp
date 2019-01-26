@@ -10,6 +10,15 @@ extern int K;
 extern int WXY_sum;
 extern int xNum;
 
+vector<int> calc_cluster_size(graph& g){
+    vector<int> size(K,0);
+    vertex_iterator i,j;
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+        size[g[*i].belongs_to_cluster] += 1;
+    }
+    return size;
+}
+
 double Norm(vector<double>& array ){
 	double Sum = 0;
 	for(int l = 0;l < K; l++){
@@ -18,7 +27,7 @@ double Norm(vector<double>& array ){
 	return(sqrt(Sum));
 }
 
-graph clustering(graph &g, vector<graph>& subgraph){
+void clustering(graph &g, vector<graph>& subgraph){
     vector<vector<double>> pi(K);
     vector<double> p;
     vertex_iterator i,j;
@@ -31,8 +40,6 @@ graph clustering(graph &g, vector<graph>& subgraph){
         double tmp_p = 0;
         for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                //サブグラフでエッジないとこにあくせすしてしまう？　
-                //それは違うか
                 tmp_p += g[*e.first].weight * subgraph[z][target(*e.first, g)].rx *subgraph[z][source(*e.first, g)].ry * p[z];
             }
         }
@@ -43,16 +50,11 @@ graph clustering(graph &g, vector<graph>& subgraph){
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
         double tmp_sum = 0;
         for(int l = 0; l < K; l++){
-            tmp_sum += subgraph[l][*i].rx * p[l];
+            tmp_sum += subgraph[l][*i].conditional_rank * p[l];
         }
-        //cout << "tmp_dum: " << tmp_sum << endl;
-
         for(int z = 0; z < K; z++){ 
-            //cout << "condirank[" << z << "](" << *i << "): " << subgraph[z][*i].conditional_rank *p[z] << endl;
             double val = subgraph[z][*i].conditional_rank *p[z]/tmp_sum;
-           // if(isnan(subgraph[z][*i].conditional_rank)) cout << "nandesu " << endl;
             pi[z].push_back(val);
-            //cout << val << endl;
         }
     }
 
@@ -63,16 +65,33 @@ graph clustering(graph &g, vector<graph>& subgraph){
         }
     }
     
-    vector<vector<double>> center_vec(K);
-    for (int dim = 0; dim < K; dim++){
-        for(int clusterNum = 0; clusterNum < K; clusterNum++){
-            double tmp_center = 0;
+    vector<vector<double>> center_vec;
+    center_vec = vector<vector<double>>(K,vector<double>(K,0));
+    vector<int> cluster_size = calc_cluster_size(g);
+
+    // for (int dim = 0; dim < K; dim++){
+    //     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+    //         for(int clusterNum = 0; clusterNum < K; clusterNum++){
+    //             if(g[*i].belongs_to_cluster == clusterNum){
+    //                 center_vec[dim][clusterNum] += s[*i][clusterNum]/cluster_size[clusterNum];
+    //             }
+    //         }
+    //         //center_vec[dim][clusterNum] /= cluster_size[clusterNum];            
+    //     }
+    //     for(int k = 0; k < K; k++){
+    //         cout << center_vec[dim][k] << " " << flush;
+    //     }
+    //     cout << endl;
+    // }
+
+    for( int Xk = 0; Xk < K; Xk++){
+        for(int col = 0; col < K; col++){
             for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-                if(g[*i].belongs_to_cluster == clusterNum){
-                    tmp_center += s[*i][clusterNum];
+                if(g[*i].belongs_to_cluster == Xk){
+                    center_vec[Xk][col] += s[*i][col];
                 }
             }
-            center_vec[dim].push_back(tmp_center);
+            center_vec[Xk][col] /= cluster_size[Xk];
         }
     }
     
@@ -81,31 +100,31 @@ graph clustering(graph &g, vector<graph>& subgraph){
 
 	D = vector<vector<double>>(xNum,vector<double>(K,0));
 	//ラベルの初期化
-		for(int i = 0; i < xNum; i++){
+        vertex_iterator m,n;
+        for (boost::tie(m, n) = vertices(g); *m < xNum; m++) {
 		//Dの計算
-			double normpi = Norm(pi[i]);
-            if(normpi == 0) cout << "odayo" << endl;
+			double norms = Norm(s[*m]);
 			int index = 0;
 			double minDis = 1;
 			for (int k = 0; k < K; k++){
 				double tmp = 0;
 				for (int l = 0; l < K; l++){
-					tmp += pi[i][l]*center_vec[k][l];
+                    // cout << "s[" << *m << "][" << l << "] = "<< s[*m][l] << endl;
+                    // cout << "centervec[" << k << "][" << l << "] = " << center_vec[k][l] <<endl;
+					tmp += s[*m][l] * center_vec[k][l];
 				}
-                //cout << "check" << endl;
-                double tmp2 = (normpi*Norm(center_vec[k]));
-                if(tmp2 == 0) cout << "odayo" << endl;
-                D[i][k] = tmp2;
+                //cout << "tmp = " << tmp <<endl;
+                //cout << endl;
+                //cout << "tmp["  << "][" << k << "]: " << tmp << endl;
+                D[*m][k] = 1.0 - (tmp/(norms * Norm(center_vec[k])));
+                //cout << "D[" << *m << "][" << k << "]: " << D[*m][k] << endl;
 		//assign
-				// if(D[i][k] < minDis){
-				// 	minDis = D[i][k];
-				// 	index = k;
-				// }
+				if(D[*m][k] < minDis){
+					minDis = D[*m][k];
+					index = k;
+				}
 			}
-
+            g[*m].belongs_to_cluster = index;
 		}
-	
-    
-    return g;
 }
 
