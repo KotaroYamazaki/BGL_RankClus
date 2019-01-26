@@ -129,7 +129,7 @@ vector<graph> construct_sub_graph(graph& g){
                         property_vector.push_back(a);
                         edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                         //エッジの重み合計
-                        edge_sum += g[*e.first].weight;
+                        edge_sum += a.weight;
                     }
             }else if (g[*i].label == "attribute"){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -158,29 +158,6 @@ vector<graph> construct_sub_graph(graph& g){
     }
     return subgraph_vector;
 }
-
-// //サブグラフの初期化
-// void init_subgraph(graph& g, int clusterNum){
-//         // ノードの走査
-//     vertex_iterator i, j;
-//     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-//         // (*vertex_iterator) で vertex_descriptor になる
-//         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
-//         //name の入れ方name_vectorがグローバル変数
-//         if(*i < X_sub_name_vector[clusterNum].size() ){
-//             g[*i].label = "target";
-//             g[*i].rx = 0;
-//             g[*i].name = X_sub_name_vector[clusterNum][*i];
-//             g[*i].belongs_to_cluster = clusterNum;
-//             g[*i].conditional_rank = 0;
-//         } else {
-//             g[*i].label = "attribute";
-//             g[*i].ry = 0;
-//             g[*i].name = name_vector[*i + xNum];
-//         }
-//         g[*i].int_descriptor = static_cast<int>(*i);
-//     }
-// }
 
 // グラフの初期化
 void init_graph(graph& g){

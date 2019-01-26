@@ -10,21 +10,20 @@ extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 10;
 
-graph conditional_rankning(graph& g){
+void conditional_ranking(graph& g, graph& subgraph){
     vertex_iterator i,j;
     double ranksum = 0;
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
         double tmp = 0;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-             tmp += g[*e.first].weight * g[source(*e.first, g)].ry; 
+             tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
         }
-        g[*i].conditional_rank = tmp;
+        subgraph[*i].conditional_rank = tmp;
         ranksum += tmp;
     }
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-        g[*i].conditional_rank /= ranksum;
+        subgraph[*i].conditional_rank /= ranksum;
     }
-    return g;
 }
 
 // 行列ベクトル積
@@ -95,9 +94,6 @@ graph within_cluster_ranking(graph &g, int clusterNum){
             }
         }
     }
-
-    conditional_rankning(g);
-
     return g;
 }
 
