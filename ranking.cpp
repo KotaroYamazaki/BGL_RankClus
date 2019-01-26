@@ -5,7 +5,7 @@
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
 using namespace std;
-extern int WXY_sum;
+extern vector<int> WkXY_sum;
 extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 10;
@@ -28,7 +28,7 @@ graph conditional_rankning(graph& g){
 }
 
 // 行列ベクトル積
-graph within_cluster_ranking(graph &g){
+graph within_cluster_ranking(graph &g, int clusterNum){
     vertex_iterator i, j;
     //iterator を用いて最初のiterから最後まで回す
 
@@ -42,14 +42,14 @@ graph within_cluster_ranking(graph &g){
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 tmp += g[*e.first].weight;
             }
-            g[*i].rx = tmp/WXY_sum;
+            g[*i].rx = tmp/WkXY_sum[clusterNum];
         }else{
              for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 // ノード *i の入エッジの重み（g[*e.first].weight）と
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 if(g[target(*e.first, g)].label == "target")tmp += g[*e.first].weight;
             }
-            g[*i].ry = tmp/WXY_sum;
+            g[*i].ry = tmp/WkXY_sum[clusterNum];
         }
     }
 

@@ -14,7 +14,7 @@ void init_subgraph(graph& g, int clusterNum);
 void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
 graph clustering(graph& g, vector<graph>& subgraph);
-graph within_cluster_ranking(graph& g);
+graph within_cluster_ranking(graph& g, int clusterNum);
 graph conditional_ranking(graph &g);
 void get_intial_partitions(graph& g);
 const int iterNum = 10;
@@ -35,7 +35,7 @@ int main()
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         // init_subgraph(subgraph[clusterNum], clusterNum);
         init_graph(subgraph[clusterNum]);
-        within_cluster_ranking(subgraph[clusterNum]);
+        within_cluster_ranking(subgraph[clusterNum], clusterNum);
         cout << "--- cluster " << clusterNum +  1 << "----" << endl;
         print_rank_within_cluster(subgraph[clusterNum], clusterNum);
         //print_graph_detail(subgraph[clusterNum]);
