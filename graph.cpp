@@ -8,8 +8,8 @@ using namespace std;
 
 int xNum;
 int yNum;
-int Wsum;
-vector<int> Wksum;
+int WXY_sum =0;
+vector<int> WkXY_sum;
 extern int K;
 
 vector<string> name_vector;
@@ -44,7 +44,7 @@ graph construct_graph(){
         yNum += 1;
     }
 
-    Wsum = 0;
+    WXY_sum = 0;
     int from, to, val;
     // Target type
 	while(getline(ifs_WXY, str)){
@@ -54,7 +54,7 @@ graph construct_graph(){
         a.weight = val;
         property_vector.push_back(a);
         from += xNum;
-        Wsum += val;
+        WXY_sum += val;
 		edge_vector.push_back(edge(from, to));
         //逆方向
         a.label = "TtoA";
@@ -71,7 +71,6 @@ graph construct_graph(){
             property_vector.push_back(a);
             from += xNum;
             to += xNum;
-            Wsum += val;
             edge_vector.push_back(edge(from, to));
             //　逆方向
             a.label = "AtoA";
@@ -98,7 +97,7 @@ vector<graph> construct_sub_graph(graph& g){
     vector<string> x_name;
     X_sub_name_vector = vector<vector<string>>(K);
     
-    Wksum = vector<int>(K,0);
+    WkXY_sum = vector<int>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         vertex_iterator i,j;
         int cluster_size = 0;
@@ -144,14 +143,11 @@ vector<graph> construct_sub_graph(graph& g){
                             // 逆方向
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
-                            //エッジの重み合計
-                            edge_sum += g[*e.first].weight;
                         }
                     }
             }
         }
-        cout << edge_sum << endl;
-        Wksum[clusterNum] = edge_sum;
+        WkXY_sum[clusterNum] = edge_sum;
         // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
         auto tag = boost::edges_are_unsorted_multi_pass;
         // グラフのコンストラクタ
