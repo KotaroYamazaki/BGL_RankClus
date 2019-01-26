@@ -45,10 +45,10 @@ graph clustering(graph &g, vector<graph>& subgraph){
         for(int l = 0; l < K; l++){
             tmp_sum += subgraph[l][*i].rx * p[l];
         }
-        cout << "tmp_dum: " << tmp_sum << endl;
+        //cout << "tmp_dum: " << tmp_sum << endl;
 
         for(int z = 0; z < K; z++){ 
-            cout << "condirank[" << z << "](" << *i << "): " << subgraph[z][*i].conditional_rank *p[z] << endl;
+            //cout << "condirank[" << z << "](" << *i << "): " << subgraph[z][*i].conditional_rank *p[z] << endl;
             double val = subgraph[z][*i].conditional_rank *p[z]/tmp_sum;
            // if(isnan(subgraph[z][*i].conditional_rank)) cout << "nandesu " << endl;
             pi[z].push_back(val);
@@ -94,7 +94,7 @@ graph clustering(graph &g, vector<graph>& subgraph){
 				}
                 //cout << "check" << endl;
                 double tmp2 = (normpi*Norm(center_vec[k]));
-               // if(tmp2 == 0) cout << "odayo" << endl;
+                if(tmp2 == 0) cout << "odayo" << endl;
                 D[i][k] = tmp2;
 		//assign
 				// if(D[i][k] < minDis){
