@@ -222,3 +222,19 @@ void print_rank_within_cluster(graph& g, int clusterNum){
         }
     }
 }
+
+void print_cluster(graph& g ){
+    vector<vector<string>> cluster(K);
+    vertex_iterator i, j;
+    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+        cluster[g[*i].belongs_to_cluster].push_back(g[*i].name);
+    }
+	for (int k = 0; k < K; k++){
+		cout << "  Cluster[" << k+1 << "] = { " << flush;
+		for (int i = 0; i < cluster[k].size(); i++){
+			cout << cluster[k][i] << flush;
+			if(i != cluster[k].size()-1)cout << ", "<< flush;
+		}
+		cout << " }" << endl;
+	}
+}
