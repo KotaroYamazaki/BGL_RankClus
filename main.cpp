@@ -4,6 +4,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
+#include <chrono>
 using namespace std;
 
 graph construct_graph();
@@ -25,6 +26,8 @@ bool convflag = false;
 
 int main()
 {
+    chrono::system_clock::time_point start, end;
+    start = chrono::system_clock::now();
     // グラフの構築
     graph g = construct_graph();
     // グラフの属性値を初期化
@@ -49,7 +52,9 @@ int main()
         clustering(g,subgraph);
         convflag = check_converge_cluster(g);
     }
-
+    end = chrono::system_clock::now();
+    double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+    cout << " time[mic]: " << elapsed << endl;
 }
 
 bool check_converge_cluster(graph& g){
