@@ -4,7 +4,6 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
-#include <random>
 using namespace std;
 
 graph construct_graph();
@@ -15,12 +14,14 @@ void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
 void print_cluster(graph &g);
 void clustering(graph& g, vector<graph>& subgraph);
+bool check_converge_cluster(graph& g);
 graph within_cluster_ranking(graph& g, int clusterNum);
 void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
 const int iterNum = 5;
 extern int xNum;
 int K = 4;
+bool convflag = false;
 
 int main()
 {
@@ -29,10 +30,12 @@ int main()
     // グラフの属性値を初期化
     init_graph(g);
     get_intial_partitions(g);
+    cout << "< initial cluster >" << endl;
+    print_cluster(g);
     
-    for(int t = 0; t < iterNum; t++){
+    for(int t = 0; t < iterNum && convflag == false; t++){
         vector<graph> subgraph = construct_sub_graph(g);
-        cout << "=====iterNum: " << t  << " =======" << endl;
+        cout << "=====iterNum: " << t +1  << " =======" << endl;
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum]);
             within_cluster_ranking(subgraph[clusterNum], clusterNum);
@@ -44,27 +47,17 @@ int main()
         }
         print_cluster(g);
         clustering(g,subgraph);
+        convflag = check_converge_cluster(g);
     }
 
 }
 
-void get_intial_partitions(graph& g){
-    random_device rnd;
-    vertex_iterator i, j;
-    vector<bool> check_flag(K,false);
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
-		int num = rnd()%K;
-		//if(label[tmp].size() < m/K)//偏らないように調整
-		//{label[tmp].push_back(i);}
-		//else {i -= 1;}
-        g[*i].belongs_to_cluster = num;
-        check_flag[num] = true;
+bool check_converge_cluster(graph& g){
+    vertex_iterator i,j;
+    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+        if(!g[*i].same_previous_cluster) return false;
     }
-
-    //check
-    for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
-        if(check_flag[*itr] == false){
-            get_intial_partitions(g);
-        }
-    }
+    cout << "converge" << endl;
+    return true;
 }
+

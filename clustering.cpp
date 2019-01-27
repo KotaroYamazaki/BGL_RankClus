@@ -69,21 +69,6 @@ void clustering(graph &g, vector<graph>& subgraph){
     center_vec = vector<vector<double>>(K,vector<double>(K,0));
     vector<int> cluster_size = calc_cluster_size(g);
 
-    // for (int dim = 0; dim < K; dim++){
-    //     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-    //         for(int clusterNum = 0; clusterNum < K; clusterNum++){
-    //             if(g[*i].belongs_to_cluster == clusterNum){
-    //                 center_vec[dim][clusterNum] += s[*i][clusterNum]/cluster_size[clusterNum];
-    //             }
-    //         }
-    //         //center_vec[dim][clusterNum] /= cluster_size[clusterNum];            
-    //     }
-    //     for(int k = 0; k < K; k++){
-    //         cout << center_vec[dim][k] << " " << flush;
-    //     }
-    //     cout << endl;
-    // }
-
     for( int Xk = 0; Xk < K; Xk++){
         for(int col = 0; col < K; col++){
             for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
@@ -95,12 +80,11 @@ void clustering(graph &g, vector<graph>& subgraph){
         }
     }
     
+    // 距離を格納するリスト
     vector<vector<double> > D;
-	//比較用前のラベル
-
 	D = vector<vector<double>>(xNum,vector<double>(K,0));
-	//ラベルの初期化
         vertex_iterator m,n;
+
         for (boost::tie(m, n) = vertices(g); *m < xNum; m++) {
 		//Dの計算
 			double norms = Norm(s[*m]);
@@ -109,21 +93,21 @@ void clustering(graph &g, vector<graph>& subgraph){
 			for (int k = 0; k < K; k++){
 				double tmp = 0;
 				for (int l = 0; l < K; l++){
-                    // cout << "s[" << *m << "][" << l << "] = "<< s[*m][l] << endl;
-                    // cout << "centervec[" << k << "][" << l << "] = " << center_vec[k][l] <<endl;
 					tmp += s[*m][l] * center_vec[k][l];
 				}
-                //cout << "tmp = " << tmp <<endl;
-                //cout << endl;
-                //cout << "tmp["  << "][" << k << "]: " << tmp << endl;
                 D[*m][k] = 1.0 - (tmp/(norms * Norm(center_vec[k])));
-                //cout << "D[" << *m << "][" << k << "]: " << D[*m][k] << endl;
 		//assign
 				if(D[*m][k] < minDis){
 					minDis = D[*m][k];
 					index = k;
 				}
 			}
+
+            if(g[*m].belongs_to_cluster == index){
+                g[*m].same_previous_cluster = true;
+            }else{
+                g[*m].same_previous_cluster = false;
+            }
             g[*m].belongs_to_cluster = index;
 		}
 }

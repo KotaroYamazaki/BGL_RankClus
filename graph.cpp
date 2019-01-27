@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <random>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
@@ -89,6 +90,27 @@ graph construct_graph(){
     graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
 
     return g;
+}
+
+void get_intial_partitions(graph& g){
+    random_device rnd;
+    vertex_iterator i, j;
+    vector<bool> check_flag(K,false);
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
+		int num = rnd()%K;
+		//if(label[tmp].size() < m/K)//偏らないように調整
+		//{label[tmp].push_back(i);}
+		//else {i -= 1;}
+        g[*i].belongs_to_cluster = num;
+        check_flag[num] = true;
+    }
+
+    //check
+    for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
+        if(check_flag[*itr] == false){
+            get_intial_partitions(g);
+        }
+    }
 }
 
 vector<graph> construct_sub_graph(graph& g){

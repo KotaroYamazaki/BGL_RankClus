@@ -18,6 +18,7 @@ struct vertex_property
     double rx;
     double conditional_rank;
     int int_descriptor;
+    bool same_previous_cluster;
 };
 
 // エッジの属性値を自由に定義
