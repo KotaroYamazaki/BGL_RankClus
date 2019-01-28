@@ -14,7 +14,6 @@ vector<int> WkXY_sum;
 extern int K;
 
 vector<string> name_vector;
-//vector<string> Y_name_vector;
 vector<vector<string>> X_sub_name_vector;
 
 vector<string> split(string& input, char delimiter)
@@ -221,10 +220,6 @@ void init_graph(graph& g){
             g[*i].ry = 0;
             g[*i].name = name_vector[*i];
         }
-        // g[*i].previous_rank = 1.0/num_vertices(g);
-        // g[*i].next_rank = 1.0/num_vertices(g);
-        //g[*i].previous_rank = 0;
-        //g[*i].next_rank = 0;
         g[*i].int_descriptor = static_cast<int>(*i);
     }
 }

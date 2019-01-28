@@ -63,10 +63,6 @@ graph within_cluster_ranking(graph &g, int clusterNum){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     // ノード *i の入エッジの重み（g[*e.first].weight）と
                     // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
-                    // cout << "source rank: " << g[source(*e.first, g)].ry << endl;
-                    // cout << "source : " << source(*e.first , g) << endl;
-                    // cout <<  "target: " << target(*e.first, g) << endl;
-                    // cout << g[*e.first].weight << endl;
                     tmp += g[*e.first].weight * g[source(*e.first, g)].ry;
                 }
                 RxSum += tmp;
