@@ -17,6 +17,17 @@ vector<string> name_vector;
 //vector<string> Y_name_vector;
 vector<vector<string>> X_sub_name_vector;
 
+vector<string> split(string& input, char delimiter)
+{
+    istringstream stream(input);
+    string field;
+    vector<string> result;
+    while (getline(stream, field, delimiter)) {
+        result.push_back(field);
+    }
+    return result;
+}
+
 graph construct_graph(){
     // エッジのリスト
     vector<edge> edge_vector;
@@ -25,7 +36,7 @@ graph construct_graph(){
 
     string str, name_X, name_Y;
     string fnameWXY = "AVWeight.csv";
-    string fnameWYY = "AAWeight2.csv";
+    string fnameWYY = "AAWeight.csv";
     string file_X = "VenueListSimple.txt";
     string file_Y = "AuthorList.txt";
     
@@ -49,7 +60,12 @@ graph construct_graph(){
     int from, to, val;
     // Target type
 	while(getline(ifs_WXY, str)){
-		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
+        vector<string> strvec = split(str, ',');
+
+        from = stoi(strvec.at(0));
+        to = stoi(strvec.at(1));
+        val = stoi(strvec.at(2));
+
         struct edge_property a;
         a.label = "AtoT";
         a.weight = val;
@@ -62,9 +78,14 @@ graph construct_graph(){
         property_vector.push_back(a);
         edge_vector.push_back(edge(to, from));
 	}
+
     // Attribute Type
     while(getline(ifs_WYY,str)){
-		sscanf(str.c_str(), "%d %d %d", &from, &to, &val);
+        vector<string> strvec = split(str, ',');
+        from = stoi(strvec[0]);
+        to = stoi(strvec[1]);
+        val = stoi(strvec[2]);
+
         if(from != to){
             struct edge_property a;
             a.label = "AtoA";
