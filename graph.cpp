@@ -38,6 +38,12 @@ graph construct_graph(){
     string fnameWYY = "AAWeight.csv";
     string file_X = "VenueListSimple.txt";
     string file_Y = "AuthorList.txt";
+    // string fnameWXY = "dataset/ml-dataset/rating.csv";
+    // string file_X = "dataset/ml-dataset/movie-name.txt";
+    // string file_Y = "dataset/ml-dataset/user_name.txt";
+    // string fnameWYY = "";
+
+
     
 	ifstream ifs_WXY(fnameWXY);
     ifstream ifs_X(file_X);
@@ -113,11 +119,12 @@ graph construct_graph(){
 }
 
 void get_intial_partitions(graph& g){
-    random_device rnd;
+    //random_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
+    cout << xNum << endl;
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
-		int num = rnd()%K;
+		int num = *i%K;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
