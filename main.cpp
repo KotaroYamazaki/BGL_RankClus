@@ -43,18 +43,16 @@ int main()
             init_graph(subgraph[clusterNum]);
             within_cluster_ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
-
-            //cout << "--- cluster " << clusterNum +  1 << "----" << endl;
-            //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
-            
+            //cout << "--- cluster " << clusterNum +  1 << "----" << endl; 
         }
         print_cluster(g);
         clustering(g,subgraph);
         convflag = check_converge_cluster(g);
+        if(convflag || t == iterNum - 1)for(int clusterNum = 0; clusterNum < K; clusterNum++)print_rank_within_cluster(subgraph[clusterNum], clusterNum); 
     }
     end = chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
-    cout << " time[mic]: " << elapsed << endl;
+    cout << " time[micro]: " << elapsed << endl;
 }
 
 bool check_converge_cluster(graph& g){

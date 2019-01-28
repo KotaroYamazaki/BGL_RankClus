@@ -237,12 +237,32 @@ void print_graph_detail(graph& g){
 }
 
 void print_rank_within_cluster(graph& g, int clusterNum){
+    struct name_rank {
+			double rank;
+			string name;
+			// 最後のconstを忘れると"instantiated from here"というエラーが出てコンパイルできないので注意
+			bool operator<( const name_rank& right ) const {
+				return rank < right.rank ;
+			}
+		};
+    vector<name_rank> ranking_list;
+
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+        name_rank a;
         if(g[*i].rx > 0){
-                cout << g[*i].name << " : " << g[*i].rx << endl;
+            a.rank = g[*i].rx;
+            a.name = g[*i].name;
+            ranking_list.push_back(a);
         }
     }
+
+    sort(ranking_list.rbegin(), ranking_list.rend());
+    cout << "<Cluster = " << clusterNum + 1<< ">"<<endl;
+	for(int i = 0; i < ranking_list.size(); i++){
+    	cout << i +1 << ": " << ranking_list[i].name << " ... ["<<ranking_list[i].rank  << "]" <<endl;
+	}
+	cout << endl;
 }
 
 void print_cluster(graph& g ){
