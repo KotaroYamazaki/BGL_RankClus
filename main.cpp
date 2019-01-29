@@ -19,7 +19,7 @@ bool check_converge_cluster(graph& g);
 graph within_cluster_ranking(graph& g, int clusterNum);
 void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
-const int iterNum = 5;
+const int iterNum = 15;
 extern int xNum;
 string path;
 int K;
@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
     
     for(int t = 0; t < iterNum && convflag == false; t++){
         vector<graph> subgraph = construct_sub_graph(g);
-        cout << "=====iterNum: " << t +1  << " =======" << endl;
+        cout << "===== Iteration Number : " << t +1  << " =======" << endl;
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum]);
             within_cluster_ranking(subgraph[clusterNum], clusterNum);
