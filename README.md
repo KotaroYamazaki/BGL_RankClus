@@ -5,7 +5,8 @@ A Data Mining Algorithm in the Heterogeneous Information Network.
 * Rankclus
 
 ## Input
-We have to input a graph structure.It is read by a folder which includes following. 
+We have to input a graph structure. 
+It is read by a folder which includes following. 
 - X.txt: nodes list of target type (for clustering).
 - Y.txt: nodes list of attribute type.
 - WXY.csv: Edge between X and Y.
@@ -16,8 +17,8 @@ We have to input a graph structure.It is read by a folder which includes followi
 ## Usage
 
 ```console
-make
-./rankclus.out [File Path] [Cluster Number]
+> make
+> ./rankclus.out [File Path] [Cluster Number] [Out File]
 ```
 
 ## Algorithm

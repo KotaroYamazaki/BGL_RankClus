@@ -19,21 +19,26 @@ bool check_converge_cluster(graph& g);
 graph within_cluster_ranking(graph& g, int clusterNum);
 void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
+void write_result(vector<graph>& sub_g, string out_file);
+
 const int iterNum = 15;
 extern int xNum;
 string path;
 int K;
+string out_file;
+
 bool convflag = false;
 
 int main(int argc, char* argv[])
 {
-    if(argc != 3){
-        cout << "Error! This program needs [File Path] and [Cluster Number]" << endl;
-		cout << "Usage: " << argv[0] << "[File Path] [Cluster Number] " << endl;
+    if(argc != 4){
+        cout << "Error! This program needs [File Path] and [Cluster Number] [Out File]" << endl;
+		cout << "Usage: " << argv[0] << "[File Path] [Cluster Number] [Out File]" << endl;
 		exit(1);
 	}else{
         path = argv[1];
 		K = atoi(argv[2]);
+        out_file = argv[3];
 		if(K <= 0){
 			cout << "Error: Please enter the number of clusters is 0 or more" << endl; 
 			exit(0);
@@ -50,9 +55,10 @@ int main(int argc, char* argv[])
     get_intial_partitions(g);
     cout << "< initial cluster >" << endl;
     //print_cluster(g);
-    
-    for(int t = 0; t < iterNum && convflag == false; t++){
-        vector<graph> subgraph = construct_sub_graph(g);
+    int t;
+    vector<graph> subgraph;
+    for(t = 0; t < iterNum && convflag == false; t++){
+        subgraph = construct_sub_graph(g);
         cout << "===== Iteration Number : " << t +1  << " =======" << endl;
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum]);
@@ -67,8 +73,10 @@ int main(int argc, char* argv[])
         //print_graph_detail(g);
     }
     end = chrono::system_clock::now();
-    double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
-    cout << " time[micro]: " << elapsed << endl;
+    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+    cout << " Time[milli]: " << elapsed << endl;
+    cout << " Iteration Number: " << t << endl;
+    write_result(subgraph, out_file);
 }
 
 bool check_converge_cluster(graph& g){

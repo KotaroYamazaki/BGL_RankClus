@@ -279,16 +279,15 @@ void print_graph_detail(graph& g){
     //     }
     // }
 }
-
-void print_rank_within_cluster(graph& g, int clusterNum){
+vector<int> get_sorted_list(graph& g){
     struct name_rank {
-			double rank;
-			string name;
-			// 最後のconstを忘れると"instantiated from here"というエラーが出てコンパイルできないので注意
-			bool operator<( const name_rank& right ) const {
-				return rank < right.rank ;
-			}
-		};
+		double rank;
+		int id;
+		// 最後のconstを忘れると"instantiated from here"というエラーが出てコンパイルできないので注意
+		bool operator<( const name_rank& right ) const {
+			return rank < right.rank ;
+		}
+	};
     vector<name_rank> ranking_list;
 
     vertex_iterator i,j;
@@ -296,19 +295,28 @@ void print_rank_within_cluster(graph& g, int clusterNum){
         name_rank a;
         if(g[*i].rx > 0){
             a.rank = g[*i].rx;
-            a.name = g[*i].name;
+            a.id = *i;
             ranking_list.push_back(a);
         }
     }
-
     sort(ranking_list.rbegin(), ranking_list.rend());
-    cout << "<Cluster = " << clusterNum + 1<< "> (size: " << ranking_list.size() << ")" << endl;
+
+    vector<int> sorted_id_list;
+    for(int i = 0; i < ranking_list.size(); i++){
+        sorted_id_list.push_back(ranking_list[i].id);
+    }
+    return sorted_id_list;
+}
+void print_rank_within_cluster(graph& g, int clusterNum){
+
+    vector<int> sorted_id_list = get_sorted_list(g);
+    cout << "<Cluster = " << clusterNum + 1<< "> (size: " << sorted_id_list.size() << ")" << endl;
     //top_kがクラスタのサイズより大きかったら変更
-    int top = top_K;
-    if(top_k > ranking_list.size())top = ranking_list.size();
+    int top = top_k;
+    if(top_k > sorted_id_list.size())top = sorted_id_list.size();
 	
     for(int i = 0; i < top; i++){
-    	cout << i +1 << ": " << ranking_list[i].name << " ... ["<<ranking_list[i].rank  << "]" <<endl;
+    	cout << i +1 << ": " << g[sorted_id_list[i]].name << " ... ["<< g[sorted_id_list[i]].rx  << "]" <<endl;
 	}
 	cout << endl;
 }
@@ -327,4 +335,21 @@ void print_cluster(graph& g ){
 		}
 		cout << " }" << endl;
 	}
+}
+
+
+void write_result(vector<graph>& sub_g, string out_file){
+    fstream file;
+    file.open(out_file, ios::out);
+
+    for (int k = 0; k < K; k++){
+    vector<int> sorted_id_list = get_sorted_list(sub_g[k]);
+		file << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
+		for (int i = 0; i < sorted_id_list.size(); i++){
+			file << sub_g[k][sorted_id_list[i]].name << endl;
+		}
+        file << endl;
+	}
+    cout << "Written the result of clustering to " << out_file << endl;
+    file.close();
 }
