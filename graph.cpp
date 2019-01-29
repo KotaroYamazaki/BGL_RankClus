@@ -12,7 +12,7 @@ int yNum;
 int WXY_sum =0;
 vector<int> WkXY_sum;
 extern int K;
-const int top_k = 10;
+int top_k = 10;
 
 vector<string> name_vector;
 vector<vector<string>> X_sub_name_vector;
@@ -28,6 +28,20 @@ vector<string> split(string& input, char delimiter)
     return result;
 }
 
+ifstream read_file(string file_name){
+    ifstream ifs(file_name);
+        if(ifs.fail()){
+            if(file_name != "fnameWYY"){
+            cout << "Failed to read " << file_name  << "."<< endl;
+            exit(0);
+            }else{
+                //WYY がなくても実行できるが警告を出す。
+                cout << "Warnig: Excute with WYY file." << endl;
+            }
+        }
+    return ifs;
+}
+
 graph construct_graph(){
     // エッジのリスト
     vector<edge> edge_vector;
@@ -35,21 +49,20 @@ graph construct_graph(){
     vector<edge_property> property_vector;
 
     string str, name_X, name_Y;
-    // string fnameWXY = "AVWeight.csv";
-    // string fnameWYY = "AAWeight.csv";
-    // string file_X = "VenueListSimple.txt";
-    // string file_Y = "AuthorList.txt";
-    string fnameWXY = "dataset/ml-latest/rating.csv";
-    string file_X = "dataset/ml-latest/movie.txt";
-    string file_Y = "dataset/ml-latest/user.txt";
-    string fnameWYY = "";
+    string path = "dataset/dblp-small/";
+    string fnameWXY = path + "WXY.csv";
+    string fnameWYY = path + "WYY.csv";
+    string file_X = path + "X.txt";
+    string file_Y = path + "Y.txt";
+    // string fnameWXY = "dataset/ml-latest/rating.csv";
+    // string file_X = "dataset/ml-latest/movie.txt";
+    // string file_Y = "dataset/ml-latest/user.txt";
+    // string fnameWYY = "";
 
-
-    
-	ifstream ifs_WXY(fnameWXY);
-    ifstream ifs_X(file_X);
-    ifstream ifs_WYY(fnameWYY);
-    ifstream ifs_Y(file_Y);
+	ifstream ifs_WXY= read_file(fnameWXY);
+    ifstream ifs_X = read_file(file_X);
+    ifstream ifs_WYY = read_file(fnameWYY);
+    ifstream ifs_Y = read_file(file_Y);
 
     xNum = 0;
     while(getline(ifs_X, name_X)){
@@ -120,11 +133,11 @@ graph construct_graph(){
 }
 
 void get_intial_partitions(graph& g){
-    //random_device rnd;
+    random_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
-		int num = *i%K;
+		int num = rnd()%K;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
@@ -282,7 +295,10 @@ void print_rank_within_cluster(graph& g, int clusterNum){
 
     sort(ranking_list.rbegin(), ranking_list.rend());
     cout << "<Cluster = " << clusterNum + 1<< "> (size: " << ranking_list.size() << ")" << endl;
-	for(int i = 0; i < top_k; i++){
+    //top_kがクラスタのサイズより大きかったら変更
+    if(top_k > ranking_list.size())top_k = ranking_list.size();
+	
+    for(int i = 0; i < top_k; i++){
     	cout << i +1 << ": " << ranking_list[i].name << " ... ["<<ranking_list[i].rank  << "]" <<endl;
 	}
 	cout << endl;

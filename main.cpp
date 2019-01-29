@@ -21,7 +21,7 @@ void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
 const int iterNum = 5;
 extern int xNum;
-int K = 10;
+int K = 4;
 bool convflag = false;
 
 int main()
@@ -45,12 +45,11 @@ int main()
             conditional_ranking(g, subgraph[clusterNum]);
             //cout << "--- cluster " << clusterNum +  1 << "----" << endl; 
         }
-        //print_cluster(g);
+        print_cluster(g);
         clustering(g,subgraph);
         convflag = check_converge_cluster(g);
         if(convflag || t == iterNum - 1)for(int clusterNum = 0; clusterNum < K; clusterNum++)print_rank_within_cluster(subgraph[clusterNum], clusterNum); 
-        print_graph_detail(g);
-        cout << "xNum: " << xNum << endl;
+        //print_graph_detail(g);
     }
     end = chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
