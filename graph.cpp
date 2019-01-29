@@ -34,14 +34,14 @@ graph construct_graph(){
     vector<edge_property> property_vector;
 
     string str, name_X, name_Y;
-    string fnameWXY = "AVWeight.csv";
-    string fnameWYY = "AAWeight.csv";
-    string file_X = "VenueListSimple.txt";
-    string file_Y = "AuthorList.txt";
-    // string fnameWXY = "dataset/ml-dataset/rating.csv";
-    // string file_X = "dataset/ml-dataset/movie-name.txt";
-    // string file_Y = "dataset/ml-dataset/user_name.txt";
-    // string fnameWYY = "";
+    // string fnameWXY = "AVWeight.csv";
+    // string fnameWYY = "AAWeight.csv";
+    // string file_X = "VenueListSimple.txt";
+    // string file_Y = "AuthorList.txt";
+    string fnameWXY = "dataset/ml-latest-small-10y/rating.csv";
+    string file_X = "dataset/ml-latest-small-10y/movie.txt";
+    string file_Y = "dataset/ml-latest-small-10y/user.txt";
+    string fnameWYY = "";
 
 
     
@@ -122,7 +122,6 @@ void get_intial_partitions(graph& g){
     //random_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
-    cout << xNum << endl;
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
 		int num = *i%K;
 		//if(label[tmp].size() < m/K)//偏らないように調整
@@ -281,8 +280,9 @@ void print_rank_within_cluster(graph& g, int clusterNum){
     }
 
     sort(ranking_list.rbegin(), ranking_list.rend());
-    cout << "<Cluster = " << clusterNum + 1<< ">"<<endl;
-	for(int i = 0; i < ranking_list.size(); i++){
+    cout << "<Cluster = " << clusterNum + 1<< "> (size: " << ranking_list.size() << ")" << endl;
+    int top_k = 15;
+	for(int i = 0; i < top_k; i++){
     	cout << i +1 << ": " << ranking_list[i].name << " ... ["<<ranking_list[i].rank  << "]" <<endl;
 	}
 	cout << endl;

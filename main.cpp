@@ -21,7 +21,7 @@ void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
 const int iterNum = 5;
 extern int xNum;
-int K = 4;
+int K = 20;
 bool convflag = false;
 
 int main()
@@ -34,7 +34,7 @@ int main()
     init_graph(g);
     get_intial_partitions(g);
     cout << "< initial cluster >" << endl;
-    print_cluster(g);
+    //print_cluster(g);
     
     for(int t = 0; t < iterNum && convflag == false; t++){
         vector<graph> subgraph = construct_sub_graph(g);
@@ -45,7 +45,7 @@ int main()
             conditional_ranking(g, subgraph[clusterNum]);
             //cout << "--- cluster " << clusterNum +  1 << "----" << endl; 
         }
-        print_cluster(g);
+        //print_cluster(g);
         clustering(g,subgraph);
         convflag = check_converge_cluster(g);
         if(convflag || t == iterNum - 1)for(int clusterNum = 0; clusterNum < K; clusterNum++)print_rank_within_cluster(subgraph[clusterNum], clusterNum); 
