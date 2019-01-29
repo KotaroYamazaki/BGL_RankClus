@@ -29,19 +29,19 @@ vector<string> split(string& input, char delimiter)
     return result;
 }
 
-ifstream read_file(string file_name){
-    ifstream ifs(file_name);
-        if(ifs.fail()){
-            if(file_name != (path + "WYY.csv")){
-            cout << "Failed to read " << file_name  << "."<< endl;
-            exit(0);
-            }else{
-                //WYY がなくても実行できるが警告を出す。
-                cout << "Warnig: Excute with WYY file." << endl;
-            }
-        }
-    return ifs;
-}
+// ifstream read_file(string file_name){
+//     ifstream ifs(file_name);
+//         if(ifs.fail()){
+//             if(file_name != (path + "WYY.csv")){
+//             cout << "Failed to read " << file_name  << "."<< endl;
+//             //exit(0);
+//             }else{
+//                 //WYY がなくても実行できるが警告を出す。
+//                 cout << "Warnig: Excute with WYY file." << endl;
+//             }
+//         }
+//     return ifs;
+// }
 
 graph construct_graph(){
     // エッジのリスト
@@ -55,10 +55,15 @@ graph construct_graph(){
     string file_X = path + "X.txt";
     string file_Y = path + "Y.txt";
     
-	ifstream ifs_WXY= read_file(fnameWXY);
-    ifstream ifs_X = read_file(file_X);
-    ifstream ifs_WYY = read_file(fnameWYY);
-    ifstream ifs_Y = read_file(file_Y);
+	// ifstream ifs_WXY= read_file(fnameWXY);
+    // ifstream ifs_X = read_file(file_X);
+    // ifstream ifs_WYY = read_file(fnameWYY);
+    // ifstream ifs_Y = read_file(file_Y);
+    ifstream ifs_WXY(fnameWXY);
+    ifstream ifs_X(file_X);
+    ifstream ifs_WYY(fnameWYY);
+    ifstream ifs_Y(file_Y);
+    
 
     xNum = 0;
     while(getline(ifs_X, name_X)){

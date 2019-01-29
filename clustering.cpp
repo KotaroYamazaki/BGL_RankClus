@@ -37,7 +37,6 @@ void clustering(graph &g, vector<graph>& subgraph){
     }
 
     for(int z = 0; z < K; z++){
-        
         double tmp_p = 0;
         for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -118,4 +117,3 @@ void clustering(graph &g, vector<graph>& subgraph){
         exit(0);
     }
 }
-

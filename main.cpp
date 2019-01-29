@@ -45,7 +45,6 @@ int main(int argc, char* argv[])
 		}
 	}
 
-
     chrono::system_clock::time_point start, end;
     start = chrono::system_clock::now();
     // グラフの構築
@@ -64,7 +63,6 @@ int main(int argc, char* argv[])
             init_graph(subgraph[clusterNum]);
             within_cluster_ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
-            //cout << "--- cluster " << clusterNum +  1 << "----" << endl; 
         }
         //print_cluster(g);
         clustering(g,subgraph);
@@ -87,4 +85,3 @@ bool check_converge_cluster(graph& g){
     cout << "converge" << endl;
     return true;
 }
-

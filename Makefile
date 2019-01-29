@@ -3,7 +3,7 @@ PROGRAM = rankclus.out
 OBJS = main.o ranking.o graph.o clustering.o
 OPTIMIZE = -O2
 #define macro
-CXX = clang++
+CXX = g++
 CXXFLAG = $(OPTIMIZE) -std=c++11
 
 all:real
