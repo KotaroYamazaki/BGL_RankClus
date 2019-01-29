@@ -13,6 +13,7 @@ int WXY_sum =0;
 vector<int> WkXY_sum;
 extern int K;
 int top_k = 10;
+extern string path;
 
 vector<string> name_vector;
 vector<vector<string>> X_sub_name_vector;
@@ -31,7 +32,7 @@ vector<string> split(string& input, char delimiter)
 ifstream read_file(string file_name){
     ifstream ifs(file_name);
         if(ifs.fail()){
-            if(file_name != "fnameWYY"){
+            if(file_name != (path + "WYY.csv")){
             cout << "Failed to read " << file_name  << "."<< endl;
             exit(0);
             }else{
@@ -49,7 +50,6 @@ graph construct_graph(){
     vector<edge_property> property_vector;
 
     string str, name_X, name_Y;
-    string path = "dataset/dblp-small/";
     string fnameWXY = path + "WXY.csv";
     string fnameWYY = path + "WYY.csv";
     string file_X = path + "X.txt";
