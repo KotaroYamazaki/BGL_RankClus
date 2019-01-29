@@ -12,6 +12,7 @@ int yNum;
 int WXY_sum =0;
 vector<int> WkXY_sum;
 extern int K;
+const int top_k = 10;
 
 vector<string> name_vector;
 vector<vector<string>> X_sub_name_vector;
@@ -38,9 +39,9 @@ graph construct_graph(){
     // string fnameWYY = "AAWeight.csv";
     // string file_X = "VenueListSimple.txt";
     // string file_Y = "AuthorList.txt";
-    string fnameWXY = "dataset/ml-latest-small-10y/rating.csv";
-    string file_X = "dataset/ml-latest-small-10y/movie.txt";
-    string file_Y = "dataset/ml-latest-small-10y/user.txt";
+    string fnameWXY = "dataset/ml-latest/rating.csv";
+    string file_X = "dataset/ml-latest/movie.txt";
+    string file_Y = "dataset/ml-latest/user.txt";
     string fnameWYY = "";
 
 
@@ -234,28 +235,28 @@ void print_graph_detail(graph& g){
     cout << "# vertices: " << num_vertices(g) << endl;
     cout << "# edges   : " << num_edges(g) << endl;
 
-    vertex_iterator i, j;
-    cout << " --- adjacent vertices --- " << endl;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        cout <<  *i << " --> " << flush;
-        // adjacent_vertices(vertex_descriptor, graph) で隣接ノードを取得できる
-        for (auto itr = adjacent_vertices(*i, g); itr.first!=itr.second; itr.first++) {
-            cout << *itr.first << ", " << flush;
-        }
-        cout << endl;
-    }
+    // vertex_iterator i, j;
+    // cout << " --- adjacent vertices --- " << endl;
+    // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+    //     cout <<  *i << " --> " << flush;
+    //     // adjacent_vertices(vertex_descriptor, graph) で隣接ノードを取得できる
+    //     for (auto itr = adjacent_vertices(*i, g); itr.first!=itr.second; itr.first++) {
+    //         cout << *itr.first << ", " << flush;
+    //     }
+    //     cout << endl;
+    // }
 
 
-    // out_edges(vertex_descriptor, graph) でノードの出エッジが取得できる
-    cout << " --- edges --- " << endl;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-            // target(edge_descriptor, graph) でエッジの先のノードを取得できる
-            // out_edges() ではなく、in_edges() の場合は source() でエッジの元のノードを取得できる
-            // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
-            cout << *i << " --> " << target(*e.first, g) << ": " << g[*e.first].weight << " (" << g[*e.first].label << ")" << endl;
-        }
-    }
+    // // out_edges(vertex_descriptor, graph) でノードの出エッジが取得できる
+    // cout << " --- edges --- " << endl;
+    // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+    //     for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+    //         // target(edge_descriptor, graph) でエッジの先のノードを取得できる
+    //         // out_edges() ではなく、in_edges() の場合は source() でエッジの元のノードを取得できる
+    //         // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
+    //         cout << *i << " --> " << target(*e.first, g) << ": " << g[*e.first].weight << " (" << g[*e.first].label << ")" << endl;
+    //     }
+    // }
 }
 
 void print_rank_within_cluster(graph& g, int clusterNum){
@@ -281,7 +282,6 @@ void print_rank_within_cluster(graph& g, int clusterNum){
 
     sort(ranking_list.rbegin(), ranking_list.rend());
     cout << "<Cluster = " << clusterNum + 1<< "> (size: " << ranking_list.size() << ")" << endl;
-    int top_k = 15;
 	for(int i = 0; i < top_k; i++){
     	cout << i +1 << ": " << ranking_list[i].name << " ... ["<<ranking_list[i].rank  << "]" <<endl;
 	}
