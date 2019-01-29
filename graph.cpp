@@ -344,17 +344,23 @@ void print_cluster(graph& g ){
 
 
 void write_result(vector<graph>& sub_g, string out_file){
-    fstream file;
-    file.open(out_file, ios::out);
+    fstream file,file2;
+    file.open("result_clutsering_" + out_file, ios::out);
+    file2.open("result_ranking_" + out_file, ios::out);
+
 
     for (int k = 0; k < K; k++){
     vector<int> sorted_id_list = get_sorted_list(sub_g[k]);
 		file << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
+        file2 << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
 		for (int i = 0; i < sorted_id_list.size(); i++){
 			file << sub_g[k][sorted_id_list[i]].name << endl;
+            file2 << i + 1 << ": " << sub_g[k][sorted_id_list[i]].name << " ... ["<< sub_g[k][sorted_id_list[i]].rx  << "]" <<endl;
 		}
         file << endl;
+        file2 << endl;
 	}
-    cout << "Written the result of clustering to " << out_file << endl;
+    cout << "==== Written the result of clustering to " << out_file << " === " <<  endl;
     file.close();
+    file2.close();
 }
