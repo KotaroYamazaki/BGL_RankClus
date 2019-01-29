@@ -304,9 +304,10 @@ void print_rank_within_cluster(graph& g, int clusterNum){
     sort(ranking_list.rbegin(), ranking_list.rend());
     cout << "<Cluster = " << clusterNum + 1<< "> (size: " << ranking_list.size() << ")" << endl;
     //top_kがクラスタのサイズより大きかったら変更
-    if(top_k > ranking_list.size())top_k = ranking_list.size();
+    int top = top_K;
+    if(top_k > ranking_list.size())top = ranking_list.size();
 	
-    for(int i = 0; i < top_k; i++){
+    for(int i = 0; i < top; i++){
     	cout << i +1 << ": " << ranking_list[i].name << " ... ["<<ranking_list[i].rank  << "]" <<endl;
 	}
 	cout << endl;
