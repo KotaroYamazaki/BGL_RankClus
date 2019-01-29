@@ -9,6 +9,7 @@ extern vector<int> WkXY_sum;
 extern int K;
 extern int WXY_sum;
 extern int xNum;
+bool has_empty_cluster(graph& g);
 
 vector<int> calc_cluster_size(graph& g){
     vector<int> size(K,0);
@@ -112,5 +113,9 @@ void clustering(graph &g, vector<graph>& subgraph){
             }
             g[*m].belongs_to_cluster = index;
 		}
+    if(has_empty_cluster(g)){
+        cout << "Cluster became empty , you have to run the program again." << endl;
+        exit(0);
+    }
 }
 

@@ -21,7 +21,7 @@ void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
 const int iterNum = 5;
 extern int xNum;
-int K = 4;
+int K = 10;
 bool convflag = false;
 
 int main()

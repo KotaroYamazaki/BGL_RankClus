@@ -54,11 +54,7 @@ graph construct_graph(){
     string fnameWYY = path + "WYY.csv";
     string file_X = path + "X.txt";
     string file_Y = path + "Y.txt";
-    // string fnameWXY = "dataset/ml-latest/rating.csv";
-    // string file_X = "dataset/ml-latest/movie.txt";
-    // string file_Y = "dataset/ml-latest/user.txt";
-    // string fnameWYY = "";
-
+    
 	ifstream ifs_WXY= read_file(fnameWXY);
     ifstream ifs_X = read_file(file_X);
     ifstream ifs_WYY = read_file(fnameWYY);
@@ -151,6 +147,18 @@ void get_intial_partitions(graph& g){
             get_intial_partitions(g);
         }
     }
+}
+
+bool has_empty_cluster(graph& g){
+    vector<bool> check_flag(K,false);
+    vertex_iterator i, j;
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
+        check_flag[g[*i].belongs_to_cluster] = true;
+    }
+    for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
+        if(check_flag[*itr] == false) return true;
+    }
+    return false;
 }
 
 vector<graph> construct_sub_graph(graph& g){
