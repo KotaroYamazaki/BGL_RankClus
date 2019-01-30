@@ -27,6 +27,8 @@ string path;
 int K;
 string out_file;
 
+vector<vector<int>> cluster_label;
+
 bool convflag = false;
 
 int main(int argc, char* argv[])
@@ -38,6 +40,7 @@ int main(int argc, char* argv[])
 	}else{
         path = argv[1];
 		K = atoi(argv[2]);
+        cluster_label = vector<vector<int>> (K);
         out_file = argv[3];
 		if(K <= 0){
 			cout << "Error: Please enter the number of clusters is 0 or more" << endl; 

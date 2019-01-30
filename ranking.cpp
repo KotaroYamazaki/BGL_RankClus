@@ -8,7 +8,7 @@ using namespace std;
 extern vector<int> WkXY_sum;
 extern int xNum;
 const double alpha = 0.95;
-const int rankiter = 10;
+const int rankiter = 15;
 
 void conditional_ranking(graph& g, graph& subgraph){
     vertex_iterator i,j;

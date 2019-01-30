@@ -10,15 +10,7 @@ extern int K;
 extern int WXY_sum;
 extern int xNum;
 bool has_empty_cluster(graph& g);
-
-vector<int> calc_cluster_size(graph& g){
-    vector<int> size(K,0);
-    vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-        size[g[*i].belongs_to_cluster] += 1;
-    }
-    return size;
-}
+extern vector<vector<int>> cluster_label;
 
 double Norm(vector<double>& array ){
 	double Sum = 0;
@@ -69,16 +61,16 @@ void clustering(graph &g, vector<graph>& subgraph){
     
     vector<vector<double>> center_vec;
     center_vec = vector<vector<double>>(K,vector<double>(K,0));
-    vector<int> cluster_size = calc_cluster_size(g);
 
     for( int Xk = 0; Xk < K; Xk++){
+        int cluster_size = cluster_label[Xk].size();
         for(int col = 0; col < K; col++){
             for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
                 if(g[*i].belongs_to_cluster == Xk){
                     center_vec[Xk][col] += s[*i][col];
                 }
             }
-            center_vec[Xk][col] /= cluster_size[Xk];
+            center_vec[Xk][col] /= cluster_size;
         }
     }
     

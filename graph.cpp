@@ -14,6 +14,7 @@ vector<int> WkXY_sum;
 extern int K;
 int top_k = 10;
 extern string path;
+extern vector<vector<int>> cluster_label;
 
 vector<string> name_vector;
 vector<vector<string>> X_sub_name_vector;
@@ -143,9 +144,9 @@ void get_intial_partitions(graph& g){
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
         g[*i].belongs_to_cluster = num;
+        cluster_label[num].push_back(*i);
         check_flag[num] = true;
     }
-
     //check
     for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
         if(check_flag[*itr] == false){
