@@ -345,19 +345,23 @@ void print_cluster(graph& g ){
 
 
 void write_result(vector<graph>& sub_g, string out_file){
-    fstream file,file2;
+    fstream file, file2, file3;
     file.open("result_clutsering_" + out_file, ios::out);
     file2.open("result_ranking_" + out_file, ios::out);
-
+    file3.open("result_clustering_id_" + out_file, ios::out);
 
     for (int k = 0; k < K; k++){
     vector<int> sorted_id_list = get_sorted_list(sub_g[k]);
 		file << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
         file2 << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
+        file3 << "cluster_label[" << k << "] = {" << flush; 
 		for (int i = 0; i < sorted_id_list.size(); i++){
 			file << sub_g[k][sorted_id_list[i]].name << endl;
             file2 << i + 1 << ": " << sub_g[k][sorted_id_list[i]].name << " ... ["<< sub_g[k][sorted_id_list[i]].rx  << "]" <<endl;
+            file3 << sorted_id_list[i] << flush;
+            if(i != sorted_id_list.size()-1)file3 << ", "<< flush;
 		}
+        file3 << " }" << endl;
         file << endl;
         file2 << endl;
 	}
