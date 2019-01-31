@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <a>
+#include <random>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
@@ -357,7 +357,7 @@ void print_cluster(graph& g ){
 
 
 void write_result(vector<graph>& sub_g, string out_file){
-    fstream file, file2, file3;
+    fstream file1, file2, file3;
     file1.open("result_clutsering_" + out_file, ios::out);
     file2.open("result_ranking_" + out_file, ios::out);
     file3.open("result_clustering_id_" + out_file, ios::out);
@@ -373,9 +373,9 @@ void write_result(vector<graph>& sub_g, string out_file){
             file3 << sorted_id_list[i] << flush;
             if(i != sorted_id_list.size()-1)file3 << ", "<< flush;
 		}
-        file3 << " }" << endl;
-        file << endl;
+        file1 << endl;
         file2 << endl;
+        file3 << " }" << endl;
 	}
     cout << "==== Written the result of clustering to " << out_file << " === " <<  endl;
     file1.close();

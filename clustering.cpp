@@ -77,33 +77,38 @@ void clustering(graph &g, vector<graph>& subgraph){
     // 距離を格納するリスト
     vector<vector<double> > D;
 	D = vector<vector<double>>(xNum,vector<double>(K,0));
-        vertex_iterator m,n;
+    vertex_iterator m,n;
 
-        for (boost::tie(m, n) = vertices(g); *m < xNum; m++) {
-		//Dの計算
-			double norms = Norm(s[*m]);
-			int index = 0;
-			double minDis = 1;
-			for (int k = 0; k < K; k++){
-				double tmp = 0;
-				for (int l = 0; l < K; l++){
-					tmp += s[*m][l] * center_vec[k][l];
-				}
-                D[*m][k] = 1.0 - (tmp/(norms * Norm(center_vec[k])));
-		//assign
-				if(D[*m][k] < minDis){
-					minDis = D[*m][k];
-					index = k;
-				}
-			}
-
-            if(g[*m].belongs_to_cluster == index){
-                g[*m].same_previous_cluster = true;
-            }else{
-                g[*m].same_previous_cluster = false;
+    vector<vector<int>> new_cluster_label(K);
+        
+    for (boost::tie(m, n) = vertices(g); *m < xNum; m++) {
+    //Dの計算
+        double norms = Norm(s[*m]);
+        int index = 0;
+        double minDis = 1;
+        for (int k = 0; k < K; k++){
+            double tmp = 0;
+            for (int l = 0; l < K; l++){
+                tmp += s[*m][l] * center_vec[k][l];
             }
-            g[*m].belongs_to_cluster = index;
-		}
+            D[*m][k] = 1.0 - (tmp/(norms * Norm(center_vec[k])));
+    //assign
+            if(D[*m][k] < minDis){
+                minDis = D[*m][k];
+                index = k;
+            }
+        }
+
+        if(g[*m].belongs_to_cluster == index){
+            g[*m].same_previous_cluster = true;
+        }else{
+            g[*m].same_previous_cluster = false;
+        }
+        g[*m].belongs_to_cluster = index;
+        new_cluster_label[index].push_back(*m);
+    }
+    cluster_label = new_cluster_label;
+
     if(has_empty_cluster(g)){
         cout << "Cluster became empty , you have to run the program again." << endl;
         exit(0);
