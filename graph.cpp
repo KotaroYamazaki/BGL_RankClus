@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <random>
+#include <a>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
@@ -51,15 +51,32 @@ graph construct_graph(){
     vector<edge_property> property_vector;
 
     string str, name_X, name_Y;
-    string fnameWXY = path + "WXY.csv";
-    string fnameWYY = path + "WYY.csv";
+    string file_WXY = path + "WXY.csv";
+    string file_WYY = path + "WYY.csv";
     string file_X = path + "X.txt";
     string file_Y = path + "Y.txt";
 
-    ifstream ifs_WXY(fnameWXY);
+    ifstream ifs_WXY(file_WXY);
     ifstream ifs_X(file_X);
-    ifstream ifs_WYY(fnameWYY);
+    ifstream ifs_WYY(file_WYY);
     ifstream ifs_Y(file_Y);
+
+    if(ifs_X.fail()){
+            cout << "Error! Failed to read " << file_X  << "."<< endl;
+            exit(0);
+    }
+    if(ifs_Y.fail()){
+            cout << "Error! Failed to read " << file_Y  << "."<< endl;
+            exit(0);
+    }
+    if(ifs_WXY.fail()){
+            cout << "Error! Failed to read " << file_WXY  << "."<< endl;
+            exit(0);
+    }
+    if(ifs_WYY.fail()){
+            cout << "Warning: Excute RankClus without WYY file:" << file_Y  << "."<< endl;
+    }
+
     
 
     xNum = 0;
@@ -129,11 +146,11 @@ graph construct_graph(){
 }
 
 void get_intial_partitions(graph& g){
-    random_device rnd;
+    //a_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
     for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
-		int num = rnd()%K;
+		int num = *i % K;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
@@ -277,8 +294,9 @@ void print_graph_detail(graph& g){
             // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
             cout << *i << " --> " << target(*e.first, g) << ": " << g[*e.first].weight << " (" << g[*e.first].label << ")" << endl;
         }
-    // }
+    }
 }
+
 vector<int> get_sorted_list(graph& g){
     struct name_rank {
 		double rank;
@@ -340,17 +358,17 @@ void print_cluster(graph& g ){
 
 void write_result(vector<graph>& sub_g, string out_file){
     fstream file, file2, file3;
-    file.open("result_clutsering_" + out_file, ios::out);
+    file1.open("result_clutsering_" + out_file, ios::out);
     file2.open("result_ranking_" + out_file, ios::out);
     file3.open("result_clustering_id_" + out_file, ios::out);
 
     for (int k = 0; k < K; k++){
     vector<int> sorted_id_list = get_sorted_list(sub_g[k]);
-		file << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
+		file1 << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
         file2 << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
         file3 << "cluster_label[" << k << "] = {" << flush; 
 		for (int i = 0; i < sorted_id_list.size(); i++){
-			file << sub_g[k][sorted_id_list[i]].name << endl;
+			file1 << sub_g[k][sorted_id_list[i]].name << endl;
             file2 << i + 1 << ": " << sub_g[k][sorted_id_list[i]].name << " ... ["<< sub_g[k][sorted_id_list[i]].rx  << "]" <<endl;
             file3 << sorted_id_list[i] << flush;
             if(i != sorted_id_list.size()-1)file3 << ", "<< flush;
@@ -360,6 +378,7 @@ void write_result(vector<graph>& sub_g, string out_file){
         file2 << endl;
 	}
     cout << "==== Written the result of clustering to " << out_file << " === " <<  endl;
-    file.close();
+    file1.close();
     file2.close();
+    file3.close();
 }
