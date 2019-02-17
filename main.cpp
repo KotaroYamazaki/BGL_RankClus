@@ -64,8 +64,6 @@ int main(int argc, char* argv[])
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum]);
             ranking(g, subgraph[clusterNum], clusterNum);
-            //within_cluster_ranking(subgraph[clusterNum], clusterNum);
-            //conditional_ranking(g, subgraph[clusterNum]);
         }
         //print_cluster(g);
         clustering(g,subgraph);
