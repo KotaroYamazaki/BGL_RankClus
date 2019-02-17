@@ -10,33 +10,30 @@ extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 15;
 
-void within_cluster_ranking(graph& g, int clusterNum);
-void conditional_ranking(graph& g, graph& subgraph);
+void authority_ranking(graph& g, int clusterNum);
 
-
-void ranking(graph &g, graph& subgraph, int clusterNum){
-    within_cluster_ranking(subgraph, clusterNum);
-    conditional_ranking(g, subgraph);
+void ranking(graph& subgraph, int clusterNum){
+    authority_ranking(subgraph, clusterNum);
 }
 
-void conditional_ranking(graph& g, graph& subgraph){
-    vertex_iterator i,j;
-    double ranksum = 0;
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-        double tmp = 0;
-        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-             tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
-        }
-        subgraph[*i].conditional_rank = tmp;
-        ranksum += tmp;
-    }
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-        subgraph[*i].conditional_rank /= ranksum;
-    }
-}
+// void conditional_ranking(graph& g, graph& subgraph){
+//     vertex_iterator i,j;
+//     double ranksum = 0;
+//     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+//         double tmp = 0;
+//         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+//              tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
+//         }
+//         subgraph[*i].conditional_rank = tmp;
+//         ranksum += tmp;
+//     }
+//     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+//         subgraph[*i].conditional_rank /= ranksum;
+//     }
+// }
 
 // 行列ベクトル積
-void within_cluster_ranking(graph &g, int clusterNum){
+void authority_ranking(graph& g, int clusterNum){
     vertex_iterator i, j;
     //iterator を用いて最初のiterから最後まで回す
 

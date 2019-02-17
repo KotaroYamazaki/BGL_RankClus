@@ -16,7 +16,8 @@ void print_rank_within_cluster(graph& g, int clusterNum);
 void print_cluster(graph &g);
 void clustering(graph& g, vector<graph>& subgraph);
 bool check_converge_cluster(graph& g);
-void ranking(graph &g, graph& subgraph, int clusterNum);
+void ranking(graph& subgraph, int clusterNum);
+void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
 void write_result(vector<graph>& sub_g, string out_file);
 
@@ -25,7 +26,6 @@ extern int xNum;
 string path;
 int K;
 string out_file;
-
 vector<vector<int>> cluster_label;
 
 bool convflag = false;
@@ -63,7 +63,8 @@ int main(int argc, char* argv[])
         cout << "===== Iteration Number : " << t +1  << " =======" << endl;
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum]);
-            ranking(g, subgraph[clusterNum], clusterNum);
+            ranking(subgraph[clusterNum], clusterNum);
+            conditional_ranking(g, subgraph[clusterNum]);
         }
         //print_cluster(g);
         clustering(g,subgraph);
@@ -85,4 +86,20 @@ bool check_converge_cluster(graph& g){
     }
     cout << "converge" << endl;
     return true;
+}
+
+void conditional_ranking(graph& g, graph& subgraph){
+    vertex_iterator i,j;
+    double ranksum = 0;
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+        double tmp = 0;
+        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+             tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
+        }
+        subgraph[*i].conditional_rank = tmp;
+        ranksum += tmp;
+    }
+    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+        subgraph[*i].conditional_rank /= ranksum;
+    }
 }
