@@ -16,8 +16,7 @@ void print_rank_within_cluster(graph& g, int clusterNum);
 void print_cluster(graph &g);
 void clustering(graph& g, vector<graph>& subgraph);
 bool check_converge_cluster(graph& g);
-graph within_cluster_ranking(graph& g, int clusterNum);
-void conditional_ranking(graph& g, graph& subgraph);
+void ranking(graph &g, graph& subgraph, int clusterNum);
 void get_intial_partitions(graph& g);
 void write_result(vector<graph>& sub_g, string out_file);
 
@@ -64,8 +63,9 @@ int main(int argc, char* argv[])
         cout << "===== Iteration Number : " << t +1  << " =======" << endl;
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum]);
-            within_cluster_ranking(subgraph[clusterNum], clusterNum);
-            conditional_ranking(g, subgraph[clusterNum]);
+            ranking(g, subgraph[clusterNum], clusterNum);
+            //within_cluster_ranking(subgraph[clusterNum], clusterNum);
+            //conditional_ranking(g, subgraph[clusterNum]);
         }
         //print_cluster(g);
         clustering(g,subgraph);

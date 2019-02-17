@@ -10,6 +10,15 @@ extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 15;
 
+void within_cluster_ranking(graph& g, int clusterNum);
+void conditional_ranking(graph& g, graph& subgraph);
+
+
+void ranking(graph &g, graph& subgraph, int clusterNum){
+    within_cluster_ranking(subgraph, clusterNum);
+    conditional_ranking(g, subgraph);
+}
+
 void conditional_ranking(graph& g, graph& subgraph){
     vertex_iterator i,j;
     double ranksum = 0;
@@ -27,7 +36,7 @@ void conditional_ranking(graph& g, graph& subgraph){
 }
 
 // 行列ベクトル積
-graph within_cluster_ranking(graph &g, int clusterNum){
+void within_cluster_ranking(graph &g, int clusterNum){
     vertex_iterator i, j;
     //iterator を用いて最初のiterから最後まで回す
 
@@ -90,7 +99,6 @@ graph within_cluster_ranking(graph &g, int clusterNum){
             }
         }
     }
-    return g;
 }
 
 
