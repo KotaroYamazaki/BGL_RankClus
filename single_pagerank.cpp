@@ -3,7 +3,6 @@
 #include <vector>
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
-//#include <boost/graph/graph_utility.hpp>
 #include "graph.hpp"
 using namespace std;
 extern vector<int> WkXY_sum;
@@ -35,72 +34,26 @@ void ranking(graph& subgraph, int clusterNum){
         single_pagerank(subgraph, clusterNum);
         pre_graph.push_back(subgraph);
     }else{
-       // subgraph = normalize_weight(subgraph, clusterNum);
+        // subgraph = normalize_weight(subgraph, clusterNum);
         gauss_southwell(subgraph, clusterNum);
         pre_graph[clusterNum] = subgraph;
     }
-//    // authority_ranking(subgraph, clusterNum);
-
-//     pre_graph[clusterNum] = subgraph;
 }
 
 //vector<double> calc_residual(grap)
 void gauss_southwell(graph& g, int clusterNum){
-    //vector<double> pre_rank;
-    //vector<double> pre_res;
-    
     init_residual(g, clusterNum);
 
     for(int v = 0; v < 20000; v++){
-        //if(v == 0)pre_rank = init_rank(pre_graph[clusterNum]);
-        //cout << "init rank done" << endl;
-        //pick the largest r_i
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
-        //cout << " max done" << endl;
         int max_index = distance(residual[clusterNum].begin(), max_itr);
-        //cout << v << ": [" << max_index << "] = " << *max_itr  << " " <<residual[clusterNum][max_index] << endl;
         double r_i = residual[clusterNum][max_index];
 
-
-        cout << v << ": [" << max_index << "]" << r_i << endl;
-        //for(int i = 0; i < 50 ; i++)cout << residual[clusterNum][i] << endl;
-        
         if(r_i < epsi){
             cout << "converge at " << v << endl;
             break;
         }
 
-        //vertex_iterator i,j;
-        // double RxSum = 0;
-        // double RySum = 0;
-
-
-        //局所的に更新する
-        // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        //     if(*i < xNum){
-        //         g[*i].rx = pre_rank[*i];
-        //         if(v > 0)residual[clusterNum][*i] = pre_res[*i];
-        //         if(*i == *max_index){
-        //             g[*i].rx += r_i;
-        //             residual[clusterNum][*i] -= r_i; 
-        //         }
-        //         pre_rank[*i] = g[*i].rx;
-        //         RxSum += pre_rank[*i];
-        //     }else{
-        //         g[*i].ry = pre_rank[*i];
-        //         if(*i == *max_index){
-        //             g[*i].ry += r_i;
-        //             residual[clusterNum][*i] -= r_i; 
-        //         }
-        //         pre_rank[*i] = g[*i].ry;
-        //         RySum += pre_rank[*i];
-        //     }
-        //     //cout << " udate done" << endl;
-        //     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-        //             if(source(*e.first, g) == *max_index)residual[clusterNum][*i] += g[*e.first].weight/WkXY_sum[clusterNum] * r_i;
-        //         }
-        // }
-        //if(v > 0)residual[clusterNum] = pre_res;
         if(max_index < xNum){
             g[max_index].rx += r_i;
         }else{
@@ -130,19 +83,6 @@ void gauss_southwell(graph& g, int clusterNum){
     }
 }
 
-vector<double> init_rank(graph& g){
-    vertex_iterator i,j;
-    vector<double> r;
-
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        if(*i < xNum){
-            r.push_back(g[*i].rx);
-        }else{
-            r.push_back(g[*i].ry);
-        }
-    }
-    return r;
-}
 
 bool is_reachable(vertex_descriptor s, vertex_descriptor t, graph& g ){
     for (auto e = in_edges(s, g); e.first!=e.second; e.first++) {
@@ -151,15 +91,6 @@ bool is_reachable(vertex_descriptor s, vertex_descriptor t, graph& g ){
     return false;
 }
 
-graph normalize_weight(graph& g, int clusterNum){
-    vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-            g[*e.first].weight /= WkXY_sum[clusterNum];
-        }
-    }
-    return g;
-}
 
 void init_residual(graph& g, int clusterNum){
     vertex_iterator i,j;
@@ -176,12 +107,8 @@ void init_residual(graph& g, int clusterNum){
                     //double pre_weight;
                     //std::vector<boost::default_color_type> color(vertices(g), boost::white_color);
                     if(!is_reachable(*i, source(*e.first, g), pre_graph[clusterNum])){
-                        //pre_weight = g[*e.first].weight;
-                        //tmp += (g[*e.first].weight - pre_weight) * pre_graph[clusterNum][source(*e.first, g)].ry;
                         tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
                     }
-                    //else pre_weight = 0;
-                    //tmp += (g[*e.first].weight - pre_graph[clusterNum][*e.first].weight) * pre_graph[clusterNum][source(*e.first, g)].ry;
             }
             residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
         }else{
