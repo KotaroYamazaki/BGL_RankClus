@@ -67,15 +67,15 @@ int main(int argc, char* argv[])
             ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
         }
-        //print_cluster(g);
+        print_cluster(g);
         clustering(g,subgraph);
         convflag = check_converge_cluster(g);
-        if(convflag || t == iterNum - 1)for(int clusterNum = 0; clusterNum < K; clusterNum++)print_rank_within_cluster(subgraph[clusterNum], clusterNum); 
+        //if(convflag || t == iterNum - 1)for(int clusterNum = 0; clusterNum < K; clusterNum++)print_rank_within_cluster(subgraph[clusterNum], clusterNum); 
         //print_graph_detail(g);
     }
     end = chrono::system_clock::now();
-    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
-    cout << " Time[milli]: " << elapsed << endl;
+    double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+    cout << " Time[micro]: " << elapsed << endl;
     cout << " Iteration Number: " << t << endl;
     write_result(subgraph, out_file);
 }
