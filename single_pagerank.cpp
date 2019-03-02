@@ -17,7 +17,6 @@ vector<graph> pre_graph;
 vector<vector<double>> residual;
 vector<vector<double>> pre_residual;
 void gauss_southwell(graph& g, int clusterNum);
-graph normalize_weight(graph& subgraph, int clusterNum);
 
 const double epsi = 0.000001;
 
@@ -46,7 +45,10 @@ void gauss_southwell(graph& g, int clusterNum){
 
     for(int v = 0; v < 20000; v++){
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
-        int max_index = distance(residual[clusterNum].begin(), max_itr);
+        //vertex_iterator m;
+        //m = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
+        //*m = distance(residual[clusterNum].begin(), max_itr);
+        unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
 
         if(r_i < epsi){
@@ -62,15 +64,13 @@ void gauss_southwell(graph& g, int clusterNum){
         residual[clusterNum][max_index] -= r_i; 
 
         vertex_iterator i,j;
-        for(boost::tie(i, j) = vertices(g); *i != max_index; i++){
-            if(*i == max_index){
-                for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
                     residual[clusterNum][max_index] += g[*e.first].weight * r_i;
                 }
-            }
-        }
+        //     }
+        // }
 
-       // pre_res = residual[clusterNum];
+        // pre_res = residual[clusterNum];
 
         // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         //     if(*i < xNum){

@@ -1,7 +1,7 @@
 #program name and objects file name
 PROGRAM = rankclus.out
 OBJS = main.o graph.o clustering.o
-OPTIMIZE = -O2
+OPTIMIZE = -O2 
 #define macro
 CXX = clang++
 CXXFLAG = $(OPTIMIZE) -std=c++11
