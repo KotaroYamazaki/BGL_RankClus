@@ -45,9 +45,6 @@ void gauss_southwell(graph& g, int clusterNum){
 
     for(int v = 0; v < 20000; v++){
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
-        //vertex_iterator m;
-        //m = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
-        //*m = distance(residual[clusterNum].begin(), max_itr);
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
 
@@ -64,14 +61,9 @@ void gauss_southwell(graph& g, int clusterNum){
         residual[clusterNum][max_index] -= r_i; 
 
         vertex_iterator i,j;
-                for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
-                    residual[clusterNum][max_index] += g[*e.first].weight * r_i;
-                }
-        //     }
-        // }
-
-        // pre_res = residual[clusterNum];
-
+        for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
+            residual[clusterNum][max_index] += g[*e.first].weight * r_i;
+        }
         // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         //     if(*i < xNum){
         //         g[*i].rx /= RxSum;
