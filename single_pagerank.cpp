@@ -39,7 +39,10 @@ void ranking(graph& subgraph, int clusterNum){
     }
 }
 
-//vector<double> calc_residual(grap)
+graph normalize_weight(graph& g){
+
+}
+
 void gauss_southwell(graph& g, int clusterNum){
     init_residual(g, clusterNum);
 
@@ -60,7 +63,6 @@ void gauss_southwell(graph& g, int clusterNum){
         }
         residual[clusterNum][max_index] -= r_i; 
 
-        vertex_iterator i,j;
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
             residual[clusterNum][max_index] += g[*e.first].weight * r_i;
         }
