@@ -40,7 +40,14 @@ void ranking(graph& subgraph, int clusterNum){
 }
 
 graph normalize_weight(graph& g){
-
+        for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+        if(*i < xNum){
+            g[*i].rx = pre_graph[clusterNum][*i].rx;
+            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                g
+                //ここに列正規化関数を作ります。
+            }
+        }
 }
 
 void gauss_southwell(graph& g, int clusterNum){
