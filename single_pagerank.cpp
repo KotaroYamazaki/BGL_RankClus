@@ -17,6 +17,7 @@ vector<graph> pre_graph;
 vector<vector<double>> residual;
 vector<vector<double>> pre_residual;
 void gauss_southwell(graph& g, int clusterNum);
+graph normalize_weight(graph& g);
 
 const double epsi = 0.000001;
 
@@ -33,21 +34,29 @@ void ranking(graph& subgraph, int clusterNum){
         single_pagerank(subgraph, clusterNum);
         pre_graph.push_back(subgraph);
     }else{
-        // subgraph = normalize_weight(subgraph, clusterNum);
+        subgraph = normalize_weight(subgraph);
         gauss_southwell(subgraph, clusterNum);
         pre_graph[clusterNum] = subgraph;
     }
 }
 
 graph normalize_weight(graph& g){
-        for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+    vertex_iterator i,j;
+    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         if(*i < xNum){
-            g[*i].rx = pre_graph[clusterNum][*i].rx;
+            //g[*i].rx = pre_graph[clusterNum][*i].rx;
+            int rowsum = 0;
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                g
                 //ここに列正規化関数を作ります。
+                rowsum += g[*e .first].weight;
+            }
+            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                //ここに列正規化関数を作ります。
+                g[*e .first].weight /= rowsum;
             }
         }
+    }
+    return g;
 }
 
 void gauss_southwell(graph& g, int clusterNum){
