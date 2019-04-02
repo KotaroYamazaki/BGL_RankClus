@@ -68,7 +68,8 @@ void gauss_southwell(graph& g, int clusterNum){
         double r_i = residual[clusterNum][max_index];
 
         if(r_i < epsi){
-            cout << "converge at " << v << endl;
+            // cout << "r_i: " << r_i << endl;
+            // cout << "converge at " << v << endl;
             break;
         }
 
@@ -82,25 +83,9 @@ void gauss_southwell(graph& g, int clusterNum){
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
             residual[clusterNum][max_index] += g[*e.first].weight * r_i;
         }
-        // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        //     if(*i < xNum){
-        //         g[*i].rx /= RxSum;
-        //     }else{
-        //         g[*i].ry /= RySum;
-        //     }
-        // }
 
     }
 }
-
-
-bool is_reachable(vertex_descriptor s, vertex_descriptor t, graph& g ){
-    for (auto e = in_edges(s, g); e.first!=e.second; e.first++) {
-        if(source(*e.first, g) == t)return true;
-    }
-    return false;
-}
-
 
 void init_residual(graph& g, int clusterNum){
     vertex_iterator i,j;
@@ -115,8 +100,7 @@ void init_residual(graph& g, int clusterNum){
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     // residual 後半の項
                     //double pre_weight;
-                    //std::vector<boost::default_color_type> color(vertices(g), boost::white_color);
-                    if(!is_reachable(*i, source(*e.first, g), pre_graph[clusterNum])){
+                    if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
                         tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
                     }
             }
@@ -127,9 +111,9 @@ void init_residual(graph& g, int clusterNum){
                     // ノード *i の入エッジの重み（g[*e.first].weight）と
                     // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                     if(g[source(*e.first, g)].label == "target"){
-                        if(!is_reachable(*i, source(*e.first, g), pre_graph[clusterNum]))tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx; //tmp += (g[*e.first].weight - pre_graph[clusterNum][*e.first].weight)  * pre_graph[clusterNum][target(*e.first, g)].rx;
+                        if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second)tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx; //tmp += (g[*e.first].weight - pre_graph[clusterNum][*e.first].weight)  * pre_graph[clusterNum][target(*e.first, g)].rx;
                     }else{
-                        if(!is_reachable(*i, source(*e.first, g), pre_graph[clusterNum]))tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
+                        if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second)tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
                     }
                 }
             residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
