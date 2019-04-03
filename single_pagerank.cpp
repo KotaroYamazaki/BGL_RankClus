@@ -4,6 +4,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
+#include <time.h>
 using namespace std;
 extern vector<int> WkXY_sum;
 extern int xNum;
@@ -30,14 +31,26 @@ vector<double> init_rank(graph& g);
 void init_residual(graph& g, int clusterNum);
 
 void ranking(graph& subgraph, int clusterNum){
+    clock_t start = clock();
     if(t == 0){
         single_pagerank(subgraph, clusterNum);
         pre_graph.push_back(subgraph);
     }else{
+        clock_t n1 = clock();
         subgraph = normalize_weight(subgraph);
+        clock_t n2 = clock();
+        const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
+        printf("time[normalize] : %lf[ms]\n", time_n);
         gauss_southwell(subgraph, clusterNum);
+        clock_t n3 = clock();
+        const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
+        printf("time[guass] : %lf[ms]\n", time_n2);
         pre_graph[clusterNum] = subgraph;
     }
+    clock_t end = clock();
+    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+    printf("time %lf[ms]\n", time);
+    cout << endl;
 }
 
 graph normalize_weight(graph& g){
@@ -47,11 +60,9 @@ graph normalize_weight(graph& g){
             //g[*i].rx = pre_graph[clusterNum][*i].rx;
             int rowsum = 0;
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                //ここに列正規化関数を作ります。
                 rowsum += g[*e .first].weight;
             }
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                //ここに列正規化関数を作ります。
                 g[*e .first].weight /= rowsum;
             }
         }
@@ -69,7 +80,7 @@ void gauss_southwell(graph& g, int clusterNum){
 
         if(r_i < epsi){
             // cout << "r_i: " << r_i << endl;
-            // cout << "converge at " << v << endl;
+            cout << "converge at " << v << endl;
             break;
         }
 
@@ -89,36 +100,37 @@ void gauss_southwell(graph& g, int clusterNum){
 
 void init_residual(graph& g, int clusterNum){
     vertex_iterator i,j;
-    if(t == 1){
+    if(t >= 1){
         residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
         pre_residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
     }
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        double tmp = 0;
-        if(*i < xNum){
-            g[*i].rx = pre_graph[clusterNum][*i].rx;
-            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                    // residual 後半の項
-                    //double pre_weight;
-                    if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
-                        tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
-                    }
-            }
-            residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
-        }else{
-            g[*i].ry = pre_graph[clusterNum][*i].ry;
-            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                    // ノード *i の入エッジの重み（g[*e.first].weight）と
-                    // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
-                    if(g[source(*e.first, g)].label == "target"){
-                        if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second)tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx; //tmp += (g[*e.first].weight - pre_graph[clusterNum][*e.first].weight)  * pre_graph[clusterNum][target(*e.first, g)].rx;
-                    }else{
-                        if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second)tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
-                    }
-                }
-            residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
-        }
-    }
+    // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+    //     double tmp = 0;
+    //     if(*i < xNum){
+    //         g[*i].rx = pre_graph[clusterNum][*i].rx;
+    //         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+    //                 // residual 後半の項
+    //                 //double pre_weight;
+    //                 if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
+    //                     tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
+    //                 }
+    //         }
+    //         if(tmp > 0 )cout << tmp << endl;
+    //         residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
+    //     }else{
+    //         g[*i].ry = pre_graph[clusterNum][*i].ry;
+    //         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+    //                 // ノード *i の入エッジの重み（g[*e.first].weight）と
+    //                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
+    //                 if(g[source(*e.first, g)].label == "target" && !boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
+    //                     tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx;
+    //                 }else{
+    //                     tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
+    //                 }
+    //             }
+    //         residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
+    //     }
+    // }
 }
 
 void single_pagerank(graph& g, int clusterNum){
@@ -136,7 +148,7 @@ void single_pagerank(graph& g, int clusterNum){
             }
             g[*i].rx = tmp/WkXY_sum[clusterNum];
         }else{
-             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 // ノード *i の入エッジの重み（g[*e.first].weight）と
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 if(g[target(*e.first, g)].label == "target")tmp += g[*e.first].weight;
@@ -203,7 +215,7 @@ void authority_ranking(graph& g, int clusterNum){
             }
             g[*i].rx = tmp/WkXY_sum[clusterNum];
         }else{
-             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 // ノード *i の入エッジの重み（g[*e.first].weight）と
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 if(g[target(*e.first, g)].label == "target")tmp += g[*e.first].weight;

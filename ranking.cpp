@@ -4,6 +4,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
+#include <time.h>
 using namespace std;
 extern vector<int> WkXY_sum;
 extern int xNum;
@@ -13,24 +14,12 @@ const int rankiter = 15;
 void authority_ranking(graph& g, int clusterNum);
 
 void ranking(graph& subgraph, int clusterNum){
+    clock_t start = clock();
     authority_ranking(subgraph, clusterNum);
+    clock_t end = clock();
+    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+    printf("authority ranking time: %lf[ms]\n", time);
 }
-
-// void conditional_ranking(graph& g, graph& subgraph){
-//     vertex_iterator i,j;
-//     double ranksum = 0;
-//     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-//         double tmp = 0;
-//         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-//              tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
-//         }
-//         subgraph[*i].conditional_rank = tmp;
-//         ranksum += tmp;
-//     }
-//     for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
-//         subgraph[*i].conditional_rank /= ranksum;
-//     }
-// }
 
 // 行列ベクトル積
 void authority_ranking(graph& g, int clusterNum){
@@ -49,7 +38,7 @@ void authority_ranking(graph& g, int clusterNum){
             }
             g[*i].rx = tmp/WkXY_sum[clusterNum];
         }else{
-             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 // ノード *i の入エッジの重み（g[*e.first].weight）と
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 if(g[target(*e.first, g)].label == "target")tmp += g[*e.first].weight;

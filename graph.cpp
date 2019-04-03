@@ -43,6 +43,22 @@ vector<string> split(string& input, char delimiter)
 //         }
 //     return ifs;
 // }
+// graph normalize_weight(graph& g){
+//     vertex_iterator i,j;
+//     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+//         if(*i < xNum){
+//             //g[*i].rx = pre_graph[clusterNum][*i].rx;
+//             int rowsum = 0;
+//             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+//                 rowsum += g[*e .first].weight;
+//             }
+//             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+//                 g[*e .first].weight /= rowsum;
+//             }
+//         }
+//     }
+//     return g;
+// }
 
 graph construct_graph(){
     // エッジのリスト
@@ -132,7 +148,6 @@ graph construct_graph(){
             a.label = "AtoA";
             property_vector.push_back(a);
             edge_vector.push_back(edge(to, from));
-
         }
 	}
 
@@ -142,6 +157,7 @@ graph construct_graph(){
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
     graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
 
+    //normalize_weight(g);
     return g;
 }
 
