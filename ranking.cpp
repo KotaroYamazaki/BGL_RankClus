@@ -32,15 +32,11 @@ void authority_ranking(graph& g, int clusterNum){
         //出る全てのエッジに対してループを回す
         if(*i < xNum){
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                // ノード *i の入エッジの重み（g[*e.first].weight）と
-                // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 tmp += g[*e.first].weight;
             }
             g[*i].rx = tmp/WkXY_sum[clusterNum];
         }else{
             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-                // ノード *i の入エッジの重み（g[*e.first].weight）と
-                // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                 if(g[target(*e.first, g)].label == "target")tmp += g[*e.first].weight;
             }
             g[*i].ry = tmp/WkXY_sum[clusterNum];
@@ -56,16 +52,12 @@ void authority_ranking(graph& g, int clusterNum){
             //出る全てのエッジに対してループを回す
             if(*i < xNum){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                    // ノード *i の入エッジの重み（g[*e.first].weight）と
-                    // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                     tmp += g[*e.first].weight * g[source(*e.first, g)].ry;
                 }
                 RxSum += tmp;
                 g[*i].rx = tmp;
             }else{
                 for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-                    // ノード *i の入エッジの重み（g[*e.first].weight）と
-                    // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
                     if(g[target(*e.first, g)].label == "target"){
                         tmp += alpha*(g[*e.first].weight * g[target(*e.first, g)].rx);
                     }else{
