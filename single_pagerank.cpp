@@ -56,6 +56,7 @@ void ranking(graph& subgraph, int clusterNum){
 graph normalize_weight(graph& g){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+        //O(n*E*E)
         if(*i < xNum){
             //g[*i].rx = pre_graph[clusterNum][*i].rx;
             int rowsum = 0;
@@ -104,33 +105,35 @@ void init_residual(graph& g, int clusterNum){
         residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
         pre_residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
     }
-    // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-    //     double tmp = 0;
-    //     if(*i < xNum){
-    //         g[*i].rx = pre_graph[clusterNum][*i].rx;
-    //         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-    //                 // residual 後半の項
-    //                 //double pre_weight;
-    //                 if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
-    //                     tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
-    //                 }
-    //         }
-    //         if(tmp > 0 )cout << tmp << endl;
-    //         residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
-    //     }else{
-    //         g[*i].ry = pre_graph[clusterNum][*i].ry;
-    //         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-    //                 // ノード *i の入エッジの重み（g[*e.first].weight）と
-    //                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
-    //                 if(g[source(*e.first, g)].label == "target" && !boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
-    //                     tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx;
-    //                 }else{
-    //                     tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
-    //                 }
-    //             }
-    //         residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
-    //     }
-    // }
+    //O(n*E)
+    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+        double tmp = 0;
+
+        if(*i < xNum){
+            g[*i].rx = pre_graph[clusterNum][*i].rx;
+            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                    // residual 後半の項
+                    //double pre_weight;
+                    if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
+                        tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
+                    }
+            }
+            if(tmp > 0 )cout << tmp << endl;
+            residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
+        }else{
+            g[*i].ry = pre_graph[clusterNum][*i].ry;
+            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                    // ノード *i の入エッジの重み（g[*e.first].weight）と
+                    // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
+                    if(g[source(*e.first, g)].label == "target" && !boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
+                        tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx;
+                    }else{
+                        tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
+                    }
+                }
+            residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
+        }
+    }
 }
 
 void single_pagerank(graph& g, int clusterNum){
