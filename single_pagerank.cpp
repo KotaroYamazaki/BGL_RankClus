@@ -57,7 +57,7 @@ graph normalize_weight(graph& g){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         //O(n*E*E)
-        if(*i < xNum){
+        if(g[*i].int_descriptor < xNum){
             //g[*i].rx = pre_graph[clusterNum][*i].rx;
             int rowsum = 0;
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -109,7 +109,7 @@ void init_residual(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         double tmp = 0;
 
-        if(*i < xNum){
+        if(g[*i].int_descriptor < xNum){
             g[*i].rx = pre_graph[clusterNum][*i].rx;
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     // residual 後半の項
@@ -143,7 +143,7 @@ void single_pagerank(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         double tmp = 0;
         //出る全てのエッジに対してループを回す
-        if(*i < xNum){
+        if(g[*i].int_descriptor < xNum){
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 // ノード *i の入エッジの重み（g[*e.first].weight）と
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
@@ -168,7 +168,7 @@ void single_pagerank(graph& g, int clusterNum){
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             double tmp = 0;
             //出る全てのエッジに対してループを回す
-            if(*i < xNum){
+            if(g[*i].int_descriptor < xNum){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     // ノード *i の入エッジの重み（g[*e.first].weight）と
                     // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
@@ -194,7 +194,7 @@ void single_pagerank(graph& g, int clusterNum){
     }
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-            if(*i < xNum){
+            if(g[*i].int_descriptor < xNum){
                 g[*i].rx /= RxSum;
             }else{
                 g[*i].ry /= RySum;
@@ -210,7 +210,7 @@ void authority_ranking(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         double tmp = 0;
         //出る全てのエッジに対してループを回す
-        if(*i < xNum){
+        if(g[*i].int_descriptor < xNum){
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 // ノード *i の入エッジの重み（g[*e.first].weight）と
                 // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
@@ -234,7 +234,7 @@ void authority_ranking(graph& g, int clusterNum){
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             double tmp = 0;
             //出る全てのエッジに対してループを回す
-            if(*i < xNum){
+            if(g[*i].int_descriptor < xNum){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     // ノード *i の入エッジの重み（g[*e.first].weight）と
                     // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
@@ -258,7 +258,7 @@ void authority_ranking(graph& g, int clusterNum){
         }
 
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-            if(*i < xNum){
+            if(g[*i].int_descriptor < xNum){
                 g[*i].rx /= RxSum;
             }else{
                 g[*i].ry /= RySum;

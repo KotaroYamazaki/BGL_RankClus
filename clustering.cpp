@@ -30,7 +30,7 @@ void clustering(graph &g, vector<graph>& subgraph){
 
     for(int z = 0; z < K; z++){
         double tmp_p = 0;
-        for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+        for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 tmp_p += g[*e.first].weight * subgraph[z][target(*e.first, g)].rx *subgraph[z][source(*e.first, g)].ry * p[z];
             }
@@ -39,7 +39,7 @@ void clustering(graph &g, vector<graph>& subgraph){
     }
 
     // calc pi
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
         double tmp_sum = 0;
         for(int l = 0; l < K; l++){
             
@@ -65,7 +65,7 @@ void clustering(graph &g, vector<graph>& subgraph){
     for( int Xk = 0; Xk < K; Xk++){
         int cluster_size = cluster_label[Xk].size();
         for(int col = 0; col < K; col++){
-            for (boost::tie(i, j) = vertices(g); *i < xNum; i++) {
+            for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
                 if(g[*i].belongs_to_cluster == Xk){
                     center_vec[Xk][col] += s[*i][col];
                 }
