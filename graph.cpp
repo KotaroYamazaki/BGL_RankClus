@@ -149,7 +149,7 @@ void get_intial_partitions(graph& g){
     //a_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
 		int num = *i % K;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
@@ -169,7 +169,7 @@ void get_intial_partitions(graph& g){
 bool has_empty_cluster(graph& g){
     vector<bool> check_flag(K,false);
     vertex_iterator i, j;
-    for (boost::tie(i, j) = vertices(g); *i < xNum; i++){
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
         check_flag[g[*i].belongs_to_cluster] = true;
     }
     for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
@@ -254,7 +254,7 @@ void init_graph(graph& g){
         // (*vertex_iterator) で vertex_descriptor になる
         // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
         //name の入れ方name_vectorがグローバル変数
-        if(*i < xNum ){
+        if(g[*i].int_descriptor < xNum ){
             g[*i].label = "target";
             g[*i].rx = 0;
             g[*i].name = name_vector[*i];

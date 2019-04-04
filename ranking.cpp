@@ -25,7 +25,7 @@ void authority_ranking(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         double tmp = 0;
         //出る全てのエッジに対してループを回す
-        if(*i < xNum){
+        if(g[*i].int_descriptor < xNum){
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 tmp += g[*e.first].weight;
             }
@@ -45,7 +45,7 @@ void authority_ranking(graph& g, int clusterNum){
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             double tmp = 0;
             //出る全てのエッジに対してループを回す
-            if(*i < xNum){
+            if(g[*i].int_descriptor < xNum){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     tmp += g[*e.first].weight * g[source(*e.first, g)].ry;
                 }
@@ -65,7 +65,7 @@ void authority_ranking(graph& g, int clusterNum){
         }
 
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-            if(*i < xNum){
+            if(g[*i].int_descriptor < xNum){
                 g[*i].rx /= RxSum;
             }else{
                 g[*i].ry /= RySum;
