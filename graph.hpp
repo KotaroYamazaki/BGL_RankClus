@@ -12,7 +12,6 @@ struct vertex_property
     std::string label;
     std::string name;
     int belongs_to_cluster;
-    double previous_rank;
     double next_rank;
     double ry;
     double rx;
