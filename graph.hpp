@@ -11,12 +11,14 @@ struct vertex_property
 {
     std::string label;
     std::string name;
-    int belongs_to_cluster;
-    double next_rank;
+    int int_descriptor;
+    //ランク情報
     double ry;
     double rx;
     double conditional_rank;
-    int int_descriptor;
+    // クラスタ所属情報
+    int belongs_to_cluster;
+    int belongs_statas;
     bool same_previous_cluster;
 };
 
