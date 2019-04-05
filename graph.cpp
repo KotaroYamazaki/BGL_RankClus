@@ -332,7 +332,7 @@ vector<int> get_sorted_list(graph& g){
     vector<name_rank> ranking_list;
 
     vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
         name_rank a;
         if(g[*i].rx > 0){
             a.rank = g[*i].rx;
@@ -357,7 +357,7 @@ void print_rank_within_cluster(graph& g, int clusterNum){
     if(top_k > sorted_id_list.size())top = sorted_id_list.size();
 	
     for(int i = 0; i < top; i++){
-    	cout << i +1 << ": " << g[sorted_id_list[i]].name << " ... ["<< g[sorted_id_list[i]].rx  << "]" <<endl;
+        cout << i +1 << ": " << g[sorted_id_list[i]].name << " ... ["<< g[sorted_id_list[i]].rx  << "]" <<endl;
 	}
 	cout << endl;
 }
@@ -365,7 +365,7 @@ void print_rank_within_cluster(graph& g, int clusterNum){
 void print_cluster(graph& g ){
     vector<vector<string>> cluster(K);
     vertex_iterator i, j;
-    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
         cluster[g[*i].belongs_to_cluster].push_back(g[*i].name);
     }
 	for (int k = 0; k < K; k++){

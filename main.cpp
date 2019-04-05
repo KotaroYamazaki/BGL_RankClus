@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
 
 bool check_converge_cluster(graph& g){
     vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
         if(!g[*i].same_previous_cluster) return false;
     }
     cout << "converge" << endl;
