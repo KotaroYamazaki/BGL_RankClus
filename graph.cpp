@@ -320,7 +320,7 @@ void print_graph_detail(graph& g){
     }
 }
 
-vector<int> get_sorted_list(graph& g){
+vector<int> get_sorted_list(graph& g, int clusterNum){
     struct name_rank {
 		double rank;
 		int id;
@@ -334,7 +334,7 @@ vector<int> get_sorted_list(graph& g){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
         name_rank a;
-        if(g[*i].rx > 0){
+        if(g[*i].belongs_to_cluster == clusterNum){
             a.rank = g[*i].rx;
             a.id = *i;
             ranking_list.push_back(a);
@@ -350,7 +350,7 @@ vector<int> get_sorted_list(graph& g){
 }
 void print_rank_within_cluster(graph& g, int clusterNum){
 
-    vector<int> sorted_id_list = get_sorted_list(g);
+    vector<int> sorted_id_list = get_sorted_list(g, clusterNum);
     cout << "<Cluster = " << clusterNum + 1<< "> (size: " << sorted_id_list.size() << ")" << endl;
     //top_kがクラスタのサイズより大きかったら変更
     int top = top_k;
@@ -386,7 +386,7 @@ void write_result(vector<graph>& sub_g, string out_file){
     file3.open("result_clustering_id_" + out_file, ios::out);
 
     for (int k = 0; k < K; k++){
-    vector<int> sorted_id_list = get_sorted_list(sub_g[k]);
+    vector<int> sorted_id_list = get_sorted_list(sub_g[k], k);
 		file1 << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
         file2 << "###### Cluster" << k+1 << " (" << sorted_id_list.size() << ") ######" << endl;
         file3 << "cluster_label[" << k << "] = {" << flush; 

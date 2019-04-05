@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
     cout << " Time[milli]: " << elapsed << endl;
     cout << " Iteration Number: " << t << endl;
-    if(argc < 4)write_result(subgraph, out_file);
+    if(argc >= 4)write_result(subgraph, out_file);
 }
 
 bool check_converge_cluster(graph& g){
