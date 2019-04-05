@@ -9,7 +9,7 @@ using namespace std;
 extern vector<int> WkXY_sum;
 extern int xNum;
 
-const double alpha = 0.95;
+const double alpha = 1;
 const int rankiter = 15;
 
 extern vector<int> WkXY_sum;
@@ -103,36 +103,57 @@ void init_residual(graph& g, int clusterNum){
     vertex_iterator i,j;
     if(t >= 1){
         residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
-        pre_residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
+        pre_residual = residual;
     }
+    residual = pre_residual;
     //O(n*E)
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
         double tmp = 0;
-
-        if(g[*i].int_descriptor < xNum){
-            g[*i].rx = pre_graph[clusterNum][*i].rx;
-            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                    // residual 後半の項
-                    // double pre_weight;
-                    if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
-                        tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
-                    }
-            }
-            //if(tmp > 0 )cout << tmp << endl;
-            residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
-        }else{
-            g[*i].ry = pre_graph[clusterNum][*i].ry;
-            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                    // ノード *i の入エッジの重み（g[*e.first].weight）と
-                    // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
-                    if(g[source(*e.first, g)].label == "target" && !boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
-                        tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx;
-                    }else{
-                        tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
-                    }
+        // クラスタが変化している場合（変化していない場合はそのまま前回計算した残差を用いる）
+        if(pre_graph[clusterNum][*i].belongs_to_cluster != g[*i].belongs_to_cluster){
+            // 前は所属していたというノード
+            if(pre_graph[clusterNum][*i].belongs_to_cluster == clusterNum){
+                for (auto e = in_edges(*i, pre_graph[clusterNum]); e.first!=e.second; e.first++) {
+                    tmp += alpha*(0 - pre_graph[clusterNum][*e.first].weight) * pre_graph[clusterNum][source(*e.first, pre_graph[clusterNum])].ry;
+                    residual[clusterNum][source(*e.first, pre_graph[clusterNum])] += alpha*(0 - pre_graph[clusterNum][*e.first].weight)*pre_graph[clusterNum][*i].rx;
                 }
-            residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
+                residual[clusterNum][g[*i].int_descriptor] += tmp;
+            }else{
+                //前は所属していなかったが今は所属しているノード
+                for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                    tmp += alpha*(g[*e.first].weight - 0) * pre_graph[clusterNum][source(*e.first, g)].ry;
+                    residual[clusterNum][source(*e.first, g)] += alpha*(0 - pre_graph[clusterNum][*e.first].weight)*pre_graph[clusterNum][*i].rx;
+                }
+                residual[clusterNum][g[*i].int_descriptor] += tmp;
+            }
         }
+        //residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
+        
+
+        // if(g[*i].int_descriptor < xNum){
+        //     g[*i].rx = pre_graph[clusterNum][*i].rx;
+        //     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+        //             // residual 後半の項
+        //             // double pre_weight;
+        //             if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
+        //                 tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
+        //             }
+        //     }
+        //     //if(tmp > 0 )cout << tmp << endl;
+        //     residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
+        // }else{
+        //     g[*i].ry = pre_graph[clusterNum][*i].ry;
+        //     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+        //             // ノード *i の入エッジの重み（g[*e.first].weight）と
+        //             // そのエッジの元ノード（source(*e.first, g) のランク値（g[source(*e.first, g)].previous_rank）をかける
+        //             if(g[source(*e.first, g)].label == "target" && !boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
+        //                 tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][target(*e.first, g)].rx;
+        //             }else{
+        //                 tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
+        //             }
+        //         }
+        //     residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
+        //}
     }
 }
 

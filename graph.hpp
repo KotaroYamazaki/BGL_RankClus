@@ -18,7 +18,6 @@ struct vertex_property
     double conditional_rank;
     // クラスタ所属情報
     int belongs_to_cluster;
-    int belongs_statas;
     bool same_previous_cluster;
 };
 
