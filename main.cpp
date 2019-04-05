@@ -33,7 +33,7 @@ bool convflag = false;
 
 int main(int argc, char* argv[])
 {
-    if(argc != 4){
+    if(argc < 3){
         cout << "Error! This program needs [File Path] and [Cluster Number] [Out File]" << endl;
 		cout << "Usage: " << argv[0] << "[File Path] [Cluster Number] [Out File]" << endl;
 		exit(1);
@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
         path = argv[1];
 		K = atoi(argv[2]);
         cluster_label = vector<vector<int>> (K);
-        out_file = argv[3];
+        if(argc >= 4)out_file = argv[3];
 		if(K <= 0){
 			cout << "Error: Please enter the number of clusters is 0 or more" << endl; 
 			exit(0);
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
     double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
     cout << " Time[milli]: " << elapsed << endl;
     cout << " Iteration Number: " << t << endl;
-    write_result(subgraph, out_file);
+    if(argc < 4)write_result(subgraph, out_file);
 }
 
 bool check_converge_cluster(graph& g){
