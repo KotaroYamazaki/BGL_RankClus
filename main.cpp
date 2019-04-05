@@ -10,6 +10,7 @@ using namespace std;
 graph construct_graph();
 vector<graph> construct_sub_graph(graph& g);
 void init_graph(graph& g);
+void init_graph(graph& g, graph& global_g);
 void init_subgraph(graph& g, int clusterNum);
 void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
         subgraph = construct_sub_graph(g);
         cout << "===== Iteration Number : " << t +1  << " =======" << endl;
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
-            init_graph(subgraph[clusterNum]);
+            init_graph(subgraph[clusterNum], g);
             ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
         }

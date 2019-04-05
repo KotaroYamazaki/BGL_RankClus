@@ -17,7 +17,7 @@ extern string path;
 extern vector<vector<int>> cluster_label;
 
 vector<string> name_vector;
-vector<vector<string>> X_sub_name_vector;
+//vector<vector<string>> ;
 
 vector<string> split(string& input, char delimiter)
 {
@@ -198,7 +198,6 @@ vector<graph> construct_sub_graph(graph& g){
     //　サブグラフを格納するリスト
     vector<graph> subgraph_vector;
     vector<string> x_name;
-    X_sub_name_vector = vector<vector<string>>(K);
     
     WkXY_sum = vector<int>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
@@ -215,7 +214,8 @@ vector<graph> construct_sub_graph(graph& g){
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
-             if(g[*i].label == "target" && g[*i].belongs_to_cluster == clusterNum){ 
+             if(g[*i].label == "target"){ 
+                if(g[*i].belongs_to_cluster == clusterNum){
                     cluster_size += 1;
                     x_name.push_back(g[*i].name);
                     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -234,6 +234,7 @@ vector<graph> construct_sub_graph(graph& g){
                         //エッジの重み合計
                         edge_sum += a.weight;
                     }
+                }
             }else if (g[*i].label == "attribute"){
                 for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
@@ -256,7 +257,6 @@ vector<graph> construct_sub_graph(graph& g){
         // グラフのコンストラクタ
         // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
         graph sub_g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
-        X_sub_name_vector.push_back(x_name);
         subgraph_vector.push_back(sub_g);
     }
     return subgraph_vector;
@@ -276,6 +276,27 @@ void init_graph(graph& g){
             g[*i].name = name_vector[*i];
             g[*i].conditional_rank = 0;
             g[*i].belongs_to_cluster = -1;
+        } else {
+            g[*i].label = "attribute";
+            g[*i].ry = 0;
+            g[*i].name = name_vector[*i];
+        }
+        g[*i].int_descriptor = static_cast<int>(*i);
+    }
+}
+
+void init_graph(graph& g, graph& global_g){
+    // ノードの走査
+    vertex_iterator i, j;
+    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+        // (*vertex_iterator) で vertex_descriptor になる
+        // g[vertex_descriptor].属性（vertex_property で定義したもの）で参照できる
+        //name の入れ方name_vectorがグローバル変数
+        if(g[*i].int_descriptor < xNum ){
+            g[*i].label = "target";
+            g[*i].rx = 0;
+            g[*i].name = name_vector[*i];
+            g[*i].belongs_to_cluster = global_g[*i].belongs_to_cluster;
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
