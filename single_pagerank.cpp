@@ -113,13 +113,13 @@ void init_residual(graph& g, int clusterNum){
             g[*i].rx = pre_graph[clusterNum][*i].rx;
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                     // residual 後半の項
-                    //double pre_weight;
+                    // double pre_weight;
                     if(!boost::edge(*i, source(*e.first, g), pre_graph[clusterNum]).second){
                         tmp += (g[*e.first].weight - 0)  * pre_graph[clusterNum][source(*e.first, g)].ry;
                     }
             }
-            if(tmp > 0 )cout << tmp << endl;
-            residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
+            //if(tmp > 0 )cout << tmp << endl;
+            residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
         }else{
             g[*i].ry = pre_graph[clusterNum][*i].ry;
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -131,7 +131,7 @@ void init_residual(graph& g, int clusterNum){
                         tmp += (g[*e.first].weight - 0) * pre_graph[clusterNum][target(*e.first, g)].ry;
                     }
                 }
-            residual[clusterNum][*i] = pre_residual[clusterNum][*i] + tmp;
+            residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
         }
     }
 }
