@@ -19,6 +19,7 @@ vector<vector<double>> residual;
 vector<vector<double>> pre_residual;
 void gauss_southwell(graph& g, int clusterNum);
 graph normalize_weight(graph& g);
+void normalize_rank(graph& g, int clusterNum);
 
 const double epsi = 0.000001;
 
@@ -37,7 +38,7 @@ void ranking(graph& subgraph, int clusterNum){
         pre_graph.push_back(subgraph);
     }else{
         clock_t n1 = clock();
-        subgraph = normalize_weight(subgraph);
+        //subgraph = normalize_weight(subgraph);
         clock_t n2 = clock();
         const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
         printf("time[normalize] : %lf[ms]\n", time_n);
@@ -45,6 +46,7 @@ void ranking(graph& subgraph, int clusterNum){
         clock_t n3 = clock();
         const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
         printf("time[guass] : %lf[ms]\n", time_n2);
+        normalize_rank(subgraph, clusterNum);
         pre_graph[clusterNum] = subgraph;
     }
     clock_t end = clock();
@@ -52,6 +54,8 @@ void ranking(graph& subgraph, int clusterNum){
     printf("time %lf[ms]\n", time);
     cout << endl;
 }
+
+
 
 graph normalize_weight(graph& g){
     vertex_iterator i,j;
@@ -71,6 +75,30 @@ graph normalize_weight(graph& g){
     return g;
 }
 
+void normalize_rank(graph& g, int clusterNum){
+    vertex_iterator i,j;
+    double RxSum = 0;
+    double RySum = 0;
+
+    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+        if(g[*i].int_descriptor < xNum){
+            if(g[*i].belongs_to_cluster == clusterNum)RxSum += g[*i].rx;
+            else g[*i].rx = 0;
+        }else{
+            RySum += g[*i].ry;
+        }
+    }
+
+    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+            if(g[*i].int_descriptor < xNum){
+                g[*i].rx /= RxSum;
+            }else{
+                g[*i].ry /= RySum;
+            }
+        }
+
+}
+
 void gauss_southwell(graph& g, int clusterNum){
     init_residual(g, clusterNum);
 
@@ -78,6 +106,7 @@ void gauss_southwell(graph& g, int clusterNum){
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
+        //cout << r_i << endl;
 
         if(r_i < epsi){
             // cout << "r_i: " << r_i << endl;

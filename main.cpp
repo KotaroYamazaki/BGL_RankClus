@@ -97,11 +97,13 @@ void conditional_ranking(graph& g, graph& subgraph){
         double tmp = 0;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
              tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
+            //if(!isnan(subgraph[source(*e.first, g)].ry))cout  << source(*e.first, g) << ": " << subgraph[source(*e.first, g)].ry << endl;
         }
         subgraph[*i].conditional_rank = tmp;
         ranksum += tmp;
     }
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
         subgraph[*i].conditional_rank /= ranksum;
+        //cout << subgraph[*i].conditional_rank  << endl;
     }
 }

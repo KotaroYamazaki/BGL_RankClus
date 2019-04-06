@@ -49,6 +49,7 @@ void clustering(graph &g, vector<graph>& subgraph){
             double val = 0;
             if(tmp_sum != 0)val = subgraph[z][*i].conditional_rank * p[z]/tmp_sum;
             pi[z].push_back(val);
+            //cout << "pi[" << z << "]:"<<  val << endl;
         }
     }
 
