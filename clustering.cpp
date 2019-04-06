@@ -42,7 +42,6 @@ void clustering(graph &g, vector<graph>& subgraph){
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
         double tmp_sum = 0;
         for(int l = 0; l < K; l++){
-            
             tmp_sum += subgraph[l][*i].conditional_rank * p[l];
         }
         for(int z = 0; z < K; z++){ 

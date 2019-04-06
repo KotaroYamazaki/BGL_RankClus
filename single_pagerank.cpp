@@ -34,14 +34,16 @@ void init_residual(graph& g, int clusterNum);
 void ranking(graph& subgraph, int clusterNum){
     clock_t start = clock();
     if(t == 0){
-        single_pagerank(subgraph, clusterNum);
+        authority_ranking(subgraph, clusterNum);
+        //single_pagerank(subgraph, clusterNum);
         pre_graph.push_back(subgraph);
     }else{
-        clock_t n1 = clock();
+        //clock_t n1 = clock();
         //subgraph = normalize_weight(subgraph);
         clock_t n2 = clock();
-        const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
-        printf("time[normalize] : %lf[ms]\n", time_n);
+        //const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
+        //printf("time[normalize] : %lf[ms]\n", time_n);
+        init_residual(subgraph, clusterNum);
         gauss_southwell(subgraph, clusterNum);
         clock_t n3 = clock();
         const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
@@ -92,6 +94,7 @@ void normalize_rank(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
                 g[*i].rx /= RxSum;
+                // cout<< g[*i].rx << endl;
             }else{
                 g[*i].ry /= RySum;
             }
@@ -100,22 +103,22 @@ void normalize_rank(graph& g, int clusterNum){
 }
 
 void gauss_southwell(graph& g, int clusterNum){
-    init_residual(g, clusterNum);
-
+    normalize_weight(g);
     for(int v = 0; v < 20000; v++){
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
-        //cout << r_i << endl;
+        cout << "r_i:  " <<  r_i << endl;
 
         if(r_i < epsi){
-            // cout << "r_i: " << r_i << endl;
+            cout << "r_i: " << r_i << endl;
             cout << "converge at " << v << endl;
             break;
         }
 
         if(max_index < xNum){
             g[max_index].rx += r_i;
+            //cout<< g[max_index].rx << endl;
         }else{
             g[max_index].ry += r_i;
         }
@@ -124,7 +127,6 @@ void gauss_southwell(graph& g, int clusterNum){
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
             residual[clusterNum][max_index] += g[*e.first].weight * r_i;
         }
-
     }
 }
 
@@ -136,25 +138,31 @@ void init_residual(graph& g, int clusterNum){
     }
     residual = pre_residual;
     //O(n*E)
-    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
-        double tmp = 0;
-        // クラスタが変化している場合（変化していない場合はそのまま前回計算した残差を用いる）
-        if(pre_graph[clusterNum][*i].belongs_to_cluster != g[*i].belongs_to_cluster){
-            // 前は所属していたというノード
-            if(pre_graph[clusterNum][*i].belongs_to_cluster == clusterNum){
-                for (auto e = in_edges(*i, pre_graph[clusterNum]); e.first!=e.second; e.first++) {
-                    tmp += alpha*(0 - pre_graph[clusterNum][*e.first].weight) * pre_graph[clusterNum][source(*e.first, pre_graph[clusterNum])].ry;
-                    residual[clusterNum][source(*e.first, pre_graph[clusterNum])] += alpha*(0 - pre_graph[clusterNum][*e.first].weight)*pre_graph[clusterNum][*i].rx;
+    for (boost::tie(i, j) = vertices(g); i != j; i++) {
+        if(g[*i].int_descriptor < xNum){
+            if(isnan(pre_graph[clusterNum][*i].rx)) cout << "pregraph rx is nan" <<endl;
+            g[*i].rx = pre_graph[clusterNum][*i].rx;
+            double tmp = 0;
+            // クラスタが変化している場合（変化していない場合はそのまま前回計算した残差を用いる）
+            if(pre_graph[clusterNum][*i].belongs_to_cluster != g[*i].belongs_to_cluster){
+                // 前は所属していたというノード
+                if(pre_graph[clusterNum][*i].belongs_to_cluster == clusterNum){
+                    for (auto e = in_edges(*i, pre_graph[clusterNum]); e.first!=e.second; e.first++) {
+                        tmp += alpha*(0 - pre_graph[clusterNum][*e.first].weight) * pre_graph[clusterNum][source(*e.first, pre_graph[clusterNum])].ry;
+                        residual[clusterNum][source(*e.first, pre_graph[clusterNum])] += alpha*(0 - pre_graph[clusterNum][*e.first].weight)*pre_graph[clusterNum][*i].rx;
+                    }
+                    residual[clusterNum][g[*i].int_descriptor] += tmp;
+                }else{
+                    //前は所属していなかったが今は所属しているノード
+                    for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                        tmp += alpha*(g[*e.first].weight - 0) * pre_graph[clusterNum][source(*e.first, g)].ry;
+                        residual[clusterNum][source(*e.first, g)] += alpha*(0 - pre_graph[clusterNum][*e.first].weight)*pre_graph[clusterNum][*i].rx;
+                    }
+                    residual[clusterNum][g[*i].int_descriptor] += tmp;
                 }
-                residual[clusterNum][g[*i].int_descriptor] += tmp;
-            }else{
-                //前は所属していなかったが今は所属しているノード
-                for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                    tmp += alpha*(g[*e.first].weight - 0) * pre_graph[clusterNum][source(*e.first, g)].ry;
-                    residual[clusterNum][source(*e.first, g)] += alpha*(0 - pre_graph[clusterNum][*e.first].weight)*pre_graph[clusterNum][*i].rx;
-                }
-                residual[clusterNum][g[*i].int_descriptor] += tmp;
             }
+        }else{
+            g[*i].ry = pre_graph[clusterNum][*i].ry;
         }
         //residual[clusterNum][g[*i].int_descriptor] = pre_residual[clusterNum][g[*i].int_descriptor] + tmp;
         
