@@ -24,6 +24,7 @@ void normalize_rank(graph& g, int clusterNum);
 const double epsi = 0.000001;
 
 extern int t;
+extern int iteration_num;
 
 
 void single_pagerank(graph& g, int clusterNum);
@@ -32,29 +33,33 @@ vector<double> init_rank(graph& g);
 void init_residual(graph& g, int clusterNum);
 
 void ranking(graph& subgraph, int clusterNum){
-    clock_t start = clock();
-    if(t == 0){
-        authority_ranking(subgraph, clusterNum);
-        //single_pagerank(subgraph, clusterNum);
-        pre_graph.push_back(subgraph);
+    //clock_t start = clock();
+    if(iteration_num == 0){
+        if(t == 0){
+            authority_ranking(subgraph, clusterNum);
+            //single_pagerank(subgraph, clusterNum);
+            pre_graph.push_back(subgraph);
+        }else{
+            //clock_t n1 = clock();
+            //subgraph = normalize_weight(subgraph);
+            //clock_t n2 = clock();
+            //const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
+            //printf("time[normalize] : %lf[ms]\n", time_n);
+            init_residual(subgraph, clusterNum);
+            gauss_southwell(subgraph, clusterNum);
+            // clock_t n3 = clock();
+            // const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
+            // printf("time[guass] : %lf[ms]\n", time_n2);
+            normalize_rank(subgraph, clusterNum);
+            pre_graph[clusterNum] = subgraph;
+        }
+        //clock_t end = clock();
+        //const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
+        //printf("time %lf[ms]\n", time);
+       // cout << endl;
     }else{
-        //clock_t n1 = clock();
-        //subgraph = normalize_weight(subgraph);
-        clock_t n2 = clock();
-        //const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
-        //printf("time[normalize] : %lf[ms]\n", time_n);
-        init_residual(subgraph, clusterNum);
-        gauss_southwell(subgraph, clusterNum);
-        clock_t n3 = clock();
-        const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
-        printf("time[guass] : %lf[ms]\n", time_n2);
-        normalize_rank(subgraph, clusterNum);
-        pre_graph[clusterNum] = subgraph;
+        authority_ranking(subgraph, clusterNum);
     }
-    clock_t end = clock();
-    const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
-    printf("time %lf[ms]\n", time);
-    cout << endl;
 }
 
 
@@ -108,11 +113,11 @@ void gauss_southwell(graph& g, int clusterNum){
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
-        cout << "r_i:  " <<  r_i << endl;
+        //cout << "r_i:  " <<  r_i << endl;
 
         if(r_i < epsi){
-            cout << "r_i: " << r_i << endl;
-            cout << "converge at " << v << endl;
+            // cout << "r_i: " << r_i << endl;
+            // cout << "converge at " << v << endl;
             break;
         }
 

@@ -162,11 +162,11 @@ graph construct_graph(){
 }
 
 void get_intial_partitions(graph& g){
-    //a_device rnd;
+    random_device rnd;
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
-		int num = *i % K;
+		int num = rnd() % K;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
