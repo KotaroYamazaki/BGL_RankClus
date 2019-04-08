@@ -31,6 +31,7 @@ extern int xNum;
 string path;
 int K;
 int t;
+int input_seed;
 string out_file;
 
 vector<vector<int>> cluster_label;
@@ -41,14 +42,15 @@ int iteration_num =0;
 int main(int argc, char* argv[])
 {
     if(argc < 3){
-        cout << "Error! This program needs [File Path] and [Cluster Number] [Out File]" << endl;
+        cout << "Error! This program needs [File Path] and [Cluster Number] [initial seed]" << endl;
 		cout << "Usage: " << argv[0] << "[File Path] [Cluster Number] [Out File]" << endl;
 		exit(1);
 	}else{
         path = argv[1];
 		K = atoi(argv[2]);
         cluster_label = vector<vector<int>> (K);
-        if(argc > 3)out_file = argv[3];
+        if(argc >= 3)input_seed = atoi(argv[3]);
+        //if(argc > 3)out_file = argv[3];
 		if(K <= 0){
 			cout << "Error: Please enter the number of clusters is 0 or more" << endl; 
 			exit(0);
@@ -56,11 +58,13 @@ int main(int argc, char* argv[])
 	}
         vector<int> time;
         for(int i = 0; i  < 2; i++){
+            if(i == 0){cout << "############# <RankClus> #############" << endl;}
+            else{cout << "############# Proposal #############" << endl;}
             time.push_back(do_main());
         }
-        cout << "proposal time[mili] " << time[0] << endl;
-        cout<< "RankClus Time[mili]: " << time[1] << endl;
-        cout << "Difference " << time[1] - time[0] << endl;
+        cout << "Proposal time[mili] " << time[1] << endl;
+        cout<< "RankClus Time[mili]: " << time[0] << endl;
+        cout << "Difference " << time[0] - time[1] << endl;
         cout << "NMI: " << flush;
         system("python NMI.py");
 	}   
@@ -70,38 +74,41 @@ int main(int argc, char* argv[])
 
 int do_main(){
     convflag = false;
-    chrono::system_clock::time_point start, end;
+    chrono::system_clock::time_point start, end, ranking_start, ranking_end, clustering_start, clustering_end;
     start = chrono::system_clock::now();
     // グラフの構築
     graph g = construct_graph();
     // グラフの属性値を初期化
     init_graph(g);
     get_intial_partitions(g);
-    cout << "< initial cluster >" << endl;
-    //print_cluster(g);
-
     vector<graph> subgraph;
     for(t = 0; t < iterNum && convflag == false; t++){
         subgraph = construct_sub_graph(g);
-        cout << "===== Iteration Number : " << t +1  << " =======" << endl;
+        cout << "===== Iteration Number : " << t + 1  << " =======" << endl;
+        ranking_start = chrono::system_clock::now();
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
             init_graph(subgraph[clusterNum], g);
             ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
-            // cout << "cluster: " << clusterNum << endl;
             // print_graph_detail(subgraph[clusterNum]);
         }
-        //print_cluster(g);
+        ranking_end = chrono::system_clock::now();
+        double ranking_time = std::chrono::duration_cast<std::chrono::microseconds>(ranking_end - ranking_start).count();
+        cout << "ranking time[micro]: " << ranking_time << endl; 
+
+        clustering_start = chrono::system_clock::now();
         clustering(g,subgraph);
+        clustering_end = chrono::system_clock::now();
         convflag = check_converge_cluster(g);
-       // if(convflag || t == iterNum - 1)for(int clusterNum = 0; clusterNum < K; clusterNum++)print_rank_within_cluster(subgraph[clusterNum], clusterNum); 
-        //print_graph_detail(g);
+        double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
+        cout << "clustering time[micro]: " << clustering_time << endl; 
     }
     end = chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
     cout << " Time[micro]: " << elapsed << endl;
     cout << " Iteration Number: " << t << endl;
-    write_result(subgraph, out_file);
+    cout << endl;
+    //write_result(subgraph, out_file);
     write_result_for_NMI(g);
     return elapsed;
 }
@@ -127,7 +134,7 @@ bool check_converge_cluster(graph& g){
     for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
         if(!g[*i].same_previous_cluster) return false;
     }
-    cout << "converge" << endl;
+    cout << "---------- CLUSTERS HAVE BEEN CONVERGED ---------" << endl;
     return true;
 }
 

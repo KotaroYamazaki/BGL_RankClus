@@ -13,6 +13,7 @@ int WXY_sum =0;
 vector<int> WkXY_sum;
 extern int K;
 int top_k = 10;
+extern int input_seed;
 extern string path;
 extern vector<vector<int>> cluster_label;
 
@@ -162,11 +163,12 @@ graph construct_graph(){
 }
 
 void get_intial_partitions(graph& g){
-    random_device rnd;
+    //random_device rnd;
+    mt19937 rnd(input_seed);
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
-		int num = (g[*i].int_descriptor*2 )% K ;
+		int num = rnd() % K ;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
