@@ -62,8 +62,18 @@ int main(int argc, char* argv[])
             else{cout << "############# Proposal #############" << endl;}
             time.push_back(do_main());
         }
-        cout << "Proposal time[mili] " << time[1] << endl;
-        cout<< "RankClus Time[mili]: " << time[0] << endl;
+
+	ofstream file1;
+        file1.open("result_time_compare.csv",ios_base::app);
+	int comp_num = 2;	
+        for(int i = 0; i< comp_num;i++){
+		file1 << time[i] << flush;
+		if(i != comp_num - 1)file1  << "," << flush;
+	}
+        file1.close();
+ 
+        cout << "Proposal time[micro]: " << time[1] << endl;
+        cout<< "RankClus Time[micro]: " << time[0] << endl;
         cout << "Difference " << time[0] - time[1] << endl;
         cout << "NMI: " << flush;
         system("python NMI.py");
@@ -74,13 +84,19 @@ int main(int argc, char* argv[])
 
 int do_main(){
     convflag = false;
-    chrono::system_clock::time_point start, end, ranking_start, ranking_end, clustering_start, clustering_end;
-    start = chrono::system_clock::now();
+    chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
     // グラフの構築
     graph g = construct_graph();
+
+    start = chrono::system_clock::now();
     // グラフの属性値を初期化
+    init_start = chrono::system_clock::now();
     init_graph(g);
     get_intial_partitions(g);
+    init_end = chrono::system_clock::now();
+    double init_time = std::chrono::duration_cast<std::chrono::microseconds>(init_end - init_start).count();
+    cout << "initialization time[micro]: " << init_time << endl;
+
     vector<graph> subgraph;
     for(t = 0; t < iterNum && convflag == false; t++){
         subgraph = construct_sub_graph(g);
@@ -99,9 +115,9 @@ int do_main(){
         clustering_start = chrono::system_clock::now();
         clustering(g,subgraph);
         clustering_end = chrono::system_clock::now();
-        convflag = check_converge_cluster(g);
         double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
         cout << "clustering time[micro]: " << clustering_time << endl; 
+        convflag = check_converge_cluster(g);
     }
     end = chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
@@ -122,16 +138,16 @@ void write_result_for_NMI(graph& g){
     file.open(filename,ios::out);
 
     vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
         file << g[*i].belongs_to_cluster << flush;
-        if(*i < xNum - 1) file << "," << flush;
+        if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
     }
     iteration_num++;
 }
 
 bool check_converge_cluster(graph& g){
     vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); *i< xNum ; i++) {
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
         if(!g[*i].same_previous_cluster) return false;
     }
     cout << "---------- CLUSTERS HAVE BEEN CONVERGED ---------" << endl;
