@@ -166,7 +166,7 @@ void get_intial_partitions(graph& g){
     vertex_iterator i, j;
     vector<bool> check_flag(K,false);
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
-		int num = rnd() % K;
+		int num = (g[*i].int_descriptor*2 )% K ;
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
@@ -214,7 +214,7 @@ vector<graph> construct_sub_graph(graph& g){
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
-             if(g[*i].label == "target"){ 
+            if(g[*i].label == "target"){ 
                 if(g[*i].belongs_to_cluster == clusterNum){
                     cluster_size += 1;
                     x_name.push_back(g[*i].name);

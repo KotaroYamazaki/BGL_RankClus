@@ -9,7 +9,7 @@ using namespace std;
 extern vector<int> WkXY_sum;
 extern int xNum;
 
-const double alpha = 1;
+const double alpha = 0.95;
 const int rankiter = 15;
 
 extern vector<int> WkXY_sum;
@@ -36,29 +36,38 @@ void ranking(graph& subgraph, int clusterNum){
     //clock_t start = clock();
     if(iteration_num == 0){
         if(t == 0){
+            clock_t n1 = clock();
             authority_ranking(subgraph, clusterNum);
+            clock_t n2 = clock();
+            const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
+            printf("time[authority] : %lf[ms]\n", time_n);
+            //authority_ranking(subgraph, clusterNum);
             //single_pagerank(subgraph, clusterNum);
             pre_graph.push_back(subgraph);
         }else{
             //clock_t n1 = clock();
             //subgraph = normalize_weight(subgraph);
-            //clock_t n2 = clock();
+            clock_t n2 = clock();
             //const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
             //printf("time[normalize] : %lf[ms]\n", time_n);
             init_residual(subgraph, clusterNum);
             gauss_southwell(subgraph, clusterNum);
-            // clock_t n3 = clock();
-            // const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
-            // printf("time[guass] : %lf[ms]\n", time_n2);
+            clock_t n3 = clock();
+            const double time_n2 = static_cast<double>(n3 - n2) / CLOCKS_PER_SEC * 1000.0;
             normalize_rank(subgraph, clusterNum);
             pre_graph[clusterNum] = subgraph;
+            printf("time[guass] : %lf[ms]\n", time_n2);
         }
         //clock_t end = clock();
         //const double time = static_cast<double>(end - start) / CLOCKS_PER_SEC * 1000.0;
         //printf("time %lf[ms]\n", time);
        // cout << endl;
     }else{
+        clock_t n1 = clock();
         authority_ranking(subgraph, clusterNum);
+        clock_t n2 = clock();
+        const double time_n = static_cast<double>(n2 - n1) / CLOCKS_PER_SEC * 1000.0;
+        printf("time[authority] : %lf[ms]\n", time_n);
     }
 }
 
