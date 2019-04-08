@@ -58,7 +58,6 @@ int main(int argc, char* argv[])
     get_intial_partitions(g);
     cout << "< initial cluster >" << endl;
     //print_cluster(g);
-    //int t;
     vector<graph> subgraph;
     for(t = 0; t < iterNum && convflag == false; t++){
         subgraph = construct_sub_graph(g);
