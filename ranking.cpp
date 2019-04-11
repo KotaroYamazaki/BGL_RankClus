@@ -5,7 +5,7 @@
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
 using namespace std;
-extern vector<int> WkXY_sum;
+extern vector<double> WkXY_sum;
 extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 15;
@@ -31,7 +31,7 @@ void authority_ranking(graph& g, int clusterNum){
             }
             g[*i].rx = tmp/WkXY_sum[clusterNum];
         }else{
-             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 if(g[target(*e.first, g)].label == "target")tmp += g[*e.first].weight;
             }
             g[*i].ry = tmp/WkXY_sum[clusterNum];

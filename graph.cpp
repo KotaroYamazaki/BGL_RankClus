@@ -9,8 +9,8 @@ using namespace std;
 
 int xNum;
 int yNum;
-int WXY_sum =0;
-vector<int> WkXY_sum;
+double WXY_sum =0;
+vector<double> WkXY_sum;
 extern int K;
 int top_k = 10;
 extern string path;
@@ -91,7 +91,7 @@ graph construct_graph(){
     }
 
     WXY_sum = 0;
-    int from, to, val;
+    double from, to, val;
     // Target type
 	while(getline(ifs_WXY, str)){
         vector<string> strvec = split(str, ',');
@@ -184,7 +184,7 @@ vector<graph> construct_sub_graph(graph& g){
     vector<string> x_name;
     X_sub_name_vector = vector<vector<string>>(K);
     
-    WkXY_sum = vector<int>(K,0);
+    WkXY_sum = vector<double>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         vertex_iterator i,j;
         int cluster_size = 0;
