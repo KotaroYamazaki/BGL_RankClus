@@ -81,7 +81,7 @@ void clustering(graph &g, vector<graph>& subgraph){
 
     vector<vector<int>> new_cluster_label(K);
         
-    for (boost::tie(m, n) = vertices(g); *m < xNum; m++) {
+    for (boost::tie(m, n) = vertices(g); g[*m].int_descriptor < xNum; m++) {
     //Dの計算
         double norms = Norm(s[*m]);
         int index = 0;
