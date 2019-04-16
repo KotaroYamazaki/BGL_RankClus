@@ -9,8 +9,8 @@ using namespace std;
 
 int xNum;
 int yNum;
-int WXY_sum =0;
-vector<int> WkXY_sum;
+double WXY_sum =0;
+vector<double> WkXY_sum;
 extern int K;
 int top_k = 10;
 extern int input_seed;
@@ -201,7 +201,7 @@ vector<graph> construct_sub_graph(graph& g){
     vector<graph> subgraph_vector;
     vector<string> x_name;
     
-    WkXY_sum = vector<int>(K,0);
+    WkXY_sum = vector<double>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         vertex_iterator i,j;
         int cluster_size = 0;

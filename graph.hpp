@@ -25,7 +25,7 @@ struct vertex_property
 struct edge_property
 {
     std::string label;
-    int weight;
+    double weight;
 };
 
 // グラフの属性値を自由に定義

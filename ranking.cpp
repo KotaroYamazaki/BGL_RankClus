@@ -6,7 +6,7 @@
 #include "graph.hpp"
 #include <time.h>
 using namespace std;
-extern vector<int> WkXY_sum;
+extern vector<double> WkXY_sum;
 extern int xNum;
 const double alpha = 0.95;
 const int rankiter = 15;

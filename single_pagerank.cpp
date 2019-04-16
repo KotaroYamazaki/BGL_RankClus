@@ -6,13 +6,12 @@
 #include "graph.hpp"
 #include <time.h>
 using namespace std;
-extern vector<int> WkXY_sum;
+extern vector<double> WkXY_sum;
 extern int xNum;
 
 const double alpha = 0.95;
 const int rankiter = 15;
 
-extern vector<int> WkXY_sum;
 extern int K;
 vector<graph> pre_graph;
 vector<vector<double>> residual;
@@ -55,13 +54,14 @@ graph normalize_weight(graph& g){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         //O(n*E*E)
+        //W_XY で行正規化をしている
         if(g[*i].int_descriptor < xNum){
             //g[*i].rx = pre_graph[clusterNum][*i].rx;
             int rowsum = 0;
-            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 rowsum += g[*e .first].weight;
             }
-            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 g[*e .first].weight /= rowsum;
             }
         }
@@ -95,11 +95,12 @@ void normalize_rank(graph& g, int clusterNum){
 }
 
 void gauss_southwell(graph& g, int clusterNum){
-    normalize_weight(g);
+    g = normalize_weight(g);
     for(int v = 0; v < 20000; v++){
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
+        //cout << "max__index:  " << max_index << endl;
         //cout << "r_i:  " <<  r_i << endl;
 
         if(r_i < epsi){
@@ -114,11 +115,39 @@ void gauss_southwell(graph& g, int clusterNum){
         }else{
             g[max_index].ry += r_i;
         }
-        residual[clusterNum][max_index] -= r_i; 
+        //cout << residual[clusterNum][max_index] << "-> : " << r_i << endl;
+        residual[clusterNum][max_index] -= r_i;
 
-        for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
-            residual[clusterNum][max_index] += g[*e.first].weight * r_i;
+        double tmp = 0;
+        vertex_iterator i,j;
+        for (boost::tie(i, j) = vertices(g); i != j; i++) {
+            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
+                if(g[source(*e.first, g)].int_descriptor == max_index){
+                    tmp += g[*e.first].weight;
+                    //cout << tmp << " " << flush;
+                residual[clusterNum][max_index] += g[*e.first].weight * r_i;
+                }
+            }
         }
+        //cout << tmp << endl;
+
+        // vertex_iterator i,j;
+        // for(boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
+        //     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+        //     }
+        // }
+        // for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+        //         cout << g[*e.first].weight <<  " " << endl;
+        //     }
+        // cout << tmp << endl;
+        // vertex_iterator i,j;
+        // for (boost::tie(i, j) = vertices(g); i != j; i++) {
+        //     if(boost::edge(*i,max_index, g).second){
+        //         tmp += g[boost::edge(*i,max_index, g).first].weight;
+        //         residual[clusterNum][max_index] += g[boost::in_edge(*i,max_index, g).first].weight * r_i;
+        //     }
+        // }
+     //   cout << tmp << endl;
     }
 }
 

@@ -5,9 +5,9 @@
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
 using namespace std;
-extern vector<int> WkXY_sum;
+extern vector<double> WkXY_sum;
 extern int K;
-extern int WXY_sum;
+extern double WXY_sum;
 extern int xNum;
 bool has_empty_cluster(graph& g);
 extern vector<vector<int>> cluster_label;
