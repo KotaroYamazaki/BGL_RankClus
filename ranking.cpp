@@ -78,6 +78,3 @@ void authority_ranking(graph& g, int clusterNum){
         }
     }
 }
-
-
-
