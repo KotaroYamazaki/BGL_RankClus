@@ -12,7 +12,7 @@ extern int xNum;
 const double alpha = 0.85;
 const int rankiter = 15;
 const int gauss_itr = 20000;
-const double epsi = 0.01;
+const double epsi = 0.0001;
 
 extern int K;
 vector<graph> pre_graph;
@@ -61,13 +61,12 @@ void normalize_outedge_weight(graph& g){
         //W_XY で行正規化をしている
         //if(g[*i].int_descriptor > xNum){
             //g[*i].rx = pre_graph[clusterNum][*i].rx;
-            int rowsum = 0;
+            double rowsum = 0;
             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                 rowsum += g[*e .first].weight;
             }
             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-                g[*e .first].weight /= rowsum;
-                //cout << "out wieight : " << g[*e.first].weight << endl;
+                if(rowsum != 0)g[*e .first].weight /= rowsum;
             }
      //   }
     }
@@ -205,8 +204,15 @@ void single_pagerank(graph& g, int clusterNum){
 
         for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
             if(g[*i].int_descriptor < xNum){
-                g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx + (1 - alpha)*(1/(cluster_label[clusterNum].size()));
+                if(isnan(g[*e.first].weight)){
+                    cout << "nandesu";
+                    exit(1);
+                }
+                //cout << g[*e.first].weight << endl;
+                g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1 - alpha)* (1/(cluster_label[clusterNum].size()));
                 RxSum += g[*i].rx;
+                //cout << g[*i].rx << endl;
+                
             }else{
                 g[*i].ry = alpha * g[*e.first].weight;
                 RySum += g[*i].ry;
@@ -217,10 +223,12 @@ void single_pagerank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
-                g[*i].rx /= RxSum;
+                //if(RxSum != 0)g[*i].rx /= RxSum;
+                ((RxSum != 0) ? g[*i].rx /= RxSum : g[*i].rx = 0);
                 //cout << g[*i].rx << endl;
             }else{
-                g[*i].ry /= RySum;
+                //if(RySum != 0) g[*i].ry /= RySum;
+                ((RySum != 0) ? g[*i].ry /= RySum : g[*i].ry = 0);
                 //cout << g[*i].ry << endl;
             }
         }
