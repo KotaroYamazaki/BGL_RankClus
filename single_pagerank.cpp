@@ -12,6 +12,7 @@ extern int xNum;
 const double alpha = 0.85;
 const int rankiter = 15;
 const int gauss_itr = 20000;
+const double epsi = 0.01;
 
 extern int K;
 vector<graph> pre_graph;
@@ -21,8 +22,6 @@ void gauss_southwell(graph& g, int clusterNum);
 void normalize_outedge_weight(graph& g);
 void normalize_xy_rank(graph& g, int clusterNum);
 void normalize_global_rank(graph& g);
-
-const double epsi = 0.001;
 
 extern int t;
 extern int iteration_num;
@@ -126,13 +125,14 @@ void gauss_southwell(graph& g, int clusterNum){
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
         vertex_iterator max_vertex_itr = cast_vertex_iterator(max_index, g);
-        if(v < 15){
-            cout << "r_i: " << r_i << " | index " << max_index << endl;
-            //cout << max_index << endl;
-            //cast_vertex_iterator(max_index, g);
-            // cout << *max_vertex_itr << endl;
-            // cout << "rx" << g[*max_vertex_itr].ry << endl;
-        }
+        //if()file << r_i << ", ";
+        // if(v > 0){
+             //cout << "[" << v << "] r_i: " << r_i << " | index " << max_index << endl;
+        //     //cout <<  "max_ri"<< residual[clusterNum][max_index] << endl;
+        //     //cast_vertex_iterator(max_index, g);
+        //     // cout << *max_vertex_itr << endl;
+        //     // cout << "rx" << g[*max_vertex_itr].ry << endl;
+        // }
 
         if(max_index < xNum){
             g[*max_vertex_itr].rx += r_i;
@@ -142,9 +142,9 @@ void gauss_southwell(graph& g, int clusterNum){
         residual[clusterNum][max_index] -= r_i;
 
         for (auto e = out_edges(*max_vertex_itr, g); e.first!=e.second; e.first++) {
-            cout << residual[clusterNum][target(*e.first, g)] << endl;
+            //cout << residual[clusterNum][target(*e.first, g)] << endl;
            residual[clusterNum][target(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
-            cout << "伝搬後　"<< residual[clusterNum][target(*e.first, g)] << endl;
+            //cout << "伝搬後　"<<  alpha << "*"<< (g[*e.first].weight) << "*" <<  r_i << " = " << residual[clusterNum][target(*e.first, g)] << endl;
         }
 
         if(r_i < epsi || v == gauss_itr - 1){
