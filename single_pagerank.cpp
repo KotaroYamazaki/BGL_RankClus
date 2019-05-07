@@ -142,7 +142,9 @@ void gauss_southwell(graph& g, int clusterNum){
         residual[clusterNum][max_index] -= r_i;
 
         for (auto e = out_edges(*max_vertex_itr, g); e.first!=e.second; e.first++) {
+            cout << residual[clusterNum][target(*e.first, g)] << endl;
            residual[clusterNum][target(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
+            cout << "伝搬後　"<< residual[clusterNum][target(*e.first, g)] << endl;
         }
 
         if(r_i < epsi || v == gauss_itr - 1){
