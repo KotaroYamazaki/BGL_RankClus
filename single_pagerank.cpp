@@ -4,7 +4,8 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
-#include <time.h>
+#include <chrono>
+
 using namespace std;
 extern vector<double> WkXY_sum;
 extern int xNum;
@@ -12,7 +13,7 @@ extern int xNum;
 const double alpha = 0.85;
 const int rankiter = 15;
 const int gauss_itr = 20000;
-const double epsi = 0.0001;
+const double epsi = 0.00001;
 
 extern int K;
 vector<graph> pre_graph;
@@ -34,16 +35,37 @@ void init_residual(graph& g, int clusterNum);
 
 void ranking(graph& subgraph, int clusterNum){
     //clock_t start = clock();
+    chrono::system_clock::time_point  start, end; 
     if(iteration_num == 1){
+
+        start = std::chrono::system_clock::now();
         normalize_outedge_weight(subgraph);
+        end = std::chrono::system_clock::now();
+        auto dur = end - start; 
+        auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+        cout <<   "Normalize time [micro]: "<< msec << endl;
+
         if(t == 0){
             //authority_ranking(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
             pre_graph.push_back(subgraph);
         }else{
             normalize_global_rank(subgraph);
+
+            start = std::chrono::system_clock::now();
             init_residual(subgraph, clusterNum);
+            end = std::chrono::system_clock::now();
+            dur = end - start; 
+            msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+            cout <<   "init time [micro]: "<< msec << endl << endl;
+
+            start = std::chrono::system_clock::now();
             gauss_southwell(subgraph, clusterNum);
+            end = std::chrono::system_clock::now();
+            dur = end - start; 
+            msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+            cout <<   "gauss time [micro]: "<< msec << endl << endl;
+
             normalize_xy_rank(subgraph, clusterNum);
             pre_graph[clusterNum] = subgraph;
         }
@@ -119,11 +141,18 @@ vertex_iterator cast_vertex_iterator(unsigned long index, graph g){
 }
 
 void gauss_southwell(graph& g, int clusterNum){
+    chrono::system_clock::time_point  start, end; 
+    auto msec = 0;
     for(int v = 0; v < gauss_itr; v++){
+        start = std::chrono::system_clock::now();
         auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
         unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
         double r_i = residual[clusterNum][max_index];
         vertex_iterator max_vertex_itr = cast_vertex_iterator(max_index, g);
+        end = std::chrono::system_clock::now();
+        auto dur = end - start; 
+        msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
+
         //if()file << r_i << ", ";
         // if(v > 0){
              //cout << "[" << v << "] r_i: " << r_i << " | index " << max_index << endl;
@@ -151,6 +180,7 @@ void gauss_southwell(graph& g, int clusterNum){
             break;
         }
     }
+    cout << "Tansaku Time[micro] : " << msec << endl;
 }
 
 void init_residual(graph& g, int clusterNum){
@@ -204,10 +234,6 @@ void single_pagerank(graph& g, int clusterNum){
 
         for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
             if(g[*i].int_descriptor < xNum){
-                if(isnan(g[*e.first].weight)){
-                    cout << "nandesu";
-                    exit(1);
-                }
                 //cout << g[*e.first].weight << endl;
                 g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1 - alpha)* (1/(cluster_label[clusterNum].size()));
                 RxSum += g[*i].rx;
