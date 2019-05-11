@@ -5,6 +5,7 @@
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
 #include <chrono>
+#include <queue>
 
 using namespace std;
 extern vector<double> WkXY_sum;
@@ -143,42 +144,48 @@ vertex_iterator cast_vertex_iterator(unsigned long index, graph g){
 void gauss_southwell(graph& g, int clusterNum){
     chrono::system_clock::time_point  start, end; 
     auto msec = 0;
+    queue<int> q_index;
+    for(int i = 0; i < residual[clusterNum].size(); i++){
+        if(residual[clusterNum][i] < epsi){
+            q_index.push(i);
+        }
+    }
     for(int v = 0; v < gauss_itr; v++){
+        if(q_index.empty()){
+            cout << "converged at" << v + 1 << endl;
+            break;
+        }
         start = std::chrono::system_clock::now();
-        auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
-        unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
+        // auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
+        // unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
+        // double r_i = residual[clusterNum][max_index];
+        // vertex_iterator max_vertex_itr = cast_vertex_iterator(max_index, g);
+        unsigned long index = q_index.front();
+        q_index.pop();
+        vertex_descriptor max_index = vertex(index, g);
         double r_i = residual[clusterNum][max_index];
-        vertex_iterator max_vertex_itr = cast_vertex_iterator(max_index, g);
         end = std::chrono::system_clock::now();
-        auto dur = end - start; 
+        auto dur = end - start;
         msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
 
-        //if()file << r_i << ", ";
-        // if(v > 0){
-             //cout << "[" << v << "] r_i: " << r_i << " | index " << max_index << endl;
-        //     //cout <<  "max_ri"<< residual[clusterNum][max_index] << endl;
-        //     //cast_vertex_iterator(max_index, g);
-        //     // cout << *max_vertex_itr << endl;
-        //     // cout << "rx" << g[*max_vertex_itr].ry << endl;
-        // }
-
         if(max_index < xNum){
-            g[*max_vertex_itr].rx += r_i;
+            g[max_index].rx += r_i;
         }else{
-            g[*max_vertex_itr].ry += r_i;
+            g[max_index].ry += r_i;
         }
         residual[clusterNum][max_index] -= r_i;
 
-        for (auto e = out_edges(*max_vertex_itr, g); e.first!=e.second; e.first++) {
+        for (auto e = out_edges(max_index, g); e.first!=e.second; e.first++) {
             //cout << residual[clusterNum][target(*e.first, g)] << endl;
            residual[clusterNum][target(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
             //cout << "伝搬後　"<<  alpha << "*"<< (g[*e.first].weight) << "*" <<  r_i << " = " << residual[clusterNum][target(*e.first, g)] << endl;
+            if(residual[clusterNum][target(*e.first, g)] > epsi ) q_index.push(target(*e.first, g));
         }
 
-        if(r_i < epsi || v == gauss_itr - 1){
-            cout << "converge at " << v + 1<< endl;
-            break;
-        }
+        // if(r_i < epsi || v == gauss_itr - 1){
+        //     cout << "converge at " << v + 1<< endl;
+        //     break;
+        // }
     }
     cout << "Tansaku Time[micro] : " << msec << endl;
 }
