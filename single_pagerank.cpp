@@ -133,14 +133,6 @@ void normalize_global_rank(graph& g){
 
 }
 
-
-vertex_iterator cast_vertex_iterator(unsigned long index, graph g){
-    vertex_iterator i,j;
-    for(boost::tie(i,j) = vertices(g); g[*i].int_descriptor < index; i++){
-    }
-    return i;
-}
-
 void gauss_southwell(graph& g, int clusterNum){
     chrono::system_clock::time_point  start, end; 
     auto msec = 0;
@@ -156,10 +148,6 @@ void gauss_southwell(graph& g, int clusterNum){
             break;
         }
         start = std::chrono::system_clock::now();
-        // auto max_itr = max_element(residual[clusterNum].begin(), residual[clusterNum].end());
-        // unsigned long max_index = distance(residual[clusterNum].begin(), max_itr);
-        // double r_i = residual[clusterNum][max_index];
-        // vertex_iterator max_vertex_itr = cast_vertex_iterator(max_index, g);
         unsigned long index = q_index.front();
         q_index.pop();
         vertex_descriptor max_index = vertex(index, g);
@@ -202,7 +190,6 @@ void init_residual(graph& g, int clusterNum){
             // ランク値の引き継ぎ
             if(g[*i].int_descriptor < xNum){
                 g[*i].rx = pre_graph[clusterNum][*i].rx;
-                //cout << pre_graph[clusterNum][*m].rx << endl;
             }else{
                 g[*i].ry = pre_graph[clusterNum][*i].ry;
             }
