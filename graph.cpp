@@ -16,12 +16,11 @@ int top_k = 10;
 extern int input_seed;
 extern string path;
 extern vector<vector<int>> cluster_label;
+vector<vector<vector<int>>> E; 
 
 vector<string> name_vector;
-//vector<vector<string>> ;
 
-vector<string> split(string& input, char delimiter)
-{
+vector<string> split(string& input, char delimiter){
     istringstream stream(input);
     string field;
     vector<string> result;
@@ -30,36 +29,6 @@ vector<string> split(string& input, char delimiter)
     }
     return result;
 }
-
-// ifstream read_file(string file_name){
-//     ifstream ifs(file_name);
-//         if(ifs.fail()){
-//             if(file_name != (path + "WYY.csv")){
-//             cout << "Failed to read " << file_name  << "."<< endl;
-//             //exit(0);
-//             }else{
-//                 //WYY がなくても実行できるが警告を出す。
-//                 cout << "Warnig: Excute with WYY file." << endl;
-//             }
-//         }
-//     return ifs;
-// }
-// graph normalize_weight(graph& g){
-//     vertex_iterator i,j;
-//     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-//         if(g[*i].int_descriptor < xNum){
-//             //g[*i].rx = pre_graph[clusterNum][*i].rx;
-//             int rowsum = 0;
-//             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-//                 rowsum += g[*e .first].weight;
-//             }
-//             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-//                 g[*e .first].weight /= rowsum;
-//             }
-//         }
-//     }
-//     return g;
-// }
 
 graph construct_graph(){
     // エッジのリスト
