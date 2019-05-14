@@ -214,34 +214,37 @@ void init_residual(graph& g, int clusterNum){
         residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
         P_diff = vector<vector<double>>(num_vertices(g), vector<double>(num_vertices(g), 0));
     }
-
-        
-        
+        start = std::chrono::system_clock::now();
         normalize_outedge_weight(g, clusterNum, P_diff);
-            double tmp_res = 0;
-            start = std::chrono::system_clock::now();
-            for(unsigned long i = 0; i < num_vertices(g); i++){
-                vector<double> rank;
-                vertex_descriptor node_id = vertex(i, g);
-                if(g[node_id].int_descriptor < xNum){
-                        g[node_id].rx = pre_graph[clusterNum][node_id].rx;
-                        rank.push_back(g[node_id].rx);
-                    }else{
-                        g[node_id].ry = pre_graph[clusterNum][node_id].ry;
-                        rank.push_back(g[node_id].ry);
-                    }
-
-                for(int j = 0; j < num_vertices(g); j++){
-                    // P_diff = P(t-1) - P(t)がはいっているので-1をかける 
-                    if(P_diff[i][j] == 0)continue;
-                    tmp_res += (alpha * (-1)*P_diff[i][j] * rank[j]);
-                }
-                residual[clusterNum][i] += tmp_res;
-            }
         end = std::chrono::system_clock::now();
         auto dur = end - start; 
         auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-        cout << "Keisan time: " << msec << endl;
+        cout << "   normalize time: " << msec << endl;
+
+        double tmp_res = 0;
+        start = std::chrono::system_clock::now();
+        for(unsigned long i = 0; i < num_vertices(g); i++){
+            vector<double> rank;
+            vertex_descriptor node_id = vertex(i, g);
+            if(g[node_id].int_descriptor < xNum){
+                    g[node_id].rx = pre_graph[clusterNum][node_id].rx;
+                    rank.push_back(g[node_id].rx);
+                }else{
+                    g[node_id].ry = pre_graph[clusterNum][node_id].ry;
+                    rank.push_back(g[node_id].ry);
+                }
+
+            for(int j = 0; j < num_vertices(g); j++){
+                // P_diff = P(t-1) - P(t)がはいっているので-1をかける 
+                if(P_diff[i][j] == 0)continue;
+                tmp_res += (alpha * (-1)*P_diff[i][j] * rank[j]);
+            }
+            residual[clusterNum][i] += tmp_res;
+        }
+        end = std::chrono::system_clock::now();
+        dur = end - start; 
+        msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+        cout << "   Keisan time: " << msec << endl;
             // for(boost::tie(m,n) = vertices(g); m != n; m++){
             //     double rank = 0;
             //     if(g[*m].int_descriptor < xNum)rank = pre_graph[clusterNum][*m].rx;
