@@ -15,7 +15,7 @@ extern int yNum;
 const double alpha = 0.85;
 const int rankiter = 15;
 const int gauss_itr = 20000;
-const double epsi = 0.000001;
+const double epsi = 0.00001;
 
 extern int K;
 vector<graph> pre_graph;
@@ -53,8 +53,8 @@ void ranking(graph& subgraph, int clusterNum){
             // cout << "Normalize time [micro]: "<< msec << endl;
             //authority_ranking(subgraph, clusterNum);
             //start = std::chrono::system_clock::now();
-            //single_pagerank(subgraph, clusterNum);
-            authority_ranking(subgraph, clusterNum);
+            single_pagerank(subgraph, clusterNum);
+            //authority_ranking(subgraph, clusterNum);
             // end = std::chrono::system_clock::now();
             // dur = end - start; 
             // msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
