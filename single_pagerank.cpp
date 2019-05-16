@@ -15,7 +15,7 @@ extern int yNum;
 const double alpha = 0.85;
 const int rankiter = 15;
 const int gauss_itr = 20000;
-const double epsi = 0.00001;
+const double epsi = 0.000001;
 
 extern int K;
 vector<graph> pre_graph;
@@ -53,7 +53,8 @@ void ranking(graph& subgraph, int clusterNum){
             // cout << "Normalize time [micro]: "<< msec << endl;
             //authority_ranking(subgraph, clusterNum);
             //start = std::chrono::system_clock::now();
-            single_pagerank(subgraph, clusterNum);
+            //single_pagerank(subgraph, clusterNum);
+            authority_ranking(subgraph, clusterNum);
             // end = std::chrono::system_clock::now();
             // dur = end - start; 
             // msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
@@ -62,36 +63,36 @@ void ranking(graph& subgraph, int clusterNum){
         }else{
             normalize_global_rank(subgraph);
 
-            start = std::chrono::system_clock::now();
+            //start = std::chrono::system_clock::now();
             init_residual(subgraph, clusterNum);
-            end = std::chrono::system_clock::now();
+            //end = std::chrono::system_clock::now();
             //dur_init_residual += end - start; 
-            auto dur = end - start; 
-            auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-            time_init_res += msec;
+            // auto dur = end - start; 
+            // auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+            // time_init_res += msec;
 
             //cout <<   "init time [micro]: "<< msec << endl << endl;
 
-            start = std::chrono::system_clock::now();
+            // start = std::chrono::system_clock::now();
             gauss_southwell(subgraph, clusterNum);
-            end = std::chrono::system_clock::now();
-            //dur_gauss += end - start; 
-            dur = end - start;
-            msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-            time_gauss += msec;
+            // end = std::chrono::system_clock::now();
+            // //dur_gauss += end - start; 
+            // dur = end - start;
+            // msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+            // time_gauss += msec;
             // cout <<   "gauss time [micro]: "<< msec << endl << endl;
 
             normalize_xy_rank(subgraph, clusterNum);
             pre_graph[clusterNum] = subgraph;
         }
-        if(clusterNum == K - 1){
-            //auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur_init_residual).count();
-            cout <<   "\tinit time [micro]: "<< time_init_res << endl;
-            //auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur_gauss).count();
-            cout <<   "\tgauss time [micro]: "<< time_gauss << endl;
-            time_init_res = 0;
-            time_gauss = 0;
-        }
+        // if(clusterNum == K - 1){
+        //     //auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur_init_residual).count();
+        //     cout <<   "\tinit time [micro]: "<< time_init_res << endl;
+        //     //auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur_gauss).count();
+        //     cout <<   "\tgauss time [micro]: "<< time_gauss << endl;
+        //     time_init_res = 0;
+        //     time_gauss = 0;
+        // }
     }else{
         authority_ranking(subgraph, clusterNum);
     }
@@ -161,7 +162,7 @@ void gauss_southwell(graph& g, int clusterNum){
     }
     for(int v = 0; v < gauss_itr; v++){
         if(q_index.empty()){
-            cout << "converged at" << v + 1 << endl;
+            //cout << "converged at" << v + 1 << endl;
             break;
         }
         //start = std::chrono::system_clock::now();
