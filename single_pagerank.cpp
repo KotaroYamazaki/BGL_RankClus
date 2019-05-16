@@ -174,7 +174,7 @@ void gauss_southwell(graph& g, int clusterNum){
         // msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
 
         if(max_index < xNum){
-            cout << g[max_index].rx << endl;
+            //cout << g[max_index].rx << endl;
             g[max_index].rx += r_i;
             // if(isnan(g[max_index].rx))exit(1);
             //cout << g[max_index].rx << endl;
@@ -210,6 +210,7 @@ void init_residual(graph& g, int clusterNum){
 
         vertex_iterator i,j,m,n;
         for(boost::tie(i,j) = vertices(g); i != j; i++){
+            if(*i < xNum)cout << g[*i].rx << endl;
             double tmp_res = 0;
             //コスト削減のためのアドレス渡し
             graph& pre_g = pre_graph[clusterNum];
@@ -245,10 +246,8 @@ void single_pagerank(graph& g, int clusterNum){
 
         for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
             if(g[*i].int_descriptor < xNum){
-                //cout << g[*e.first].weight << endl;
                 g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1 - alpha)* (1/(cluster_label[clusterNum].size()));
                 RxSum += g[*i].rx;
-                //cout << g[*i].rx << endl;
                 
             }else{
                 g[*i].ry = alpha * g[*e.first].weight;
