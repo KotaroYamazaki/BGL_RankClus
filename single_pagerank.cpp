@@ -216,7 +216,7 @@ void init_residual(graph& g, int clusterNum){
             graph& pre_g = pre_graph[clusterNum];
             //ランク地の引き継ぎ
             (g[*i].int_descriptor < xNum ? g[*i].rx = pre_g[*i].rx : g[*i].ry = pre_g[*i].ry);
-            if(g[*i].belongs_to_cluster == clusterNum)cout << pre_g[*i].rx << endl;
+            //if(g[*i].belongs_to_cluster == clusterNum)cout << pre_g[*i].rx << endl;
 
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 vertex_descriptor v = source(*e.first, g);
@@ -240,16 +240,20 @@ void single_pagerank(graph& g, int clusterNum){
     vertex_iterator i,j;
     double RxSum = 0;
     double RySum = 0;
-    for(int v = 0; v < 2000; v++){
+    for(int v = 0; v < rankiter; v++){
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
                 if(v == 0){
-                    if(g[*i].int_descriptor < xNum )g[*i].rx = 1.0/cluster_label[clusterNum].size();
-                    else g[*i].ry = 1.0/yNum;
+                    if(g[*i].int_descriptor < xNum ){
+                        g[*i].rx = 1.0/cluster_label[clusterNum].size();
+                        if(g[*i].belongs_to_cluster != clusterNum)g[*i].rx = -1;
+                    }else{
+                        g[*i].ry = 1.0/yNum;
+                    }
                 }
 
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 if(g[*i].int_descriptor < xNum){
-                    g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1 - alpha)* (1/(cluster_label[clusterNum].size()));
+                    g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1.0 - alpha)* (1.0/(cluster_label[clusterNum].size()));
                     RxSum += g[*i].rx;
                     
                 }else{
@@ -263,8 +267,8 @@ void single_pagerank(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
                 //if(RxSum != 0)g[*i].rx /= RxSum;
-                ((RxSum != 0) ? g[*i].rx /= RxSum : g[*i].rx = 0);
-                cout << *i << ": "<< g[*i].rx << endl;
+                ((RxSum != 0 && g[*i].belongs_to_cluster == clusterNum) ? g[*i].rx /= RxSum : g[*i].rx = 0);
+                //if(g[*i].belongs_to_cluster == clusterNum)cout << *i << ": "<< g[*i].rx << ":" << g[*i].belongs_to_cluster <<endl;
             }else{
                 //if(RySum != 0) g[*i].ry /= RySum;
                 ((RySum != 0) ? g[*i].ry /= RySum : g[*i].ry = 0);
