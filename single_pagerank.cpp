@@ -210,7 +210,7 @@ void init_residual(graph& g, int clusterNum){
 
         vertex_iterator i,j,m,n;
         for(boost::tie(i,j) = vertices(g); i != j; i++){
-            if(*i < xNum)cout << g[*i].rx << endl;
+            //if(*i < xNum)cout << g[*i].rx << endl;
             double tmp_res = 0;
             //コスト削減のためのアドレス渡し
             graph& pre_g = pre_graph[clusterNum];
@@ -240,28 +240,31 @@ void single_pagerank(graph& g, int clusterNum){
     vertex_iterator i,j;
     double RxSum = 0;
     double RySum = 0;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        if(g[*i].int_descriptor < xNum)g[*i].rx = 1;
-        else g[*i].ry = 1;
+    for(int v = 0; v < 2000; v++){
+        for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+                if(v == 0){
+                    if(g[*i].int_descriptor < xNum )g[*i].rx = 1.0/cluster_label[clusterNum].size();
+                    else g[*i].ry = 1.0/yNum;
+                }
 
-        for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-            if(g[*i].int_descriptor < xNum){
-                g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1 - alpha)* (1/(cluster_label[clusterNum].size()));
-                RxSum += g[*i].rx;
-                
-            }else{
-                g[*i].ry = alpha * g[*e.first].weight;
-                RySum += g[*i].ry;
+            for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                if(g[*i].int_descriptor < xNum){
+                    g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1 - alpha)* (1/(cluster_label[clusterNum].size()));
+                    RxSum += g[*i].rx;
+                    
+                }else{
+                    g[*i].ry = alpha * g[*e.first].weight;
+                    RySum += g[*i].ry;
+                }
             }
         }
-
     }
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
                 //if(RxSum != 0)g[*i].rx /= RxSum;
                 ((RxSum != 0) ? g[*i].rx /= RxSum : g[*i].rx = 0);
-                //cout << g[*i].rx << endl;
+                cout << *i << ": "<< g[*i].rx << endl;
             }else{
                 //if(RySum != 0) g[*i].ry /= RySum;
                 ((RySum != 0) ? g[*i].ry /= RySum : g[*i].ry = 0);
