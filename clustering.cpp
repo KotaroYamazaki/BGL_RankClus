@@ -26,16 +26,19 @@ void clustering(graph &g, vector<graph>& subgraph){
     vertex_iterator i,j;
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         p.push_back(1.0*WkXY_sum[clusterNum]/WXY_sum);
+        //cout << "p[" << clusterNum << "]:"<<  p[clusterNum] << endl;
     }
 
     for(int z = 0; z < K; z++){
         double tmp_p = 0;
         for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                //cout << subgraph[z][source(*e.first, g)].ry << endl;
                 tmp_p += g[*e.first].weight * subgraph[z][target(*e.first, g)].rx *subgraph[z][source(*e.first, g)].ry * p[z];
             }
         }
         p[z] = tmp_p/WXY_sum;
+        //cout << "p[" << z << "]:"<<  p[z] << endl;
     }
 
     // calc pi
@@ -93,6 +96,7 @@ void clustering(graph &g, vector<graph>& subgraph){
             }
             D[*m][k] = 1.0 - (tmp/(norms * Norm(center_vec[k])));
     //assign
+            //cout <<  *m << "->" << k << ": " << D[*m][k] << endl;
             if(D[*m][k] < minDis){
                 minDis = D[*m][k];
                 index = k;
@@ -109,7 +113,9 @@ void clustering(graph &g, vector<graph>& subgraph){
     }
     cluster_label = new_cluster_label;
 
+    void print_cluster(graph &g);
     if(has_empty_cluster(g)){
+        print_cluster(g);
         cout << "Cluster became empty , you have to run the program again." << endl;
         exit(0);
     }
