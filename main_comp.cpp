@@ -74,7 +74,8 @@ int main(int argc, char* argv[])
 
         cout << "Proposal time[micro]: " << time[1] << endl;
         cout<< "RankClus Time[micro]: " << time[0] << endl;
-        cout << "Difference " << time[0] - time[1] << endl;
+        cout << "Difference: " << time[0] - time[1] << endl;
+        cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
         cout << "NMI: " << flush;
         system("python NMI.py");
 	}   
