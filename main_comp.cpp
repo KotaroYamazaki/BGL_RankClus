@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 		if(i != comp_num - 1)file1  << "," << flush;
 	}
         file1.close();
- 
+
         cout << "Proposal time[micro]: " << time[1] << endl;
         cout<< "RankClus Time[micro]: " << time[0] << endl;
         cout << "Difference " << time[0] - time[1] << endl;
@@ -119,6 +119,7 @@ int do_main(){
         cout << "clustering time[micro]: " << clustering_time << endl; 
         convflag = check_converge_cluster(g);
     }
+    //print_cluster(g);
     end = chrono::system_clock::now();
     double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
     cout << " Time[micro]: " << elapsed << endl;

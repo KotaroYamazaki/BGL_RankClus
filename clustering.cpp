@@ -26,19 +26,19 @@ void clustering(graph &g, vector<graph>& subgraph){
     vertex_iterator i,j;
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         p.push_back(1.0*WkXY_sum[clusterNum]/WXY_sum);
-        //cout << "p[" << clusterNum << "]:"<<  p[clusterNum] << endl;
+        //if(isnan(p[clusterNum]))cout << "p[" << clusterNum << "]:"<<  p[clusterNum] << endl;
     }
 
     for(int z = 0; z < K; z++){
         double tmp_p = 0;
         for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                //cout << subgraph[z][source(*e.first, g)].ry << endl;
+                //if(isnan(subgraph[z][source(*e.first, g)].ry))cout << subgraph[z][source(*e.first, g)].ry << endl;
                 tmp_p += g[*e.first].weight * subgraph[z][target(*e.first, g)].rx *subgraph[z][source(*e.first, g)].ry * p[z];
             }
         }
         p[z] = tmp_p/WXY_sum;
-        //cout << "p[" << z << "]:"<<  p[z] << endl;
+        //if(isnan(p[z]))cout << "p[" << z << "]:"<<  p[z] << endl;
     }
 
     // calc pi

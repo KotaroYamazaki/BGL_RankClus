@@ -127,7 +127,6 @@ graph construct_graph(){
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
     graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
 
-    //normalize_weight(g);
     return g;
 }
 

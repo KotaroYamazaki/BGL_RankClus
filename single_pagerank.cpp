@@ -15,13 +15,12 @@ extern int yNum;
 const double alpha = 0.85;
 const int rankiter = 15;
 const int gauss_itr = 20000;
-const double epsi = 0.00001;
+double epsi;
 
 extern int K;
 vector<graph> pre_graph;
 vector<vector<double>> residual;
-vector<vector<vector<double>>> P;
-vector<vector<vector<double>>> preP;
+vector<double> rankSum;
 
 extern int t;
 extern int iteration_num;
@@ -31,68 +30,30 @@ void gauss_southwell(graph& g, int clusterNum);
 void normalize_outedge_weight(graph& g);
 void normalize_outedge_weight(graph& g, int clusterNum, vector<vector<double>>& P_diff);
 void normalize_xy_rank(graph& g, int clusterNum);
-void normalize_global_rank(graph& g);
+void normalize_global_rank(graph& g, int clusterNum);
 void single_pagerank(graph& g, int clusterNum);
 void authority_ranking(graph& g, int clusterNum);
 vector<double> init_rank(graph& g);
 void init_residual(graph& g, int clusterNum);
 
-double time_init_res;
-double time_gauss;
+
 
 void ranking(graph& subgraph, int clusterNum){
-    //clock_t start = clock();
-    chrono::system_clock::time_point  start, end; 
     if(iteration_num == 1){
         if(t == 0){
-            //start = std::chrono::system_clock::now();
+            epsi = 0.1/(xNum + yNum);
+            //cout << epsi << endl;
             normalize_outedge_weight(subgraph);
-            // end = std::chrono::system_clock::now();
-            // auto dur = end - start;
-            // auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-            // cout << "Normalize time [micro]: "<< msec << endl;
-            //authority_ranking(subgraph, clusterNum);
-            //start = std::chrono::system_clock::now();
             single_pagerank(subgraph, clusterNum);
-            //authority_ranking(subgraph, clusterNum);
-            // end = std::chrono::system_clock::now();
-            // dur = end - start; 
-            // msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-            // cout << "Pagerank time [micro]: "<< msec << endl;
             pre_graph.push_back(subgraph);
         }else{
-            normalize_global_rank(subgraph);
-
-            //start = std::chrono::system_clock::now();
+            normalize_global_rank(subgraph, clusterNum);
+            normalize_outedge_weight(subgraph);
             init_residual(subgraph, clusterNum);
-            //end = std::chrono::system_clock::now();
-            //dur_init_residual += end - start; 
-            // auto dur = end - start; 
-            // auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-            // time_init_res += msec;
-
-            //cout <<   "init time [micro]: "<< msec << endl << endl;
-
-            // start = std::chrono::system_clock::now();
             gauss_southwell(subgraph, clusterNum);
-            // end = std::chrono::system_clock::now();
-            // //dur_gauss += end - start; 
-            // dur = end - start;
-            // msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-            // time_gauss += msec;
-            // cout <<   "gauss time [micro]: "<< msec << endl << endl;
-
             normalize_xy_rank(subgraph, clusterNum);
             pre_graph[clusterNum] = subgraph;
         }
-        // if(clusterNum == K - 1){
-        //     //auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur_init_residual).count();
-        //     cout <<   "\tinit time [micro]: "<< time_init_res << endl;
-        //     //auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur_gauss).count();
-        //     cout <<   "\tgauss time [micro]: "<< time_gauss << endl;
-        //     time_init_res = 0;
-        //     time_gauss = 0;
-        // }
     }else{
         authority_ranking(subgraph, clusterNum);
     }
@@ -129,26 +90,19 @@ void normalize_xy_rank(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
                 if(RxSum != 0)g[*i].rx /= RxSum;
-                //else if(g[*i].belongs_to_cluster == clusterNum)cout << "RxSum == 0: "<< g[*i].rx  << endl;
-                //cout<< g[*i].rx << endl;
             }else{
+                //if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
                 if(RySum != 0)g[*i].ry /= RySum;
             }
         }
+        rankSum[clusterNum] = (RxSum + RySum);
 }
 
-void normalize_global_rank(graph& g){
+void normalize_global_rank(graph& g, int clusterNum){
     vertex_iterator i,j;
-    double ranksum = 0;
-    double rank;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {   
-        if(g[*i].int_descriptor < xNum)rank = g[*i].rx;
-        else rank = g[*i].ry;
-        ranksum += rank;
-    }
-    if(g[*i].int_descriptor < xNum)g[*i].rx /= ranksum;
-        else g[*i].ry /= ranksum;
-
+    if(g[*i].int_descriptor < xNum)g[*i].rx /= rankSum[clusterNum];
+        else g[*i].ry /= rankSum[clusterNum];
+//        if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
 }
 
 void gauss_southwell(graph& g, int clusterNum){
@@ -156,7 +110,10 @@ void gauss_southwell(graph& g, int clusterNum){
     //auto msec = 0;
     queue<int> q_index;
     for(int i = 0; i < residual[clusterNum].size(); i++){
-        if(residual[clusterNum][i] < epsi){
+        //if(isnan(residual[clusterNum][i])) cout <<  << endl;
+        if(abs(residual[clusterNum][i]) > epsi){
+        //if(residual[clusterNum][i] < epsi){
+            //cout << residual[clusterNum][i] << endl;
             q_index.push(i);
         }
     }
@@ -167,49 +124,58 @@ void gauss_southwell(graph& g, int clusterNum){
         }
         //start = std::chrono::system_clock::now();
         unsigned long index = q_index.front();
+        //cout << "index is " << index << endl;
         q_index.pop();
         vertex_descriptor max_index = vertex(index, g);
+        if(isnan(max_index)){
+            cout << "max_index is nan" <<endl;
+            exit(0);
+        }
+        //cout << "res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         double r_i = residual[clusterNum][max_index];
         // end = std::chrono::system_clock::now();
         // auto dur = end - start;
         // msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
-
+        if(isnan(r_i)){
+            cout << " ri: "<< r_i << endl;
+            exit(1);
+        }
         if(max_index < xNum){
             //cout << g[max_index].rx << endl;
             g[max_index].rx += r_i;
             // if(isnan(g[max_index].rx))exit(1);
             //cout << g[max_index].rx << endl;
         }else{
+            //cout << g[max_index].ry << endl;
+            if(isnan(g[max_index].ry)){
+                cout << g[max_index].ry << endl;
+                exit(0);
+            }
             g[max_index].ry += r_i;
+            //cout << g[max_index].ry << endl;
         }
         residual[clusterNum][max_index] -= r_i;
+        //cout << "minus res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         //double sum = 0;
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
-           residual[clusterNum][target(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
+           residual[clusterNum][source(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
+           //cout << target(*e.first, g) << endl;
+           //cout << g[*e.first].weight << endl;
            //sum += g[*e.first].weight;
-            if(residual[clusterNum][target(*e.first, g)] > epsi ) q_index.push(target(*e.first, g));
+            if(abs(residual[clusterNum][target(*e.first, g)]) > epsi ) q_index.push(target(*e.first, g));
         }
         //cout << sum << endl;
+        //cout << "minus2 res [maxindex] : "  << residual[clusterNum][max_index] << endl;
     }
     //cout << "Tansaku Time[micro] : " << msec << endl;
 }
 
 void init_residual(graph& g, int clusterNum){
-    chrono::system_clock::time_point  start, end; 
-    
     if(t == 1 && clusterNum == 0){
         residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
-        //P_diff = vector<vector<double>>(num_vertices(g), vector<double>(num_vertices(g), 0));
     }
-        //start = std::chrono::system_clock::now();
-        // //normalize_outedge_weight(g, clusterNum, P_diff);
-        normalize_outedge_weight(g);
-        //end = std::chrono::system_clock::now();
-        // auto dur = end - start; 
-        // auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-        // cout << "   normalize time: " << msec << endl;
-
-        vertex_iterator i,j,m,n;
+        
+        vertex_iterator i,j;
         for(boost::tie(i,j) = vertices(g); i != j; i++){
             //if(*i < xNum)cout << g[*i].rx << endl;
             double tmp_res = 0;
@@ -217,7 +183,7 @@ void init_residual(graph& g, int clusterNum){
             graph& pre_g = pre_graph[clusterNum];
             //ランク地の引き継ぎ
             (g[*i].int_descriptor < xNum ? g[*i].rx = pre_g[*i].rx : g[*i].ry = pre_g[*i].ry);
-            //if(g[*i].belongs_to_cluster == clusterNum)cout << pre_g[*i].rx << endl;
+            //if(isnan(g[*i].ry))cout << "ry is nan" << endl;
 
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 vertex_descriptor v = source(*e.first, g);
@@ -225,16 +191,13 @@ void init_residual(graph& g, int clusterNum){
             }
             for (auto e = in_edges(*i, pre_g); e.first!=e.second; e.first++) {
                 vertex_descriptor pre_v = source(*e.first, pre_g);
-                tmp_res += pre_g[*e.first].weight * (pre_g[pre_v].int_descriptor < xNum ? pre_g[pre_v].rx : pre_g[pre_v].ry);
+                tmp_res += pre_g[*e.first].weight * (-1)*(pre_g[pre_v].int_descriptor < xNum ? pre_g[pre_v].rx : pre_g[pre_v].ry);
             }
+            //if(isnan(tmp_res))cout << "tmp_res is nan" << endl;
 
             residual[clusterNum][g[*i].int_descriptor] += alpha * tmp_res;
+            //if(isnan(residual[clusterNum][g[*i].int_descriptor])) cout << "endl" << endl;
         }
-
-        // end = std::chrono::system_clock::now();
-        // dur = end - start; 
-        // msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
-        // cout << "   Keisan time: " << msec << endl;
 }
 
 void single_pagerank(graph& g, int clusterNum){
@@ -267,15 +230,13 @@ void single_pagerank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
-                //if(RxSum != 0)g[*i].rx /= RxSum;
                 ((RxSum != 0 && g[*i].belongs_to_cluster == clusterNum) ? g[*i].rx /= RxSum : g[*i].rx = 0);
-                //if(g[*i].belongs_to_cluster == clusterNum)cout << *i << ": "<< g[*i].rx << ":" << g[*i].belongs_to_cluster <<endl;
             }else{
-                //if(RySum != 0) g[*i].ry /= RySum;
                 ((RySum != 0) ? g[*i].ry /= RySum : g[*i].ry = 0);
-                //cout << g[*i].ry << endl;
             }
         }
+        rankSum = vector<double>(K);
+        rankSum[clusterNum] = (RxSum + RySum);
 }
 
 void authority_ranking(graph& g, int clusterNum){
