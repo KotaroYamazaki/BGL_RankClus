@@ -9,14 +9,13 @@ using namespace std;
 
 int xNum;
 int yNum;
-double WXY_sum =0;
+double WXY_sum = 0;
 vector<double> WkXY_sum;
 extern int K;
 int top_k = 10;
 extern int input_seed;
 extern string path;
 extern vector<vector<int>> cluster_label;
-vector<vector<vector<int>>> E; 
 
 vector<string> name_vector;
 
@@ -158,9 +157,7 @@ bool has_empty_cluster(graph& g){
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
         check_flag[g[*i].belongs_to_cluster] = true;
     }
-    for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
-        if(check_flag[*itr] == false) return true;
-    }
+    for(int i = 0; i < K; i++)if(check_flag[i] == false) return true;
     return false;
 }
 

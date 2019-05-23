@@ -13,7 +13,7 @@ extern int xNum;
 extern int yNum;
 
 const double alpha = 0.85;
-const int rankiter = 15;
+const int rankiter = 20;
 const int gauss_itr = 20000;
 double epsi;
 
@@ -41,7 +41,8 @@ void init_residual(graph& g, int clusterNum);
 void ranking(graph& subgraph, int clusterNum){
     if(iteration_num == 1){
         if(t == 0){
-            epsi = 0.1/(xNum + yNum);
+            epsi = 1.0/(xNum + yNum);
+            //epsi =0;
             //cout << epsi << endl;
             normalize_outedge_weight(subgraph);
             single_pagerank(subgraph, clusterNum);
@@ -55,7 +56,9 @@ void ranking(graph& subgraph, int clusterNum){
             pre_graph[clusterNum] = subgraph;
         }
     }else{
-        authority_ranking(subgraph, clusterNum);
+        //authority_ranking(subgraph, clusterNum);
+            normalize_outedge_weight(subgraph);
+            single_pagerank(subgraph, clusterNum);
     }
 }
 
@@ -117,6 +120,7 @@ void gauss_southwell(graph& g, int clusterNum){
             q_index.push(i);
         }
     }
+    cout <<  "queue size : "<< q_index.size() << endl;
     for(int v = 0; v < gauss_itr; v++){
         if(q_index.empty()){
             //cout << "converged at" << v + 1 << endl;
