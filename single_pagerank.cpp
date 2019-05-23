@@ -24,7 +24,7 @@ double epsi;
 
 vector<graph> pre_graph;
 vector<vector<double>> residual;
-vector<double> rankSum;
+//vector<double> rankSum;
 
 void gauss_southwell(graph& g, int clusterNum);
 void normalize_outedge_weight(graph& g, int clusterNum);
@@ -77,9 +77,14 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         if(g[*i].int_descriptor < xNum){
-            //cout << *i << ": " << g[*i].rx << endl;
-            if(g[*i].belongs_to_cluster == clusterNum)RxSum += g[*i].rx;
-            else g[*i].rx = 0;
+            
+            if(g[*i].belongs_to_cluster == clusterNum){
+                RxSum += g[*i].rx;
+                //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
+            }
+            // else g[*i].rx = 0;
+            //RxSum += g[*i].rx;
+            //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
         }else{
             RySum += g[*i].ry;
         }
@@ -88,21 +93,23 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
-                if(RxSum != 0)g[*i].rx /= RxSum;
-                //cout << *i << ": " <<  g[*i].rx << endl;
+                if(RxSum != 0 && g[*i].belongs_to_cluster == clusterNum){
+                    g[*i].rx /= RxSum;
+                //if(t < 5)
+                // cout << *i << ": " <<  g[*i].rx << endl;
+                }
             }else{
                 //if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
                 if(RySum != 0)g[*i].ry /= RySum;
             }
         }
-        rankSum[clusterNum] = (RxSum + RySum);
+        //rankSum[clusterNum] = (RxSum + RySum);
 }
 
 void normalize_global_rank(graph& g, int clusterNum){
     vertex_iterator i,j;
-    if(g[*i].int_descriptor < xNum)g[*i].rx /= rankSum[clusterNum];
-        else g[*i].ry /= rankSum[clusterNum];
-//        if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
+    if(g[*i].int_descriptor < xNum)g[*i].rx = pre_graph[clusterNum][g[*i].int_descriptor].rx;
+        else g[*i].ry = pre_graph[clusterNum][g[*i].int_descriptor].ry;
 }
 
 void gauss_southwell(graph& g, int clusterNum){
@@ -134,7 +141,7 @@ void gauss_southwell(graph& g, int clusterNum){
         vertex_descriptor max_index = vertex(index, g);
 
         //cout << "res [maxindex] : "  << residual[clusterNum][max_index] << endl;
-        double r_i = fabs(residual[clusterNum][max_index]);
+        double r_i = residual[clusterNum][max_index];
         //cout << "absなし　: " << residual[clusterNum][max_index] << endl;
         //cout << v <<": index = "<< max_index << " : ri = " << r_i << endl;
         // end = std::chrono::system_clock::now();
@@ -170,14 +177,15 @@ void init_residual(graph& g, int clusterNum){
         for(boost::tie(i,j) = vertices(g); i != j; i++){
             //if(*i < xNum)cout << g[*i].rx << endl;
             double tmp_res = 0;
+
             //コスト削減のためのアドレス渡し
             graph& pre_g = pre_graph[clusterNum];
-            //ランク地の引き継ぎ
-                if(g[*i].int_descriptor < xNum){
-                    g[*i].rx = pre_g[*i].rx;
-                }else{
-                    g[*i].ry = pre_g[*i].ry;
-                }
+            // //ランク地の引き継ぎ
+            //     if(g[*i].int_descriptor < xNum){
+            //         g[*i].rx = pre_g[*i].rx;
+            //     }else{
+            //         g[*i].ry = pre_g[*i].ry;
+            //     }
             //if(isnan(g[*i].ry))cout << "ry is nan" << endl;
 
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -203,10 +211,10 @@ void single_pagerank(graph& g, int clusterNum){
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
                 if(v == 0){
                     if(g[*i].int_descriptor < xNum ){
-                        g[*i].rx = 1.0/cluster_label[clusterNum].size();
+                        g[*i].rx = 1.0/(xNum + yNum);
                         if(g[*i].belongs_to_cluster != clusterNum)g[*i].rx = 0;
                     }else{
-                        g[*i].ry = 1.0/yNum;
+                        g[*i].ry = 1.0/(xNum + yNum);
                     }
                 }
 
@@ -214,24 +222,23 @@ void single_pagerank(graph& g, int clusterNum){
                 if(g[*i].int_descriptor < xNum){
                     g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1.0 - alpha)* (1.0/(cluster_label[clusterNum].size()));
                     RxSum += g[*i].rx;
-                    
                 }else{
                     g[*i].ry = alpha * g[*e.first].weight;
                     RySum += g[*i].ry;
                 }
             }
+                if(g[*i].belongs_to_cluster != clusterNum && g[*i].rx != 0)cout << "0だよね？　＞　"　<< (g[*i].rx)<< endl;
         }
     }
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
+                cout << *i << ": " <<  g[*i].rx << endl;
                 ((RxSum != 0 && g[*i].belongs_to_cluster == clusterNum) ? g[*i].rx /= RxSum : g[*i].rx = 0);
             }else{
                 ((RySum != 0) ? g[*i].ry /= RySum : g[*i].ry = 0);
             }
         }
-        rankSum = vector<double>(K);
-        rankSum[clusterNum] = (RxSum + RySum);
 }
 
 void authority_ranking(graph& g, int clusterNum){

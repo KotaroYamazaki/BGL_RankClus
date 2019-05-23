@@ -218,9 +218,12 @@ vector<graph> construct_sub_graph(graph& g){
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                     }else{
-                        a.label = "AtoT";
-                        property_vector.push_back(a);
-                        edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
+                        if(g[target(*e.first, g)].belongs_to_cluster == clusterNum){
+                            a.label = "AtoT";
+                            a.weight = g[*e.first].weight;
+                            property_vector.push_back(a);
+                            edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
+                        }
                     }
                     row_sum += a.weight;
                 }
