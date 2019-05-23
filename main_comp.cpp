@@ -108,6 +108,7 @@ int do_main(){
             ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
             // print_graph_detail(subgraph[clusterNum]);
+            print_rank_within_cluster(subgraph[clusterNum], clusterNum);
         }
         ranking_end = chrono::system_clock::now();
         double ranking_time = std::chrono::duration_cast<std::chrono::microseconds>(ranking_end - ranking_start).count();

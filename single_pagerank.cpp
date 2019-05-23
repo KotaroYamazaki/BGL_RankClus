@@ -132,14 +132,10 @@ void gauss_southwell(graph& g, int clusterNum){
             exit(0);
         }
         //cout << "res [maxindex] : "  << residual[clusterNum][max_index] << endl;
-        double r_i = residual[clusterNum][max_index];
+        double r_i = abs(residual[clusterNum][max_index]);
         // end = std::chrono::system_clock::now();
         // auto dur = end - start;
         // msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
-        if(isnan(r_i)){
-            cout << " ri: "<< r_i << endl;
-            exit(1);
-        }
         if(max_index < xNum){
             //cout << g[max_index].rx << endl;
             g[max_index].rx += r_i;
@@ -147,10 +143,6 @@ void gauss_southwell(graph& g, int clusterNum){
             //cout << g[max_index].rx << endl;
         }else{
             //cout << g[max_index].ry << endl;
-            if(isnan(g[max_index].ry)){
-                cout << g[max_index].ry << endl;
-                exit(0);
-            }
             g[max_index].ry += r_i;
             //cout << g[max_index].ry << endl;
         }
@@ -209,7 +201,7 @@ void single_pagerank(graph& g, int clusterNum){
                 if(v == 0){
                     if(g[*i].int_descriptor < xNum ){
                         g[*i].rx = 1.0/cluster_label[clusterNum].size();
-                        if(g[*i].belongs_to_cluster != clusterNum)g[*i].rx = -1;
+                        if(g[*i].belongs_to_cluster != clusterNum)g[*i].rx = 0;
                     }else{
                         g[*i].ry = 1.0/yNum;
                     }
