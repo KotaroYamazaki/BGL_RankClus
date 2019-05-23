@@ -84,7 +84,7 @@ void normalize_xy_rank(graph& g, int clusterNum){
             RySum += g[*i].ry;
         }
     }
-    cout << "Rxsum: " << RxSum << endl;
+    //cout << "Rxsum: " << RxSum << endl;
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
@@ -110,32 +110,33 @@ void gauss_southwell(graph& g, int clusterNum){
     //auto msec = 0;
     queue<int> q_index;
     for(int i = 0; i < residual[clusterNum].size(); i++){
-        //if(isnan(residual[clusterNum][i])) cout <<  << endl;
+        if(isnan(residual[clusterNum][i])){
+            cout << "0" << endl;
+            exit(1);
+        } 
         if(fabs(residual[clusterNum][i]) > epsi){
-        //if(residual[clusterNum][i] < epsi){
-            //cout << residual[clusterNum][i] << endl;
             q_index.push(i);
         }
     }
     //cout <<  "queue size : "<< q_index.size() << endl;
+
+
     for(int v = 0; v < gauss_itr; v++){
         if(q_index.empty()){
-            //cout << "converged at" << v + 1 << endl;
+            //cout << "converged at " << v << endl;
             break;
         }
+
         //start = std::chrono::system_clock::now();
         unsigned long index = q_index.front();
         //cout << "index is " << index << endl;
         q_index.pop();
         vertex_descriptor max_index = vertex(index, g);
-        if(isnan(max_index)){
-            cout << "max_index is nan" <<endl;
-            exit(0);
-        }
+
         //cout << "res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         double r_i = fabs(residual[clusterNum][max_index]);
         //cout << "absなし　: " << residual[clusterNum][max_index] << endl;
-        //cout << "r_i: " << r_i << endl;
+        //cout << v <<": index = "<< max_index << " : ri = " << r_i << endl;
         // end = std::chrono::system_clock::now();
         // auto dur = end - start;
         // msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
@@ -145,16 +146,12 @@ void gauss_southwell(graph& g, int clusterNum){
             // if(isnan(g[max_index].rx))exit(1);
             //cout <<  max_index << ": "<< g[max_index].rx  << "(ri = " << r_i << " ) "<< endl;
         }else{
-            //cout << g[max_index].ry << endl;
             g[max_index].ry += r_i;
-            //cout << g[max_index].ry << endl;
         }
-        residual[clusterNum][max_index] -= r_i;
+        residual[clusterNum][max_index] = 0;
         //cout << "minus res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         //double sum = 0;
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
-            // cout << "正規化されてる？　：　"<< g[*e.first].weight << endl;
-            // cout << "residual  " <<  residual[clusterNum][source(*e.first, g)] << endl;
            residual[clusterNum][source(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
             if(fabs(residual[clusterNum][target(*e.first, g)]) > epsi ) q_index.push(target(*e.first, g));
         }
