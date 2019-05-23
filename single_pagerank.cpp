@@ -11,23 +11,23 @@ using namespace std;
 extern vector<double> WkXY_sum;
 extern int xNum;
 extern int yNum;
+extern int K;
+extern int t;
+extern int iteration_num;
+extern vector<vector<int>> cluster_label;
+extern vector<vector<double>> row_sum_vec;
 
 const double alpha = 0.85;
-const int rankiter = 20;
+const int rankiter = 30;
 const int gauss_itr = 20000;
 double epsi;
 
-extern int K;
 vector<graph> pre_graph;
 vector<vector<double>> residual;
 vector<double> rankSum;
 
-extern int t;
-extern int iteration_num;
-extern vector<vector<int>> cluster_label;
-
 void gauss_southwell(graph& g, int clusterNum);
-void normalize_outedge_weight(graph& g);
+void normalize_outedge_weight(graph& g, int clusterNum);
 void normalize_outedge_weight(graph& g, int clusterNum, vector<vector<double>>& P_diff);
 void normalize_xy_rank(graph& g, int clusterNum);
 void normalize_global_rank(graph& g, int clusterNum);
@@ -41,15 +41,15 @@ void init_residual(graph& g, int clusterNum);
 void ranking(graph& subgraph, int clusterNum){
     if(iteration_num == 1){
         if(t == 0){
-            epsi = 1.0/(xNum + yNum);
-            //epsi =0;
+            //epsi = 1.0/(xNum + yNum);
+            epsi =0;
             //cout << epsi << endl;
-            normalize_outedge_weight(subgraph);
+            normalize_outedge_weight(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
             pre_graph.push_back(subgraph);
         }else{
             normalize_global_rank(subgraph, clusterNum);
-            normalize_outedge_weight(subgraph);
+            normalize_outedge_weight(subgraph, clusterNum);
             init_residual(subgraph, clusterNum);
             gauss_southwell(subgraph, clusterNum);
             normalize_xy_rank(subgraph, clusterNum);
@@ -57,20 +57,16 @@ void ranking(graph& subgraph, int clusterNum){
         }
     }else{
         //authority_ranking(subgraph, clusterNum);
-            normalize_outedge_weight(subgraph);
+            normalize_outedge_weight(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
     }
 }
 
-void normalize_outedge_weight(graph& g){
+void normalize_outedge_weight(graph& g, int clusterNum){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-            double rowsum = 0;
             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-                rowsum += g[*e .first].weight;
-            }
-            for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-                if(rowsum != 0)g[*e .first].weight /= rowsum;
+                if(row_sum_vec[clusterNum][*i] != 0)g[*e .first].weight /= row_sum_vec[clusterNum][*i];
             }
     }
 }

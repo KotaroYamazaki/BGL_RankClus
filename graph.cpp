@@ -18,6 +18,7 @@ extern string path;
 extern vector<vector<int>> cluster_label;
 
 vector<string> name_vector;
+vector<vector<double>> row_sum_vec;
 
 vector<string> split(string& input, char delimiter){
     istringstream stream(input);
@@ -166,10 +167,13 @@ vector<graph> construct_sub_graph(graph& g){
     vector<graph> subgraph_vector;
     vector<string> x_name;
     
+    row_sum_vec = vector<vector<double>>(K);
+    
     WkXY_sum = vector<double>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
         vertex_iterator i,j;
         int cluster_size = 0;
+        double row_sum = 0;
         // エッジのリスト
         std::vector<edge> edge_vector;
         // 各エッジの属性値の構造体のリスト
@@ -181,6 +185,7 @@ vector<graph> construct_sub_graph(graph& g){
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
+            row_sum = 0;
             if(g[*i].int_descriptor < xNum){ 
                 if(g[*i].belongs_to_cluster == clusterNum){
                     cluster_size += 1;
@@ -194,7 +199,8 @@ vector<graph> construct_sub_graph(graph& g){
                         a.weight = g[*e.first].weight;
                         property_vector.push_back(a);
                         edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
-
+                        //正規化のときに使うメモ
+                        row_sum += a.weight;
                         //エッジの重み合計
                         edge_sum += a.weight;
                     }
@@ -202,8 +208,8 @@ vector<graph> construct_sub_graph(graph& g){
             } else {
                 for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                     //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
+                    struct edge_property a;
                     if(g[target(*e.first,  g)].label == "attribute"){
-                            struct edge_property a;
                             a.label = "AtoA";
                             a.weight = g[*e.first].weight;
                             property_vector.push_back(a);
@@ -212,13 +218,15 @@ vector<graph> construct_sub_graph(graph& g){
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                     }else{
-                        struct edge_property a;
                         a.label = "AtoT";
                         property_vector.push_back(a);
                         edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
                     }
+                    row_sum += a.weight;
                 }
             }
+            //正規化のときに使うvector
+            row_sum_vec[clusterNum].push_back(row_sum);
         }
         WkXY_sum[clusterNum] = edge_sum;
         // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
