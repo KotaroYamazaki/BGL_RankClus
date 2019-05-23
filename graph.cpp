@@ -181,31 +181,28 @@ vector<graph> construct_sub_graph(graph& g){
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
-            if(g[*i].label == "target"){ 
+            if(g[*i].int_descriptor < xNum){ 
                 if(g[*i].belongs_to_cluster == clusterNum){
                     cluster_size += 1;
                     x_name.push_back(g[*i].name);
-                    for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                    for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                     // target(edge_descriptor, graph) でエッジの先のノードを取得できる
                     // out_edges() ではなく、in_edges() の場合は source() でエッジの元のノードを取得できる
                     // g[edge_descriptor].属性 で、edge_property で定義した属性を参照できる
                         struct edge_property a;
-                        a.label = "AtoT";
+                        a.label = "TtoA";
                         a.weight = g[*e.first].weight;
                         property_vector.push_back(a);
                         edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
-                        //　逆方向
-                        a.label = "TtoA";
-                        property_vector.push_back(a);
-                        edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
+
                         //エッジの重み合計
                         edge_sum += a.weight;
                     }
                 }
-            }else if (g[*i].label == "attribute"){
-                for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+            } else {
+                for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                     //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
-                    if(g[source(*e.first,  g)].label == "attribute"){
+                    if(g[target(*e.first,  g)].label == "attribute"){
                             struct edge_property a;
                             a.label = "AtoA";
                             a.weight = g[*e.first].weight;
@@ -214,8 +211,13 @@ vector<graph> construct_sub_graph(graph& g){
                             // 逆方向
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
-                        }
+                    }else{
+                        struct edge_property a;
+                        a.label = "AtoT";
+                        property_vector.push_back(a);
+                        edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
                     }
+                }
             }
         }
         WkXY_sum[clusterNum] = edge_sum;
@@ -225,7 +227,7 @@ vector<graph> construct_sub_graph(graph& g){
         // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
         graph sub_g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
         subgraph_vector.push_back(sub_g);
-    }
+        }
     return subgraph_vector;
 }
 

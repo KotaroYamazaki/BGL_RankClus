@@ -120,7 +120,7 @@ void gauss_southwell(graph& g, int clusterNum){
             q_index.push(i);
         }
     }
-    cout <<  "queue size : "<< q_index.size() << endl;
+    //cout <<  "queue size : "<< q_index.size() << endl;
     for(int v = 0; v < gauss_itr; v++){
         if(q_index.empty()){
             //cout << "converged at" << v + 1 << endl;
