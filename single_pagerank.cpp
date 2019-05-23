@@ -36,8 +36,6 @@ void authority_ranking(graph& g, int clusterNum);
 vector<double> init_rank(graph& g);
 void init_residual(graph& g, int clusterNum);
 
-
-
 void ranking(graph& subgraph, int clusterNum){
     if(iteration_num == 1){
         if(t == 0){
@@ -79,16 +77,19 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         if(g[*i].int_descriptor < xNum){
+            //cout << *i << ": " << g[*i].rx << endl;
             if(g[*i].belongs_to_cluster == clusterNum)RxSum += g[*i].rx;
             else g[*i].rx = 0;
         }else{
             RySum += g[*i].ry;
         }
     }
+    cout << "Rxsum: " << RxSum << endl;
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
                 if(RxSum != 0)g[*i].rx /= RxSum;
+                //cout << *i << ": " <<  g[*i].rx << endl;
             }else{
                 //if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
                 if(RySum != 0)g[*i].ry /= RySum;
@@ -110,7 +111,7 @@ void gauss_southwell(graph& g, int clusterNum){
     queue<int> q_index;
     for(int i = 0; i < residual[clusterNum].size(); i++){
         //if(isnan(residual[clusterNum][i])) cout <<  << endl;
-        if(abs(residual[clusterNum][i]) > epsi){
+        if(fabs(residual[clusterNum][i]) > epsi){
         //if(residual[clusterNum][i] < epsi){
             //cout << residual[clusterNum][i] << endl;
             q_index.push(i);
@@ -132,7 +133,9 @@ void gauss_southwell(graph& g, int clusterNum){
             exit(0);
         }
         //cout << "res [maxindex] : "  << residual[clusterNum][max_index] << endl;
-        double r_i = abs(residual[clusterNum][max_index]);
+        double r_i = fabs(residual[clusterNum][max_index]);
+        //cout << "absなし　: " << residual[clusterNum][max_index] << endl;
+        //cout << "r_i: " << r_i << endl;
         // end = std::chrono::system_clock::now();
         // auto dur = end - start;
         // msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
@@ -140,7 +143,7 @@ void gauss_southwell(graph& g, int clusterNum){
             //cout << g[max_index].rx << endl;
             g[max_index].rx += r_i;
             // if(isnan(g[max_index].rx))exit(1);
-            //cout << g[max_index].rx << endl;
+            //cout <<  max_index << ": "<< g[max_index].rx  << "(ri = " << r_i << " ) "<< endl;
         }else{
             //cout << g[max_index].ry << endl;
             g[max_index].ry += r_i;
@@ -150,11 +153,10 @@ void gauss_southwell(graph& g, int clusterNum){
         //cout << "minus res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         //double sum = 0;
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
+            // cout << "正規化されてる？　：　"<< g[*e.first].weight << endl;
+            // cout << "residual  " <<  residual[clusterNum][source(*e.first, g)] << endl;
            residual[clusterNum][source(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
-           //cout << target(*e.first, g) << endl;
-           //cout << g[*e.first].weight << endl;
-           //sum += g[*e.first].weight;
-            if(abs(residual[clusterNum][target(*e.first, g)]) > epsi ) q_index.push(target(*e.first, g));
+            if(fabs(residual[clusterNum][target(*e.first, g)]) > epsi ) q_index.push(target(*e.first, g));
         }
         //cout << sum << endl;
         //cout << "minus2 res [maxindex] : "  << residual[clusterNum][max_index] << endl;
@@ -174,7 +176,11 @@ void init_residual(graph& g, int clusterNum){
             //コスト削減のためのアドレス渡し
             graph& pre_g = pre_graph[clusterNum];
             //ランク地の引き継ぎ
-            (g[*i].int_descriptor < xNum ? g[*i].rx = pre_g[*i].rx : g[*i].ry = pre_g[*i].ry);
+                if(g[*i].int_descriptor < xNum){
+                    g[*i].rx = pre_g[*i].rx;
+                }else{
+                    g[*i].ry = pre_g[*i].ry;
+                }
             //if(isnan(g[*i].ry))cout << "ry is nan" << endl;
 
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
