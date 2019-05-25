@@ -48,7 +48,6 @@ int main(int argc, char* argv[])
 	}else{
         path = argv[1];
 		K = atoi(argv[2]);
-        cluster_label = vector<vector<int>> (K);
         if(argc >= 3)input_seed = atoi(argv[3]);
         //if(argc > 3)out_file = argv[3];
 		if(K <= 0){
@@ -84,6 +83,7 @@ int main(int argc, char* argv[])
 
 
 int do_main(){
+    cluster_label = vector<vector<int>> (K);
     convflag = false;
     chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
     // グラフの構築
@@ -143,7 +143,7 @@ void write_result_for_NMI(graph& g){
 
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
-        file << g[*i].belongs_to_cluster << flush;
+        file << g[*i].cluster_label << flush;
         if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
     }
     iteration_num++;

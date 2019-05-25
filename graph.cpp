@@ -140,7 +140,7 @@ void get_intial_partitions(graph& g){
 		//if(label[tmp].size() < m/K)//偏らないように調整
 		//{label[tmp].push_back(i);}
 		//else {i -= 1;}
-        g[*i].belongs_to_cluster = num;
+        g[*i].cluster_label = num;
         cluster_label[num].push_back(*i);
         check_flag[num] = true;
     }
@@ -156,7 +156,7 @@ bool has_empty_cluster(graph& g){
     vector<bool> check_flag(K,false);
     vertex_iterator i, j;
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++){
-        check_flag[g[*i].belongs_to_cluster] = true;
+        check_flag[g[*i].cluster_label] = true;
     }
     for(int i = 0; i < K; i++)if(check_flag[i] == false) return true;
     return false;
@@ -187,7 +187,7 @@ vector<graph> construct_sub_graph(graph& g){
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
             row_sum = 0;
             if(g[*i].int_descriptor < xNum){ 
-                if(g[*i].belongs_to_cluster == clusterNum){
+                if(g[*i].belongs_to_cluster(clusterNum)){
                     cluster_size += 1;
                     x_name.push_back(g[*i].name);
                     for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
@@ -218,7 +218,7 @@ vector<graph> construct_sub_graph(graph& g){
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                     }else{
-                        if(g[target(*e.first, g)].belongs_to_cluster == clusterNum){
+                        if(g[target(*e.first, g)].cluster_label == clusterNum){
                             a.label = "AtoT";
                             a.weight = g[*e.first].weight;
                             property_vector.push_back(a);
@@ -255,7 +255,7 @@ void init_graph(graph& g){
             g[*i].rx = 0;
             g[*i].name = name_vector[*i];
             g[*i].conditional_rank = 0;
-            g[*i].belongs_to_cluster = -1;
+            g[*i].cluster_label = -1;
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
@@ -276,7 +276,7 @@ void init_graph(graph& g, graph& global_g){
             g[*i].label = "target";
             g[*i].rx = 0;
             g[*i].name = name_vector[*i];
-            g[*i].belongs_to_cluster = global_g[*i].belongs_to_cluster;
+            g[*i].cluster_label = global_g[*i].cluster_label;
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
@@ -328,7 +328,7 @@ vector<int> get_sorted_list(graph& g, int clusterNum){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor <xNum ; i++) {
         name_rank a;
-        if(g[*i].belongs_to_cluster == clusterNum){
+        if(g[*i].belongs_to_cluster(clusterNum)){
             a.rank = g[*i].rx;
             a.id = *i;
             ranking_list.push_back(a);
@@ -360,7 +360,7 @@ void print_cluster(graph& g ){
     vector<vector<string>> cluster(K);
     vertex_iterator i, j;
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor <xNum ; i++) {
-        cluster[g[*i].belongs_to_cluster].push_back(g[*i].name);
+        cluster[g[*i].cluster_label].push_back(g[*i].name);
     }
 	for (int k = 0; k < K; k++){
 		cout << "  Cluster[" << k+1 << "] = { " << flush;

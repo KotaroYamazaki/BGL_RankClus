@@ -17,8 +17,13 @@ struct vertex_property
     double rx;
     double conditional_rank;
     // クラスタ所属情報
-    int belongs_to_cluster;
+    int cluster_label;
     bool same_previous_cluster;
+
+    bool belongs_to_cluster(int label){
+        if(cluster_label == label)return true;
+        else return false;
+    }
 };
 
 // エッジの属性値を自由に定義
@@ -36,6 +41,8 @@ struct graph_property
     //int yNum;
     //double edge_sum;
 };
+
+
 
 // グラフ構造を定義
 // CSR形式で保持 -> compressed_sparse_row_graph

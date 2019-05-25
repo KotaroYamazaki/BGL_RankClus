@@ -78,7 +78,7 @@ void normalize_xy_rank(graph& g, int clusterNum){
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         if(g[*i].int_descriptor < xNum){
             
-            if(g[*i].belongs_to_cluster == clusterNum){
+            if(g[*i].belongs_to_cluster(clusterNum)){
                 RxSum += g[*i].rx;
                 //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
             }
@@ -93,7 +93,7 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
-                if(RxSum != 0 && g[*i].belongs_to_cluster == clusterNum){
+                if(RxSum != 0 && g[*i].belongs_to_cluster(clusterNum)){
                     g[*i].rx /= RxSum;
                 //if(t < 5)
                 // cout << *i << ": " <<  g[*i].rx << endl;
@@ -205,40 +205,63 @@ void init_residual(graph& g, int clusterNum){
 
 void single_pagerank(graph& g, int clusterNum){
     vertex_iterator i,j;
-    double RxSum = 0;
-    double RySum = 0;
+
     for(int v = 0; v < rankiter; v++){
+        double RxSum = 0;
+        double RySum = 0;
+        double RankSum = 0;
+
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
                 if(v == 0){
                     if(g[*i].int_descriptor < xNum ){
-                        g[*i].rx = 1.0/(xNum + yNum);
-                        if(g[*i].belongs_to_cluster != clusterNum)g[*i].rx = 0;
+                        if(g[*i].belongs_to_cluster(clusterNum)) g[*i].rx = 1.0/(xNum + yNum);
+                        //if(g[*i].cluster_label != clusterNum)g[*i].rx = 0;
                     }else{
                         g[*i].ry = 1.0/(xNum + yNum);
                     }
                 }
 
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                if(g[*i].int_descriptor < xNum){
-                    g[*i].rx =  alpha * g[*e.first].weight * g[*i].rx+ (1.0 - alpha)* (1.0/(cluster_label[clusterNum].size()));
-                    RxSum += g[*i].rx;
+                if(source(*e.first, g) < xNum){
+                    g[*i].rx +=  alpha * g[*e.first].weight * g[source(*e.first, g)].rx;
+                    cout << g[*i].rx << endl;
                 }else{
-                    g[*i].ry = alpha * g[*e.first].weight;
-                    RySum += g[*i].ry;
+                    g[*i].ry += alpha * g[*e.first].weight * g[source(*e.first, g)].ry;
                 }
             }
-                if(g[*i].belongs_to_cluster != clusterNum && g[*i].rx != 0)cout << "0だよね？　＞　"　<< (g[*i].rx)<< endl;
+
+            if(g[*i].int_descriptor < xNum){
+                if(g[*i].belongs_to_cluster(clusterNum)){
+                        g[*i].rx += (1.0 - alpha) * 1.0/(cluster_label[clusterNum].size());
+                        RankSum += g[*i].rx;
+                        if(v == rankiter - 1)RxSum += g[*i].rx;
+                    }
+            }else{
+                if(v == rankiter - 1)RySum += g[*i].ry;
+                RankSum += g[*i].ry;
+            }
+        }
+
+        for (boost::tie(i, j) = vertices(g); i!=j; i++) {
+            if(g[*i].int_descriptor < xNum){
+                //cout << *i << ": " <<  g[*i].rx << endl;
+                if(g[*i].belongs_to_cluster(clusterNum)){
+                    if(v < rankiter - 1){
+                        g[*i].rx /=  RankSum;
+                    } else {
+                        g[*i].rx /= RxSum;
+                        cout << *i << ": " <<  g[*i].rx << endl;
+                    }
+                }
+                //if(g[*i].belongs_to_cluster(clusterNum))cout << *i << ": " <<  g[*i].rx << endl;
+            }else{
+                if(v < rankiter - 1)g[*i].ry /=  RankSum;
+                if(RySum != 0)g[*i].ry /= RySum;
+            }
         }
     }
 
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-            if(g[*i].int_descriptor < xNum){
-                cout << *i << ": " <<  g[*i].rx << endl;
-                ((RxSum != 0 && g[*i].belongs_to_cluster == clusterNum) ? g[*i].rx /= RxSum : g[*i].rx = 0);
-            }else{
-                ((RySum != 0) ? g[*i].ry /= RySum : g[*i].ry = 0);
-            }
-        }
+    
 }
 
 void authority_ranking(graph& g, int clusterNum){

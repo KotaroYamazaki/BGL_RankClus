@@ -69,7 +69,7 @@ void clustering(graph &g, vector<graph>& subgraph){
         int cluster_size = cluster_label[Xk].size();
         for(int col = 0; col < K; col++){
             for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
-                if(g[*i].belongs_to_cluster == Xk){
+                if(g[*i].cluster_label == Xk){
                     center_vec[Xk][col] += s[*i][col];
                 }
             }
@@ -103,12 +103,12 @@ void clustering(graph &g, vector<graph>& subgraph){
             }
         }
 
-        if(g[*m].belongs_to_cluster == index){
+        if(g[*m].cluster_label == index){
             g[*m].same_previous_cluster = true;
         }else{
             g[*m].same_previous_cluster = false;
         }
-        g[*m].belongs_to_cluster = index;
+        g[*m].cluster_label = index;
         new_cluster_label[index].push_back(*m);
     }
     cluster_label = new_cluster_label;
