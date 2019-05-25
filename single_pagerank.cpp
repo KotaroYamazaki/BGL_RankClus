@@ -35,12 +35,13 @@ void single_pagerank(graph& g, int clusterNum);
 void authority_ranking(graph& g, int clusterNum);
 vector<double> init_rank(graph& g);
 void init_residual(graph& g, int clusterNum);
+void calc_residual(graph& g, int clusterNum);
 
 void ranking(graph& subgraph, int clusterNum){
     if(iteration_num == 1){
         if(t == 0){
             //epsi = 1.0/(xNum + yNum);
-            epsi =0;
+            epsi = 0;
             //cout << epsi << endl;
             normalize_outedge_weight(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
@@ -54,7 +55,7 @@ void ranking(graph& subgraph, int clusterNum){
             pre_graph[clusterNum] = subgraph;
         }
     }else{
-        //authority_ranking(subgraph, clusterNum);
+            //authority_ranking(subgraph, clusterNum);
             normalize_outedge_weight(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
     }
@@ -77,10 +78,9 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         if(g[*i].int_descriptor < xNum){
-            
             if(g[*i].belongs_to_cluster(clusterNum)){
                 RxSum += g[*i].rx;
-                //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
+                if(t < 100)cout << *i << ": " << g[*i].rx << endl;
             }
             // else g[*i].rx = 0;
             //RxSum += g[*i].rx;
@@ -155,7 +155,7 @@ void gauss_southwell(graph& g, int clusterNum){
         }else{
             g[max_index].ry += r_i;
         }
-        residual[clusterNum][max_index] = 0;
+        residual[clusterNum][max_index] -= r_i;
         //cout << "minus res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         //double sum = 0;
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
@@ -168,10 +168,30 @@ void gauss_southwell(graph& g, int clusterNum){
     //cout << "Tansaku Time[micro] : " << msec << endl;
 }
 
-void init_residual(graph& g, int clusterNum){
-    if(t == 1 && clusterNum == 0){
-        residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
+void calc_residual(graph& g, int clusterNum){
+    //residual[clusterNum][*i] 
+    vertex_iterator i,j;
+    vector<double> tmp_res;
+    //vector<double>& tmp_res = residual[clusterNum];
+    for(boost::tie(i,j) = vertices(g); i != j; i++){
+        
+        if(*i < xNum)tmp_res.push_back((1 - alpha)*(1.0/cluster_label[clusterNum].size()));
+        else tmp_res.push_back(0);
+
+        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+                if(source(*e.first, g) < xNum)tmp_res[*i] -= (1 - alpha * g[*e.first].weight * g[source(*e.first, g)].rx);
+                else tmp_res[*i] -= (1 - alpha * g[*e.first].weight * g[source(*e.first, g)].ry);
+            }
+            cout << tmp_res[*i] << endl;
     }
+    residual.push_back(tmp_res);
+}
+
+void init_residual(graph& g, int clusterNum){
+    // if(t == 1 && clusterNum == 0){
+    //     residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
+    // }
+        if(t == 1)calc_residual(g, clusterNum);
         
         vertex_iterator i,j;
         for(boost::tie(i,j) = vertices(g); i != j; i++){
@@ -234,70 +254,13 @@ void single_pagerank(graph& g, int clusterNum){
             if(v < rankiter - 1 ){
                 rank[*i] = tmp_rank[*i]/RankSum;
             }else{
+                if(*i < xNum && g[*i].belongs_to_cluster(clusterNum))cout << *i << ": " <<  tmp_rank[*i] << endl;
                 (*i < xNum && g[*i].belongs_to_cluster(clusterNum)) ? g[*i].rx = tmp_rank[*i]/RxSum : g[*i].ry = tmp_rank[*i]/RySum;
             }
             tmp_rank[*i] = 0.0;
-
+    
         }
         //cout << "Convergence: " << change << endl;
-
-
-        // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        //     tmp_rank[*i] = (1 - alpha)/(cluster_label[clusterNum].size()) + alpha * tmp_rank[*i];
-        // }
-        
-        //for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-                //if(v == 0){
-                    // if(g[*i].int_descriptor < xNum ){
-                    //     //if(g[*i].belongs_to_cluster(clusterNum)) g[*i].rx = 1.0/(xNum + yNum);
-                    //     //if(g[*i].cluster_label != clusterNum)g[*i].rx = 0;
-                    // }else{
-                    //     //g[*i].ry = 1.0/(xNum + yNum);
-                    // }
-                    //rank.push_back(1.0/(xNum+yNum));
-                //}
-
-
-
-        //     for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-        //         if(source(*e.first, g) < xNum){
-        //             g[*i].rx +=  alpha * g[*e.first].weight * g[source(*e.first, g)].rx;
-        //             cout << g[*i].rx << endl;
-        //         }else{
-        //             g[*i].ry += alpha * g[*e.first].weight * g[source(*e.first, g)].ry;
-        //         }
-        //     }
-
-        //     if(g[*i].int_descriptor < xNum){
-        //         if(g[*i].belongs_to_cluster(clusterNum)){
-        //                 g[*i].rx += (1.0 - alpha) * 1.0/(cluster_label[clusterNum].size());
-        //                 RankSum += g[*i].rx;
-        //                 if(v == rankiter - 1)RxSum += g[*i].rx;
-        //             }
-        //     }else{
-        //         if(v == rankiter - 1)RySum += g[*i].ry;
-        //         RankSum += g[*i].ry;
-        //     }
-        // }
-
-        // for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        //     if(g[*i].int_descriptor < xNum){
-        //         //cout << *i << ": " <<  g[*i].rx << endl;
-        //         if(g[*i].belongs_to_cluster(clusterNum)){
-        //             if(v < rankiter - 1){
-        //                 g[*i].rx /=  RankSum;
-        //             } else {
-        //                 g[*i].rx /= RxSum;
-        //                 cout << *i << ": " <<  g[*i].rx << endl;
-        //             }
-        //         }
-        //         //if(g[*i].belongs_to_cluster(clusterNum))cout << *i << ": " <<  g[*i].rx << endl;
-        //     }else{
-        //         if(v < rankiter - 1)g[*i].ry /=  RankSum;
-        //         if(RySum != 0)g[*i].ry /= RySum;
-        //     }
-        // }
-    //}
     }
     
 }
