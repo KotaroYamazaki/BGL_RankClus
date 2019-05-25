@@ -46,6 +46,10 @@ void clustering(graph &g, vector<graph>& subgraph){
         double tmp_sum = 0;
         for(int l = 0; l < K; l++){
             tmp_sum += subgraph[l][*i].conditional_rank * p[l];
+            if(isnan(subgraph[l][*i].conditional_rank)){
+                cout << "subgraph[l][*i].conditional_rank is nan";
+                exit(1);
+            }
         }
         for(int z = 0; z < K; z++){ 
             double val = 0;
