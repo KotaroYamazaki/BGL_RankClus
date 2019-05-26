@@ -75,13 +75,14 @@ void normalize_xy_rank(graph& g, int clusterNum){
     vertex_iterator i,j;
     double RxSum = 0;
     double RySum = 0;
+    double all_RxSum = 0;
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
         if(g[*i].int_descriptor < xNum){
             if(g[*i].belongs_to_cluster(clusterNum)){
                 RxSum += g[*i].rx;
-                
             }
+            all_RxSum += g[*i].rx;
             //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
             // else g[*i].rx = 0;
             //RxSum += g[*i].rx;
@@ -94,13 +95,17 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             if(g[*i].int_descriptor < xNum){
-                if(RxSum != 0 && g[*i].belongs_to_cluster(clusterNum)){
-                    g[*i].rx /= RxSum;
+                if(RxSum != 0 ){
+                    g[*i].p_rank = g[*i].rx/(all_RxSum + RySum);
+                    if(g[*i].belongs_to_cluster(clusterNum)){
+                        g[*i].rx /= RxSum;
+                    }
                 //if(t < 5)
                 // cout << *i << ": " <<  g[*i].rx << endl;
                 }
             }else{
                 //if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
+                g[*i].p_rank = g[*i].ry/(RxSum + RySum);
                 if(RySum != 0)g[*i].ry /= RySum;
             }
         }
@@ -109,8 +114,12 @@ void normalize_xy_rank(graph& g, int clusterNum){
 
 void normalize_global_rank(graph& g, int clusterNum){
     vertex_iterator i,j;
-    if(g[*i].int_descriptor < xNum)g[*i].rx = pre_graph[clusterNum][g[*i].int_descriptor].rx;
-        else g[*i].ry = pre_graph[clusterNum][g[*i].int_descriptor].ry;
+    for(boost::tie(i,j) = vertices(g); *i < xNum; i++){
+        if(g[*i].int_descriptor < xNum)g[*i].rx = pre_graph[clusterNum][g[*i].int_descriptor].p_rank;
+        else g[*i].ry = pre_graph[clusterNum][g[*i].int_descriptor].p_rank;
+
+        if(g[*i].int_descriptor < xNum)cout << *i << ": " << g[*i].rx  << endl;
+    }
 }
 
 void gauss_southwell(graph& g, int clusterNum){
@@ -174,6 +183,11 @@ void gauss_southwell(graph& g, int clusterNum){
         //cout << sum << endl;
         //cout << "minus2 res [maxindex] : "  << residual[clusterNum][max_index] << endl;
     }
+    vertex_iterator i,j;
+    // for(boost::tie(i,j) = vertices(g); *i < xNum; i++){
+    //     cout << *i << ": " << g[*i].rx << "  [residual = " << residual[clusterNum][*i]  << "] " << endl;
+    // }
+
     //cout << "Tansaku Time[micro] : " << msec << endl;
 }
 
@@ -184,7 +198,7 @@ void calc_residual(graph& g, int clusterNum){
     //vector<double>& tmp_res = residual[clusterNum];
     for(boost::tie(i,j) = vertices(g); i != j; i++){
         
-        if(*i < xNum)tmp_res.push_back((1 - alpha)*(1.0/cluster_label[clusterNum].size()));
+        if(*i < xNum)tmp_res.push_back((1 - alpha)*(1.0/(xNum+yNum)));
         else tmp_res.push_back(0);
 
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
@@ -235,7 +249,7 @@ void init_residual(graph& g, int clusterNum){
 void single_pagerank(graph& g, int clusterNum){
     vertex_iterator i,j;
     vector<double> rank;
-    rank = vector<double>(xNum+yNum, 1.0/(xNum+yNum));
+    rank = vector<double>(xNum+yNum + 10, 1.0/(xNum));
     vector<double> tmp_rank = rank;
 
     for(int v = 0; v < rankiter; v++){
@@ -249,7 +263,7 @@ void single_pagerank(graph& g, int clusterNum){
                 tmp_rank[*i] += alpha * g[*e.first].weight * rank[source(*e.first, g)];
             }
 
-            if(*i < xNum ) tmp_rank[*i] = (1 - alpha)/(cluster_label[clusterNum].size()) + tmp_rank[*i];
+            if(*i < xNum ) tmp_rank[*i] = (1 - alpha)/(xNum) + tmp_rank[*i];
 
             if(v < rankiter - 1 ){
                 RankSum += tmp_rank[*i];
@@ -263,8 +277,13 @@ void single_pagerank(graph& g, int clusterNum){
             if(v < rankiter - 1 ){
                 rank[*i] = tmp_rank[*i]/RankSum;
             }else{
-                //if(*i < xNum )cout << *i << ": " <<  tmp_rank[*i] << endl;
-                (*i < xNum && g[*i].belongs_to_cluster(clusterNum)) ? g[*i].rx = tmp_rank[*i]/RxSum : g[*i].ry = tmp_rank[*i]/RySum;
+                //if(*i < xNum )cout << *i << ": " <<  tmp_rank[*i]/(RxSum+RySum) << endl;
+                if(*i < xNum && g[*i].belongs_to_cluster(clusterNum)){
+                    g[*i].rx = tmp_rank[*i]/RxSum;
+                }else{
+                    g[*i].ry = tmp_rank[*i]/RySum;
+                }
+                g[*i].p_rank = tmp_rank[*i]/(RxSum+RySum);
             }
             tmp_rank[*i] = 0.0;
     

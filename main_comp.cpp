@@ -26,7 +26,7 @@ void write_result(vector<graph>& sub_g, string out_file);
 void write_result_for_NMI(graph& g);
 int do_main();
 
-const int iterNum = 15;
+const int iterNum = 5;
 extern int xNum;
 string path;
 int K;

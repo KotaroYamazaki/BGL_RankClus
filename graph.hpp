@@ -15,6 +15,7 @@ struct vertex_property
     //ランク情報
     double ry;
     double rx;
+    double p_rank;
     double conditional_rank;
     // クラスタ所属情報
     int cluster_label;
