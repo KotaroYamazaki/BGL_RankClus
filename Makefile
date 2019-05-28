@@ -13,6 +13,8 @@ pagerank: $(OBJS) single_pagerank.o
 	$(CXX) $(CXXFLAG) $(OBJS) single_pagerank.o -o $(PROGRAM)
 comp: main_comp.o graph.o clustering.o pagerank.o
 	$(CXX) $(CXXFLAG) main_comp.o graph.o clustering.o pagerank.o -o $(PROGRAM)
+comp_d: main_comp.o graph.o clustering.o pagerank.o
+	$(CXX) $(CXXFLAG) -g main_comp.o graph.o clustering.o pagerank.o -o $(PROGRAM)
 .cpp.o:
 	$(CXX) $(CXXFLAG) -c $< -Wall
 *.o: graph.hpp
