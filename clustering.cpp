@@ -117,10 +117,18 @@ void clustering(graph &g, vector<graph>& subgraph){
     }
     cluster_label = new_cluster_label;
 
-    void print_cluster(graph& g);
-    print_cluster(g);
+    // for(int i = 0; i < K; i++){
+    //     cout << "cluster = { ";
+    //     for(int j = 0; j < cluster_label[i].size(); j++){
+    //         cout << cluster_label[i][j] << ", "<< flush;
+    //     }
+    //     cout << "}" <<endl;
+    // }
+
+    void print_cluster_with_label(graph& g);
     if(has_empty_cluster(g)){
         cout << "Cluster became empty , you have to run the program again." << endl;
+        print_cluster_with_label(g);
         exit(0);
     }
 }

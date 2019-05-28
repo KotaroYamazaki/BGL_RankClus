@@ -37,27 +37,36 @@ vector<double> init_rank(graph& g);
 void init_residual(graph& g, int clusterNum);
 void calc_residual(graph& g, int clusterNum);
 
+void print_rank_within_cluster(graph& g, int clusterNum);
+
 void ranking(graph& subgraph, int clusterNum){
     if(iteration_num == 1){
         if(t == 0){
-            epsi = 1.0/(xNum + yNum);
-            //epsi = 0;
+            //epsi = 0.1/(xNum + yNum);
+            epsi = 0.0015;
             //cout << epsi << endl;
             normalize_outedge_weight(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
+            //residual = vector<vector<double>>(K, vector<double>(xNum+yNum, 0));
+            calc_residual(subgraph, clusterNum);
+            gauss_southwell(subgraph, clusterNum);
+            //print_rank_within_cluster(subgraph, clusterNum);
             pre_graph.push_back(subgraph);
         }else{
+            queue<int> q_index;
             normalize_global_rank(subgraph, clusterNum);
             normalize_outedge_weight(subgraph, clusterNum);
             init_residual(subgraph, clusterNum);
             gauss_southwell(subgraph, clusterNum);
             normalize_xy_rank(subgraph, clusterNum);
+            //print_rank_within_cluster(subgraph, clusterNum);
             pre_graph[clusterNum] = subgraph;
         }
     }else{
             //authority_ranking(subgraph, clusterNum);
             normalize_outedge_weight(subgraph, clusterNum);
             single_pagerank(subgraph, clusterNum);
+            print_rank_within_cluster(subgraph, clusterNum);
     }
 }
 
@@ -81,6 +90,7 @@ void normalize_xy_rank(graph& g, int clusterNum){
         if(g[*i].int_descriptor < xNum){
             if(g[*i].belongs_to_cluster(clusterNum)){
                 RxSum += g[*i].rx;
+                
             }
             all_RxSum += g[*i].rx;
             //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
@@ -88,6 +98,7 @@ void normalize_xy_rank(graph& g, int clusterNum){
             //RxSum += g[*i].rx;
             //if(t < 100)cout << *i << ": " << g[*i].rx << endl;
         }else{
+
             RySum += g[*i].ry;
         }
     }
@@ -100,13 +111,16 @@ void normalize_xy_rank(graph& g, int clusterNum){
                     if(g[*i].belongs_to_cluster(clusterNum)){
                         g[*i].rx /= RxSum;
                     }
+                    g[*i].p_rank = g[*i].rx/(RxSum + RySum);
+                if(clusterNum == 0)cout << *i << ": " <<  g[*i].p_rank << " [ res = " << residual[clusterNum][*i]<< endl;
                 //if(t < 5)
-                // cout << *i << ": " <<  g[*i].rx << endl;
+                 //if(clusterNum == 0)cout << *i << ": " <<  g[*i].p_rank << " [ res = " << residual[clusterNum][*i]<< endl;
                 }
             }else{
                 //if(isnan(g[*i].ry)) cout << g[*i].ry << endl;
                 g[*i].p_rank = g[*i].ry/(RxSum + RySum);
                 if(RySum != 0)g[*i].ry /= RySum;
+                g[*i].p_rank = g[*i].ry/(RxSum+RySum);
             }
         }
         //rankSum[clusterNum] = (RxSum + RySum);
@@ -118,7 +132,7 @@ void normalize_global_rank(graph& g, int clusterNum){
         if(g[*i].int_descriptor < xNum)g[*i].rx = pre_graph[clusterNum][g[*i].int_descriptor].p_rank;
         else g[*i].ry = pre_graph[clusterNum][g[*i].int_descriptor].p_rank;
 
-        if(g[*i].int_descriptor < xNum)cout << *i << ": " << g[*i].rx  << endl;
+        //if(g[*i].int_descriptor < xNum)cout << *i << ": " << g[*i].rx  << endl;
     }
 }
 
@@ -126,21 +140,21 @@ void gauss_southwell(graph& g, int clusterNum){
     chrono::system_clock::time_point  start, end; 
     //auto msec = 0;
     queue<int> q_index;
+    
     for(int i = 0; i < residual[clusterNum].size(); i++){
-        if(isnan(residual[clusterNum][i])){
-            cout << "0" << endl;
-            exit(1);
-        } 
+        // if(isnan(residual[clusterNum][i])){
+        //     cout << "0" << endl;
+        //     exit(1);
+        // } 
         if(fabs(residual[clusterNum][i]) > epsi){
             q_index.push(i);
         }
     }
     //cout <<  "queue size : "<< q_index.size() << endl;
-   
 
     for(int v = 0; v < gauss_itr; v++){
         if(q_index.empty()){
-            //cout << "converged at " << v << endl;
+            cout << "converged at " << v << endl;
             break;
         }
         
@@ -159,31 +173,34 @@ void gauss_southwell(graph& g, int clusterNum){
         // auto dur = end - start;
         // msec += chrono::duration_cast<std::chrono::microseconds>(dur).count();
 
-        if(isnan(r_i)){
-            cout << "r_i is nan";
-            exit(1);
-        }
+        // if(isnan(r_i)){
+        //     cout << "r_i is nan";
+        //     exit(1);
+        // }
 
         if(max_index < xNum){
             //cout << g[max_index].rx << endl;
             g[max_index].rx += r_i;
-            if(isnan(g[max_index].rx))exit(1);
+            //cout <<  max_index << " - > " << g[max_index].rx - r_i << ":(after)" << g[max_index].rx << endl;;
+            //if(isnan(g[max_index].rx))exit(1);
             //cout <<  max_index << ": "<< g[max_index].rx  << "(ri = " << r_i << " ) "<< endl;
         }else{
             g[max_index].ry += r_i;
-            if(isnan(g[max_index].ry))exit(1);
+            //if(isnan(g[max_index].ry))exit(1);
         }
         residual[clusterNum][max_index] -= r_i;
         //cout << "minus res [maxindex] : "  << residual[clusterNum][max_index] << endl;
         //double sum = 0;
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
+           // cout << "max_index: " << max_index << "=>"  << source(*e.first, g) << "= " << alpha << " * " << g[*e.first].weight << " * " << r_i << endl;
            residual[clusterNum][source(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
-            if(fabs(residual[clusterNum][target(*e.first, g)]) > epsi ) q_index.push(target(*e.first, g));
+            if(fabs(residual[clusterNum][source(*e.first, g)]) > epsi ) q_index.push(source(*e.first, g));
         }
         //cout << sum << endl;
         //cout << "minus2 res [maxindex] : "  << residual[clusterNum][max_index] << endl;
     }
-    vertex_iterator i,j;
+    //vertex_iterator i,j;
+    // cout <<"cluster  == " <<clusterNum << endl;
     // for(boost::tie(i,j) = vertices(g); *i < xNum; i++){
     //     cout << *i << ": " << g[*i].rx << "  [residual = " << residual[clusterNum][*i]  << "] " << endl;
     // }
@@ -205,8 +222,10 @@ void calc_residual(graph& g, int clusterNum){
                 if(source(*e.first, g) < xNum)tmp_res[*i] -= (1 - alpha * g[*e.first].weight) * g[source(*e.first, g)].rx;
                 else tmp_res[*i] -= (1 - alpha * g[*e.first].weight) * g[source(*e.first, g)].ry;
             }
-            //cout << tmp_res[*i] << endl;
+            //if(*i < xNum) cout << *i << ": "<< tmp_res[*i] << endl;
+            //if(tmp_res[*i] > epsi) cout << "exceed " << endl;
     }
+    
     residual.push_back(tmp_res);
 }
 
@@ -214,7 +233,7 @@ void init_residual(graph& g, int clusterNum){
     // if(t == 1 && clusterNum == 0){
     //     residual = vector<vector<double>>(K,vector<double>(num_vertices(g),0));
     // }
-        if(t == 1)calc_residual(g, clusterNum);
+        //if(t == 1)
         
         vertex_iterator i,j;
         for(boost::tie(i,j) = vertices(g); i != j; i++){
@@ -249,7 +268,7 @@ void init_residual(graph& g, int clusterNum){
 void single_pagerank(graph& g, int clusterNum){
     vertex_iterator i,j;
     vector<double> rank;
-    rank = vector<double>(xNum+yNum + 10, 1.0/(xNum));
+    rank = vector<double>(xNum+yNum + 10, 1.0/(xNum+yNum));
     vector<double> tmp_rank = rank;
 
     for(int v = 0; v < rankiter; v++){
@@ -261,6 +280,7 @@ void single_pagerank(graph& g, int clusterNum){
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 tmp_rank[*i] += alpha * g[*e.first].weight * rank[source(*e.first, g)];
+                //if(source(*e.first, g) == 6 && clusterNum == 0)cout << "rokuaruyo" << endl;;
             }
 
             if(*i < xNum ) tmp_rank[*i] = (1 - alpha)/(xNum) + tmp_rank[*i];
@@ -277,7 +297,7 @@ void single_pagerank(graph& g, int clusterNum){
             if(v < rankiter - 1 ){
                 rank[*i] = tmp_rank[*i]/RankSum;
             }else{
-                //if(*i < xNum )cout << *i << ": " <<  tmp_rank[*i]/(RxSum+RySum) << endl;
+                if(*i < xNum && clusterNum == 0)cout << *i << ": " <<  tmp_rank[*i]/(RxSum+RySum) << endl;
                 if(*i < xNum && g[*i].belongs_to_cluster(clusterNum)){
                     g[*i].rx = tmp_rank[*i]/RxSum;
                 }else{

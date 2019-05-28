@@ -60,7 +60,7 @@ graph construct_graph(){
             exit(0);
     }
     if(ifs_WYY.fail()){
-            cout << "Warning: Excute RankClus without WYY file:" << file_Y  << "."<< endl;
+            cout << "Warning: Excute RankClus without WYY file:" << file_WYY  << "."<< endl;
     }
 
     
@@ -219,6 +219,10 @@ vector<graph> construct_sub_graph(graph& g){
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                     }else{
                         if(g[target(*e.first, g)].cluster_label == clusterNum){
+                            // if(clusterNum == 0 && target(*e.first, g) == 6 ){
+                            //     cout << clusterNum << endl;
+                            //     exit(1);
+                            // }
                             a.label = "AtoT";
                             a.weight = g[*e.first].weight;
                             property_vector.push_back(a);
@@ -356,7 +360,7 @@ void print_rank_within_cluster(graph& g, int clusterNum){
 	cout << endl;
 }
 
-void print_cluster(graph& g ){
+void print_cluster_with_name(graph& g ){
     vector<vector<string>> cluster(K);
     vertex_iterator i, j;
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor <xNum ; i++) {
@@ -367,6 +371,17 @@ void print_cluster(graph& g ){
 		for (int i = 0; i < cluster[k].size(); i++){
 			cout << cluster[k][i] << flush;
 			if(i != cluster[k].size()-1)cout << ", "<< flush;
+		}
+		cout << " }" << endl;
+	}
+}
+
+void print_cluster_with_label(graph& g ){
+	for (int k = 0; k < K; k++){
+		cout << "  Cluster[" << k+1 << "] = { " << flush;
+		for (int i = 0; i < cluster_label[k].size(); i++){
+			cout << cluster_label[k][i] << flush;
+			if(i != cluster_label[k].size()-1)cout << ", "<< flush;
 		}
 		cout << " }" << endl;
 	}

@@ -15,7 +15,8 @@ void init_graph(graph& g, graph& global_g);
 void init_subgraph(graph& g, int clusterNum);
 void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
-void print_cluster(graph &g);
+void print_cluster_with_name(graph &g);
+void print_cluster_with_label(graph &g);
 void clustering(graph& g, vector<graph>& subgraph);
 bool check_converge_cluster(graph& g);
 void ranking(graph& subgraph, int clusterNum);
@@ -26,7 +27,7 @@ void write_result(vector<graph>& sub_g, string out_file);
 void write_result_for_NMI(graph& g);
 int do_main();
 
-const int iterNum = 5;
+const int iterNum = 15;
 extern int xNum;
 string path;
 int K;
@@ -101,6 +102,7 @@ int do_main(){
     vector<graph> subgraph;
     for(t = 0; t < iterNum && convflag == false; t++){
         subgraph = construct_sub_graph(g);
+        //print_cluster_with_label(g);
         cout << "===== Iteration Number : " << t + 1  << " =======" << endl;
         ranking_start = chrono::system_clock::now();
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
@@ -108,7 +110,7 @@ int do_main(){
             ranking(subgraph[clusterNum], clusterNum);
             conditional_ranking(g, subgraph[clusterNum]);
             // print_graph_detail(subgraph[clusterNum]);
-            print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+            //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
         }
         ranking_end = chrono::system_clock::now();
         double ranking_time = std::chrono::duration_cast<std::chrono::microseconds>(ranking_end - ranking_start).count();
@@ -120,7 +122,7 @@ int do_main(){
         double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
         cout << "clustering time[micro]: " << clustering_time << endl; 
         convflag = check_converge_cluster(g);
-        //print_cluster(g);
+        //print_cluster_with_label(g);
     }
     //print_cluster(g);
     end = chrono::system_clock::now();
