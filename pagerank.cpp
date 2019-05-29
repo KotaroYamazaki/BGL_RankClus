@@ -17,7 +17,6 @@ extern vector<vector<double>> row_sum_vec;
 
 const double alpha = 0.85;
 const int rankiter = 10000;
-const int gauss_iter = 20000;
 double epsi;
 
 vector<graph> pre_graph;
@@ -63,11 +62,6 @@ void ranking(graph& g, int clusterNum){
 }
 
 void gauss_southwell(graph& g, int clusterNum, queue<int>& q, vector<bool>& occupied_flag){
-    // bool occupied_flag[xNum+yNum+10];
-    // for(int i = 0; i < residual[clusterNum].size(); i++){
-    //     if(fabs(residual[clusterNum][i]) > epsi)q.push(i);
-    //     occupied_flag[i] = true;
-    // }
     vector<double>& res = residual[clusterNum];
 
     while(!q.empty()){
@@ -161,7 +155,8 @@ void pagerank_from_scratch(graph& g, int clusterNum){
     vector<double> tmp_rank = rank;
     
     vertex_iterator i,j;
-    for(int v = 0; v < rankiter; v++){
+    int v;
+    for(v = 0; v < rankiter; v++){
         double change = 0;
         bool conv_flag = true;
         for(boost::tie(i,j) = vertices(g); i !=j; i++){
@@ -180,6 +175,7 @@ void pagerank_from_scratch(graph& g, int clusterNum){
         //if(*i < xNum)cout << *i << ": " << rank[*i] << "<- " << tmp_rank[*i] << endl;  
         g[*i].p_rank = rank[*i];
     }
+    cout << "ranking converged at " << v << endl;
 }
 
 void get_rank_for_rankclus(graph& g, vector<double> r, int cluster_label){
