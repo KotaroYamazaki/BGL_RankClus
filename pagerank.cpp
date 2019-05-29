@@ -82,7 +82,7 @@ void gauss_southwell(graph& g, int clusterNum){
             //cout << residual[clusterNum][source(*e.first, g)] << "-> ";
             residual[clusterNum][source(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
             //cout << residual[clusterNum][source(*e.first, g)] << endl;
-            //if(fabs(residual[clusterNum][source(*e.first, g)]) > epsi ) q.push(source(*e.first, g));
+            if(fabs(residual[clusterNum][source(*e.first, g)]) > epsi ) q.push(source(*e.first, g));
         }
     }
 }
@@ -91,18 +91,15 @@ void calc_initial_residual(graph& g){
     vector<double> tmp_res;
     double b = 1.0/(xNum+ yNum);
     vertex_iterator i,j;
-    int cnt=0;
     for(boost::tie(i,j) = vertices(g); i != j; i++){
-        tmp_res.push_back((1 - alpha)*b);
+        double tmp = (1-alpha)*b;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                if(*i == source(*e.first, g))tmp_res[*i] -= (1 - alpha * g[*e.first].weight) * g[source(*e.first, g)].p_rank;
-                else tmp_res[*i] -= ((-1) * alpha * g[*e.first].weight) * g[source(*e.first, g)].p_rank;
+                tmp += alpha * g[*e.first].weight * g[source(*e.first, g)].p_rank;
             }
-            //if(*i < xNum)cout << *i << ": " << tmp_res[*i] << endl;
-        if(fabs(tmp_res[*i]) > epsi)cnt++;
-        tmp_res[*i] = 0;
+        tmp -= g[*i].p_rank;
+        tmp_res.push_back(tmp);
+        if(fabs(tmp) > epsi)cnt++;
     }
-    cout << "cnt == " << cnt << endl;
     residual.push_back(tmp_res);
 }
 
