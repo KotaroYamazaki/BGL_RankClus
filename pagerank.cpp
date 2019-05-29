@@ -38,7 +38,8 @@ void print_x_p_rank(graph& g);
 void ranking(graph& g, int clusterNum){
     normalize_outedge_weight(g, clusterNum);
     //epsi = 0.1/(xNum+yNum);
-    epsi = 0;
+    //epsi = 0;
+    epsi = 1e-9;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);
@@ -81,7 +82,7 @@ void gauss_southwell(graph& g, int clusterNum, queue<int>& q, vector<bool>& occu
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
             unsigned long index = source(*e.first, g);
             res[index] +=  alpha * (g[*e.first].weight * r_i);
-            if(occupied_flag[index] && fabs(res[index]) > epsi) q.push(index);
+            if(!occupied_flag[index] && fabs(res[index]) > epsi) q.push(index);
         }
     }
 }
