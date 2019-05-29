@@ -28,12 +28,18 @@ void pagerank_from_scratch(graph& g, int clusterNum);
 void get_rank_for_rankclus(graph& g, vector<double> r, int cluster_label);
 void get_rank_for_rankclus(graph& g, int cluster_label);
 void calc_initial_residual(graph& g);
-void calc_tracking_residual(graph& g, int clusterNum);
-void gauss_southwell(graph& g, int clusterNum);
+pair<queue<int>, vector<bool>> calc_tracking_residual(graph& g, int clusterNum);
+void gauss_southwell(graph& g, int clusterNum, queue<int>& q, vector<bool>& occupied_flag);
+
+// for debug
+void print_cluster_with_label(graph& g);
+void print_rank_within_cluster(graph& g, int clusterNum);
+void print_x_p_rank(graph& g);
 
 void ranking(graph& g, int clusterNum){
     normalize_outedge_weight(g, clusterNum);
-    epsi = 0.1/(xNum+yNum);
+    //epsi = 0.1/(xNum+yNum);
+    epsi = 0;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);
@@ -44,45 +50,44 @@ void ranking(graph& g, int clusterNum){
             calc_initial_residual(g);
             pre_graph.push_back(g);
         }else{
-            calc_tracking_residual(g, clusterNum);
-            gauss_southwell(g, clusterNum);
+            pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
+            gauss_southwell(g, clusterNum, p.first, p.second);
             get_rank_for_rankclus(g, clusterNum);
             pre_graph[clusterNum] = g;
         }
-
+        
     }
+    //print_rank_within_cluster(g, clusterNum);
+    //cout << "< cluster = " << clusterNum << " > "<< endl;
+    //print_x_p_rank( g);
 }
 
-void gauss_southwell(graph& g, int clusterNum){
-    queue<int> q;
-    for(int i = 0; i < residual[clusterNum].size(); i++){
-        //cout << i <<": " << residual[clusterNum][i] << endl;
-        if(fabs(residual[clusterNum][i]) > epsi)q.push(i);
-    }
-    //cout << q.size() << endl;
-    for(int v = 0; v < gauss_iter; v++){
-        if(q.empty()){
-            cout << "q converged at " << v << endl;
-            break;
-        }
+void gauss_southwell(graph& g, int clusterNum, queue<int>& q, vector<bool>& occupied_flag){
+    // bool occupied_flag[xNum+yNum+10];
+    // for(int i = 0; i < residual[clusterNum].size(); i++){
+    //     if(fabs(residual[clusterNum][i]) > epsi)q.push(i);
+    //     occupied_flag[i] = true;
+    // }
+    vector<double>& res = residual[clusterNum];
 
+    while(!q.empty()){
         unsigned long index = q.front();
-        q.pop();
         vertex_descriptor max_index = vertex(index, g);
-        double r_i = residual[clusterNum][max_index];
-        //cout << max_index << " : "<< r_i <<endl;
+        q.pop();
+        occupied_flag[max_index] = false;
+        
+        double r_i = res[max_index];
         //x^(v) = x^(v-1) + r_i^(v-1)*e_i
         g[max_index].p_rank += r_i;
 
         //r^(v) = r^(v-1) - r_i^(v-1)*e_i
-        residual[clusterNum][max_index] -= r_i;
+        res[max_index] -= r_i;
 
         //r^(v) = r^(v-1) + a*r_i^(v-1)*P*e_i
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
-            //cout << residual[clusterNum][source(*e.first, g)] << "-> ";
-            residual[clusterNum][source(*e.first, g)] +=  alpha * (g[*e.first].weight * r_i);
-            //cout << residual[clusterNum][source(*e.first, g)] << endl;
-            //if(fabs(residual[clusterNum][source(*e.first, g)]) > epsi ) q.push(source(*e.first, g));
+            unsigned long index = source(*e.first, g);
+            res[index] +=  alpha * (g[*e.first].weight * r_i);
+            if(occupied_flag[index] && fabs(res[index]) > epsi) q.push(index);
         }
     }
 }
@@ -94,8 +99,8 @@ void calc_initial_residual(graph& g){
     for(boost::tie(i,j) = vertices(g); i != j; i++){
         double tmp = (1-alpha)*b;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-                tmp += alpha * g[*e.first].weight * g[source(*e.first, g)].p_rank;
-            }
+            tmp += alpha * g[*e.first].weight * g[source(*e.first, g)].p_rank;
+        }
         tmp -= g[*i].p_rank;
         tmp_res.push_back(tmp);
     }
@@ -109,7 +114,9 @@ void print_x_p_rank(graph& g){
     }
 }
 
-void calc_tracking_residual(graph& g,int clusterNum){
+pair<queue<int>, vector<bool>> calc_tracking_residual(graph& g,int clusterNum){
+    queue<int> q;
+    vector<bool> occupied_flag = vector<bool>(xNum+yNum);
     vertex_iterator i, j;
     graph& pre_g = pre_graph[clusterNum];
     for(boost::tie(i,j) = vertices(g); i != j; i++){
@@ -127,9 +134,12 @@ void calc_tracking_residual(graph& g,int clusterNum){
             tmp_res -= pre_g[*e.first].weight * pre_g[*i].p_rank;
         }
         residual[clusterNum][*i] += alpha * tmp_res;
-        //if(fabs(residual[clusterNum][*i]) > epsi)q.push(*i);
+        if(fabs(residual[clusterNum][*i]) > epsi){
+            q.push(*i);
+            occupied_flag[*i] = true;
+        }
     }
-    if(t == 1)print_x_p_rank(g);
+    return make_pair(q, occupied_flag);
 }
 
 
@@ -151,8 +161,7 @@ void pagerank_from_scratch(graph& g, int clusterNum){
     vector<double> tmp_rank = rank;
     
     vertex_iterator i,j;
-    int v;
-    for(v = 0; v < rankiter; v++){
+    for(int v = 0; v < rankiter; v++){
         double change = 0;
         bool conv_flag = true;
         for(boost::tie(i,j) = vertices(g); i !=j; i++){
@@ -171,8 +180,6 @@ void pagerank_from_scratch(graph& g, int clusterNum){
         //if(*i < xNum)cout << *i << ": " << rank[*i] << "<- " << tmp_rank[*i] << endl;  
         g[*i].p_rank = rank[*i];
     }
-    if(t == 1)print_x_p_rank(g);
-    cout << "ranking converged at " << v << endl;
 }
 
 void get_rank_for_rankclus(graph& g, vector<double> r, int cluster_label){
