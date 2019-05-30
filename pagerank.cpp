@@ -50,10 +50,34 @@ void ranking(graph& g, int clusterNum){
             calc_initial_residual(g);
             pre_graph.push_back(g);
         }else{
+            auto start_r = std::chrono::system_clock::now();
             pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
+            auto end_r = std::chrono::system_clock::now();
+            auto dur_r = end_r - start_r;        // 要した時間を計算
+            auto msec_r = std::chrono::duration_cast<std::chrono::microseconds>(dur_r).count();
+            std::cout << "cluster = "<<clusterNum << "residu time [micro] : "<< msec_r << "\n";
+
+            auto start_g = std::chrono::system_clock::now(); 
             gauss_southwell(g, clusterNum, p.first, p.second);
+            auto end_g = std::chrono::system_clock::now();
+            auto dur = end_g - start_g;        // 要した時間を計算
+            auto msec = std::chrono::duration_cast<std::chrono::microseconds>(dur).count();
+            std::cout << "cluster = "<<clusterNum << " gauss time[micro] : "<< msec << endl;
+
+            auto start_get = std::chrono::system_clock::now(); 
             get_rank_for_rankclus(g, clusterNum);
+            auto end_get = std::chrono::system_clock::now();
+            auto dur_get = end_get - start_get;        // 要した時間を計算
+            auto msec_get = std::chrono::duration_cast<std::chrono::microseconds>(dur_get).count();
+            std::cout << "cluster = "<<clusterNum << " get rank time[micro] : "<< msec_get << endl;
+
+            auto start_p = std::chrono::system_clock::now();
             pre_graph[clusterNum] = g;
+            auto end_p = std::chrono::system_clock::now();
+            auto dur_p = end_p - start_p;        // 要した時間を計算
+            auto msec_p = std::chrono::duration_cast<std::chrono::microseconds>(dur_p).count();
+            std::cout << "cluster = "<<clusterNum << " pregraohp time[micro] : "<< msec_p << endl;
+
         }
         
     }
@@ -82,7 +106,10 @@ void gauss_southwell(graph& g, int clusterNum, queue<int>& q, vector<bool>& occu
         for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
             unsigned long index = source(*e.first, g);
             res[index] +=  alpha * (g[*e.first].weight * r_i);
-            if(!occupied_flag[index] && fabs(res[index]) > epsi) q.push(index);
+            if(fabs(res[index]) > epsi && !occupied_flag[index]){
+                q.push(index);
+                occupied_flag[index] = true;
+            }
         }
     }
 }
@@ -121,12 +148,12 @@ pair<queue<int>, vector<bool>> calc_tracking_residual(graph& g,int clusterNum){
         //calc P(t)*x(t-1)
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
             v = source(*e.first, g);
-            tmp_res += g[*e.first].weight * g[*i].p_rank;
+            tmp_res += g[*e.first].weight * g[v].p_rank;
         }
         //calc P(t-1)*x(t-1)
         for (auto e = in_edges(*i, pre_g); e.first!=e.second; e.first++) {
             v = source(*e.first, pre_g);
-            tmp_res -= pre_g[*e.first].weight * pre_g[*i].p_rank;
+            tmp_res -= pre_g[*e.first].weight * pre_g[v].p_rank;
         }
         residual[clusterNum][*i] += alpha * tmp_res;
         if(fabs(residual[clusterNum][*i]) > epsi){
