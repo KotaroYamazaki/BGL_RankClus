@@ -21,9 +21,8 @@ struct vertex_property
     int cluster_label;
     bool same_previous_cluster;
 
-    bool belongs_to_cluster(int label){
-        if(cluster_label == label)return true;
-        else return false;
+    bool belongs_to_cluster(int _label){
+        return (cluster_label == _label);
     }
 };
 
