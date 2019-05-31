@@ -1,23 +1,24 @@
-#program name and objects file name
-PROGRAM = rankclus.out
-OBJS = main.o graph.o clustering.o
-OPTIMIZE = -O2 
-#define macro
-CXX = clang++
-CXXFLAG = $(OPTIMIZE) -std=c++11
-
-all:authority
-authority: $(OBJS) ranking.o
-	$(CXX) $(CXXFLAG) $(OBJS) ranking.o -o $(PROGRAM)
-pagerank: $(OBJS) single_pagerank.o
-	$(CXX) $(CXXFLAG) $(OBJS) single_pagerank.o -o $(PROGRAM)
-comp: main_comp.o graph.o clustering.o pagerank.o
-	$(CXX) $(CXXFLAG) main_comp.o graph.o clustering.o pagerank.o -o $(PROGRAM)
-comp_d: main_comp.o graph.o clustering.o pagerank.o
-	$(CXX) $(CXXFLAG) -g main_comp.o graph.o clustering.o pagerank.o -o $(PROGRAM)
-.cpp.o:
-	$(CXX) $(CXXFLAG) -c $< -Wall
-*.o: *.hpp
-.PHONY: clean
+CC      = clang++
+CFLAGS  = -g -std=c++11 -O2
+LDFLAGS = 
+LIBS    =  /usr/local/Cellar/boost/1.67.0_1/lib
+INC     = ./hpp /usr/local/Cellar/boost/1.67.0_1/include
+INC_PARAMS=$(foreach d, $(INC), -I$d)
+SRC_DIR = ./src
+OBJ_DIR = ./build
+SOURCES = $(shell ls $(SRC_DIR)/*.cpp) 
+OBJS    = $(subst $(SRC_DIR),$(OBJ_DIR), $(SOURCES:.cpp=.o))
+TARGET  = a.out
+DEPENDS = $(OBJS:.o=.d)
+all: $(TARGET)
+$(TARGET): $(OBJS) $(LIBS)
+	$(CC) -o $@ $(OBJS) $(LDFLAGS)
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp 
+	@if [ ! -d $(OBJ_DIR) ]; \
+		then echo "mkdir -p $(OBJ_DIR)"; mkdir -p $(OBJ_DIR); \
+		fi
+	$(CC) $(CFLAGS) $(INC_PARAMS) -o $@ -c $< 
 clean:
-	$(RM) *.o *test*
+	$(RM) $(OBJS) $(TARGET) $(DEPENDS)
+-include $(DEPENDS)
+.PHONY: all clean
