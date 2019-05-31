@@ -72,10 +72,10 @@ int main(int argc, char* argv[])
 	}
         file1.close();
 
-        cout << "Proposal time[micro]: " << time[1] << endl;
         cout<< "RankClus Time[micro]: " << time[0] << endl;
+        cout << "Proposal time[micro]: " << time[1] << endl;
         cout << "Difference: " << time[0] - time[1] << endl;
-        cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
+        //cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
         cout << "NMI: " << flush;
         system("python NMI.py");
 	}   
@@ -166,7 +166,7 @@ void conditional_ranking(graph& g, graph& subgraph){
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
         double tmp = 0;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-             tmp += g[*e.first].weight * subgraph[source(*e.first, g)].ry; 
+             tmp += g[*e.first].weight/out_degree(source(*e.first, g), g) * subgraph[source(*e.first, g)].ry; 
              if(isnan(subgraph[source(*e.first, g)].ry)){
                  cout << "ry is nan" << endl;
                  exit(1);

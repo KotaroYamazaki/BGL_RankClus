@@ -65,6 +65,7 @@ void ranking_with_time(graph &g, int clusterNum){
     std::cout << "cluster = "<<clusterNum << " pregraohp time[micro] : "<< msec_p << endl;
 }
 
+
 void ranking(graph& g, int clusterNum){
     normalize_outedge_weight(g, clusterNum);
     //epsi = 0.01/(xNum+yNum);
@@ -78,22 +79,27 @@ void ranking(graph& g, int clusterNum){
             pagerank_from_scratch(g, clusterNum);
             get_rank_for_rankclus(g, clusterNum);
 
-            auto start_c = std::chrono::system_clock::now();
+            //auto start_c = std::chrono::system_clock::now();
             calc_initial_residual(g);
-            auto end_c = std::chrono::system_clock::now();
-            auto dur_c = end_c - start_c;        // 要した時間を計算
-            auto msec_c = std::chrono::duration_cast<std::chrono::microseconds>(dur_c).count();
-            std::cout << "cluster = "<<clusterNum << "  calc res time [micro] : "<< msec_c << "\n";
+            // auto end_c = std::chrono::system_clock::now();
+            // auto dur_c = end_c - start_c;        // 要した時間を計算
+            // auto msec_c = std::chrono::duration_cast<std::chrono::microseconds>(dur_c).count();
+            // std::cout << "cluster = "<<clusterNum << "  calc res time [micro] : "<< msec_c << "\n";
 
 
-            auto start_r = std::chrono::system_clock::now();
-            pre_graph.push_back(g);
-            auto end_r = std::chrono::system_clock::now();
-            auto dur_r = end_r - start_r;        // 要した時間を計算
-            auto msec_r = std::chrono::duration_cast<std::chrono::microseconds>(dur_r).count();
-            std::cout << "cluster = "<<clusterNum << "  graph push time [micro] : "<< msec_r << "\n";
+            //auto start_r = std::chrono::system_clock::now();
+            if(t == 0)pre_graph.push_back(g);
+            else pre_graph[clusterNum] = g;
+            // auto end_r = std::chrono::system_clock::now();
+            // auto dur_r = end_r - start_r;        // 要した時間を計算
+            // auto msec_r = std::chrono::duration_cast<std::chrono::microseconds>(dur_r).count();
+            // std::cout << "cluster = "<<clusterNum << "  graph push time [micro] : "<< msec_r << "\n";
             
         }else{
+            // pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
+            // gauss_southwell(g, clusterNum, p.first, p.second);
+            // get_rank_for_rankclus(g, clusterNum);
+            // pre_graph[clusterNum] = g;
             ranking_with_time(g, clusterNum);
         }
         
