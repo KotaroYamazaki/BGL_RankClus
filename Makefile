@@ -17,7 +17,7 @@ comp_d: main_comp.o graph.o clustering.o pagerank.o
 	$(CXX) $(CXXFLAG) -g main_comp.o graph.o clustering.o pagerank.o -o $(PROGRAM)
 .cpp.o:
 	$(CXX) $(CXXFLAG) -c $< -Wall
-*.o: graph.hpp
+*.o: *.hpp
 .PHONY: clean
 clean:
 	$(RM) *.o *test*

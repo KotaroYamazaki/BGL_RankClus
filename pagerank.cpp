@@ -35,6 +35,11 @@ void print_cluster_with_label(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
 void print_x_p_rank(graph& g);
 
+class PreGraph_Structure{
+    vector<vector<int>> in_node_set;
+    vector<double> p_rank;
+};
+
 void ranking_with_time(graph &g, int clusterNum){
     auto start_r = std::chrono::system_clock::now();
     pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);

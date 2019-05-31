@@ -6,6 +6,7 @@
 #include "graph.hpp"
 #include <chrono>
 #include <stdlib.h>
+#include "clustering.hpp"
 using namespace std;
 
 graph construct_graph();
@@ -17,7 +18,6 @@ void print_graph_detail(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
 void print_cluster_with_name(graph &g);
 void print_cluster_with_label(graph &g);
-void clustering(graph& g, vector<graph>& subgraph);
 bool check_converge_cluster(graph& g);
 void ranking(graph& subgraph, int clusterNum);
 void conditional_ranking(graph& g, graph& subgraph);
@@ -29,6 +29,8 @@ int do_main();
 
 const int iterNum = 15;
 extern int xNum;
+extern double WXY_sum;
+extern vector<double> WkXY_sum;
 string path;
 int K;
 int t;
@@ -117,7 +119,9 @@ int do_main(){
         cout << "ranking time[micro]: " << ranking_time << endl; 
 
         clustering_start = chrono::system_clock::now();
-        clustering(g,subgraph);
+        clustering cl(WkXY_sum, K, WXY_sum, xNum, cluster_label);
+        cl.begin_clustering(g, subgraph);
+        //clustering(g,subgraph);
         clustering_end = chrono::system_clock::now();
         double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
         cout << "clustering time[micro]: " << clustering_time << endl; 

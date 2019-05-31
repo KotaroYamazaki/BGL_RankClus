@@ -1,18 +1,16 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/compressed_sparse_row_graph.hpp>
-#include "graph.hpp"
-using namespace std;
-extern vector<double> WkXY_sum;
-extern int K;
-extern double WXY_sum;
-extern int xNum;
-bool has_empty_cluster(graph& g);
-extern vector<vector<int>> cluster_label;
+#include"clustering.hpp"
 
-double Norm(vector<double>& array ){
+bool has_empty_cluster(graph& g);
+
+clustering::clustering(vector<double>& _WkXY_sum, int _K, double _WXY_sum,int _xNum, vector<vector<int>>& _cluster_label){
+    WkXY_sum = _WkXY_sum;
+    K = _K;
+    WXY_sum = _WXY_sum;
+    xNum = _xNum;
+    cluster_label = _cluster_label;
+}
+
+double clustering::Norm(vector<double>& array ){
 	double Sum = 0;
 	for(int l = 0;l < K; l++){
 		Sum += array[l]*array[l];
@@ -20,7 +18,7 @@ double Norm(vector<double>& array ){
 	return(sqrt(Sum));
 }
 
-void clustering(graph &g, vector<graph>& subgraph){
+void clustering::begin_clustering(graph &g, vector<graph>& subgraph){
     vector<vector<double>> pi(K);
     vector<double> p;
     vertex_iterator i,j;
