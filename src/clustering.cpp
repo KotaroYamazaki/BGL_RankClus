@@ -116,7 +116,7 @@ int clustering::get_index_of_nearest_cluster(vector<double> s_x,const vector<vec
     return index;
 }
 
-void clustering::update_cluster_label(vertex_property v, const int index){
+void clustering::update_cluster_label(vertex_property& v, const int index){
     if(v.cluster_label == index){
             v.same_previous_cluster = true;
         }else{
@@ -133,7 +133,7 @@ void clustering::check_empty_cluster(graph & g){
     }
 }
 
-void clustering::begin_clustering(graph &g, vector<graph>& subgraph){
+vector<vector<int>> clustering::update_cluster_label(graph &g, vector<graph>& subgraph){
     auto p = get_generating_probability();
     auto conditional_p = calc_conditional_distribution(g, subgraph, p);
     auto pi = calc_pi_using_bayesian_rule(g, subgraph, conditional_p);
@@ -148,5 +148,5 @@ void clustering::begin_clustering(graph &g, vector<graph>& subgraph){
         update_cluster_label(g[*m], index);
         new_cluster_label[index].push_back(*m);
     }
-    cluster_label = new_cluster_label;
+    return new_cluster_label;
 }

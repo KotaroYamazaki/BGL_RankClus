@@ -22,10 +22,10 @@ class clustering{
         vector<vector<double>> get_center_vector(const graph& g, const vector<vector<double>>& s);
         double calc_distance_by_one_minus_cosine_similarity(vector<double> s_x, vector<vector<double>>center_vec, int k);
         int get_index_of_nearest_cluster(vector<double> s,const vector<vector<double>> center_vec);
-        void update_cluster_label(vertex_property v, const int index);
+        void update_cluster_label(vertex_property& v, const int index);
         void check_empty_cluster(graph & g);
 
     public:
         clustering(vector<double>& _WkXY_sum, int _K, double _WXY_sum,int _xNum, vector<vector<int>>& _cluster_label);
-        void begin_clustering(graph &g, vector<graph>& subgraph);
+        vector<vector<int>> update_cluster_label(graph &g, vector<graph>& subgraph);
 };

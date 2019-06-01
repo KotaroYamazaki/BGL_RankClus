@@ -120,7 +120,7 @@ int do_main(){
 
         clustering_start = chrono::system_clock::now();
         clustering cl(WkXY_sum, K, WXY_sum, xNum, cluster_label);
-        cl.begin_clustering(g, subgraph);
+        cluster_label = cl.update_cluster_label(g, subgraph);
         //clustering(g,subgraph);
         clustering_end = chrono::system_clock::now();
         double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();

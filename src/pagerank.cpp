@@ -198,7 +198,7 @@ void normalize_outedge_weight(graph& g, int clusterNum){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
             for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
-                if(row_sum_vec[clusterNum][*i] != 0)g[*e .first].weight /= row_sum_vec[clusterNum][*i];
+                g[*e .first].weight /= out_degree(*i, g);
             }
     }
 }
