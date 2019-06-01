@@ -85,12 +85,12 @@ void ranking(graph& g, int clusterNum){
             pagerank_from_scratch(g, clusterNum);
             get_rank_for_rankclus(g, clusterNum);
 
-            //auto start_c = std::chrono::system_clock::now();
+            auto start_c = std::chrono::system_clock::now();
             if(t == gauss_start)calc_initial_residual(g);
-            // auto end_c = std::chrono::system_clock::now();
-            // auto dur_c = end_c - start_c;        // 要した時間を計算
-            // auto msec_c = std::chrono::duration_cast<std::chrono::microseconds>(dur_c).count();
-            // std::cout << "cluster = "<<clusterNum << "  calc res time [micro] : "<< msec_c << "\n";
+            auto end_c = std::chrono::system_clock::now();
+            auto dur_c = end_c - start_c;        // 要した時間を計算
+            auto msec_c = std::chrono::duration_cast<std::chrono::microseconds>(dur_c).count();
+            std::cout << "cluster = "<<clusterNum << "  calc res time [micro] : "<< msec_c << "\n";
 
 
             //auto start_r = std::chrono::system_clock::now();
