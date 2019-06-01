@@ -18,6 +18,7 @@ extern vector<vector<double>> row_sum_vec;
 const double alpha = 0.85;
 const int rankiter = 10000;
 double epsi;
+const int gauss_start = 0;
 
 vector<graph> pre_graph;
 vector<vector<double>> residual;
@@ -80,12 +81,12 @@ void ranking(graph& g, int clusterNum){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);
     }else{
-        if(t < 3){
+        if(t == gauss_start){
             pagerank_from_scratch(g, clusterNum);
             get_rank_for_rankclus(g, clusterNum);
 
             //auto start_c = std::chrono::system_clock::now();
-            if(t == 2 )calc_initial_residual(g);
+            if(t == gauss_start)calc_initial_residual(g);
             // auto end_c = std::chrono::system_clock::now();
             // auto dur_c = end_c - start_c;        // 要した時間を計算
             // auto msec_c = std::chrono::duration_cast<std::chrono::microseconds>(dur_c).count();
@@ -101,11 +102,11 @@ void ranking(graph& g, int clusterNum){
             // std::cout << "cluster = "<<clusterNum << "  graph push time [micro] : "<< msec_r << "\n";
             
         }else{
-            // pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
-            // gauss_southwell(g, clusterNum, p.first, p.second);
-            // get_rank_for_rankclus(g, clusterNum);
-            // pre_graph[clusterNum] = g;
-            ranking_with_time(g, clusterNum);
+            pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
+            gauss_southwell(g, clusterNum, p.first, p.second);
+            get_rank_for_rankclus(g, clusterNum);
+            pre_graph[clusterNum] = g;
+            //ranking_with_time(g, clusterNum);
         }
         
     }

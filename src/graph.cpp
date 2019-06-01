@@ -229,7 +229,7 @@ vector<graph> construct_sub_graph(graph& g){
                 if(g[*i].state[clusterNum] == ADD || g[*i].state[clusterNum] == LEAVE)max_degree = max(max_degree, (int)(in_degree(*i, g)+out_degree(*i, g)));
                 count_edge_change += count_number_of_change_edges(g[*i].state[clusterNum], *i, g);
                 //cout << out_degree(*i , g) + in_degree(*i, g)<< endl;
-                if(count_edge_change != 0)cout << "count : "<< count_edge_change << "[" << max_degree << "]"<< endl;
+                //if(count_edge_change != 0)cout << "count : "<< count_edge_change << "[" << max_degree << "]"<< endl;
             } else {
                 for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                     //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
