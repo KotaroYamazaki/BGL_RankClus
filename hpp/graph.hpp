@@ -6,6 +6,15 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 
+using namespace std;
+
+enum vertex_trajectory{
+    NOTHING = 0,
+    STAY = 1,
+    ADD = 2,
+    LEAVE = 3,
+};
+
 // ノードの属性値を自由に定義
 struct vertex_property
 {
@@ -17,6 +26,7 @@ struct vertex_property
     double rx;
     double p_rank;
     double conditional_rank;
+    vector<vertex_trajectory> state;
     // クラスタ所属情報
     int cluster_label;
     bool same_previous_cluster;

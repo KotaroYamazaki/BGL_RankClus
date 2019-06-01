@@ -162,12 +162,30 @@ bool has_empty_cluster(graph& g){
     return false;
 }
 
+string cast_state(const vertex_trajectory& State){
+    if(State == NOTHING)return "NOTHING";
+    if(State == STAY)return "STAY";
+    if(State == ADD)return "ADD";
+    if(State == LEAVE)return "LEAVE";
+    return "NULL";
+}
+
+void update_added_vertex_state_for_cluster(vertex_trajectory& State){
+    if(State == NOTHING || State == LEAVE) State = ADD;
+    else State = STAY;
+}
+
+void update_not_belongs_vertex_state_for_cluster(vertex_trajectory& State){
+    if(State == NOTHING || State == LEAVE) State = NOTHING;
+    else State = LEAVE;
+}
+
+
+
 vector<graph> construct_sub_graph(graph& g){
     //　サブグラフを格納するリスト
     vector<graph> subgraph_vector;
     vector<string> x_name;
-    
-    row_sum_vec = vector<vector<double>>(K);
     
     WkXY_sum = vector<double>(K,0);
     for(int clusterNum = 0; clusterNum < K; clusterNum++){
@@ -185,7 +203,6 @@ vector<graph> construct_sub_graph(graph& g){
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
                     // アトリビュートタイプへでていくエッジのプロパティをコピー
-            row_sum = 0;
             if(g[*i].int_descriptor < xNum){ 
                 if(g[*i].belongs_to_cluster(clusterNum)){
                     cluster_size += 1;
@@ -199,11 +216,11 @@ vector<graph> construct_sub_graph(graph& g){
                         a.weight = g[*e.first].weight;
                         property_vector.push_back(a);
                         edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
-                        //正規化のときに使うメモ
-                        row_sum += a.weight;
-                        //エッジの重み合計
                         edge_sum += a.weight;
                     }
+                    update_added_vertex_state_for_cluster(g[*i].state[clusterNum]);
+                }else{
+                    update_not_belongs_vertex_state_for_cluster(g[*i].state[clusterNum]);
                 }
             } else {
                 for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
@@ -219,21 +236,14 @@ vector<graph> construct_sub_graph(graph& g){
                             edge_vector.push_back(edge(target(*e.first, g), source(*e.first, g)));
                     }else{
                         if(g[target(*e.first, g)].cluster_label == clusterNum){
-                            // if(clusterNum == 0 && target(*e.first, g) == 6 ){
-                            //     cout << clusterNum << endl;
-                            //     exit(1);
-                            // }
                             a.label = "AtoT";
                             a.weight = g[*e.first].weight;
                             property_vector.push_back(a);
                             edge_vector.push_back(edge(source(*e.first, g), target(*e.first, g)));
                         }
                     }
-                    row_sum += a.weight;
                 }
             }
-            //正規化のときに使うvector
-            row_sum_vec[clusterNum].push_back(row_sum);
         }
         WkXY_sum[clusterNum] = edge_sum;
         // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
@@ -260,6 +270,7 @@ void init_graph(graph& g){
             g[*i].name = name_vector[*i];
             g[*i].conditional_rank = 0;
             g[*i].cluster_label = -1;
+            g[*i].state = vector<vertex_trajectory>(K, NOTHING);
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
@@ -380,7 +391,7 @@ void print_cluster_with_label(graph& g ){
 	for (int k = 0; k < K; k++){
 		cout << "  Cluster[" << k+1 << "] = { " << flush;
 		for (int i = 0; i < cluster_label[k].size(); i++){
-			cout << cluster_label[k][i] << flush;
+			cout << cluster_label[k][i] << "["<< cast_state(g[vertex(cluster_label[k][i], g)].state[k]) << "]"<<flush;
 			if(i != cluster_label[k].size()-1)cout << ", "<< flush;
 		}
 		cout << " }" << endl;
