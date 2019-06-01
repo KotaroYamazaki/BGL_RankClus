@@ -80,12 +80,12 @@ void ranking(graph& g, int clusterNum){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);
     }else{
-        if(t == 0){
+        if(t < 3){
             pagerank_from_scratch(g, clusterNum);
             get_rank_for_rankclus(g, clusterNum);
 
             //auto start_c = std::chrono::system_clock::now();
-            calc_initial_residual(g);
+            if(t == 2 )calc_initial_residual(g);
             // auto end_c = std::chrono::system_clock::now();
             // auto dur_c = end_c - start_c;        // 要した時間を計算
             // auto msec_c = std::chrono::duration_cast<std::chrono::microseconds>(dur_c).count();
@@ -131,8 +131,16 @@ void gauss_southwell(graph& g, int clusterNum, queue<int>& q, vector<bool>& occu
         res[max_index] -= r_i;
 
         //r^(v) = r^(v-1) + a*r_i^(v-1)*P*e_i
-        for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
-            unsigned long index = source(*e.first, g);
+        // for (auto e = in_edges(max_index, g); e.first!=e.second; e.first++) {
+        //     unsigned long index = source(*e.first, g);
+        //     res[index] +=  alpha * (g[*e.first].weight * r_i);
+        //     if(fabs(res[index]) > epsi && !occupied_flag[index]){
+        //         q.push(index);
+        //         occupied_flag[index] = true;
+        //     }
+        // }
+        for (auto e = out_edges(max_index, g); e.first!=e.second; e.first++) {
+            unsigned long index = target(*e.first, g);
             res[index] +=  alpha * (g[*e.first].weight * r_i);
             if(fabs(res[index]) > epsi && !occupied_flag[index]){
                 q.push(index);
@@ -153,6 +161,7 @@ void calc_initial_residual(graph& g){
         }
         tmp -= g[*i].p_rank;
         tmp_res.push_back(tmp);
+        //cout << tmp << endl;
     }
     residual.push_back(tmp_res);
 }
@@ -172,18 +181,20 @@ pair<queue<int>, vector<bool>> calc_tracking_residual(graph& g,int clusterNum){
     for(boost::tie(i,j) = vertices(g); i != j; i++){
         g[*i].p_rank = pre_g[*i].p_rank;
         vertex_descriptor v;
-        double tmp_res = 0;
+        double Pt_times_x = 0;
+        double Pt_mius_1_times_x = 0;
         //calc P(t)*x(t-1)
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
             v = source(*e.first, g);
-            tmp_res += g[*e.first].weight * g[v].p_rank;
+            Pt_times_x += g[*e.first].weight * pre_g[v].p_rank;
         }
         //calc P(t-1)*x(t-1)
         for (auto e = in_edges(*i, pre_g); e.first!=e.second; e.first++) {
             v = source(*e.first, pre_g);
-            tmp_res -= pre_g[*e.first].weight * pre_g[v].p_rank;
+            Pt_mius_1_times_x += pre_g[*e.first].weight * pre_g[v].p_rank;
         }
-        residual[clusterNum][*i] += alpha * tmp_res;
+        
+        residual[clusterNum][*i] += alpha * (Pt_times_x - Pt_mius_1_times_x);
         if(fabs(residual[clusterNum][*i]) > epsi){
             q.push(*i);
             occupied_flag[*i] = true;

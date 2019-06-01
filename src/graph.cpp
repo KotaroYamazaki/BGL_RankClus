@@ -5,6 +5,7 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
+#include <algorithm>
 using namespace std;
 
 int xNum;
@@ -180,7 +181,10 @@ void update_not_belongs_vertex_state_for_cluster(vertex_trajectory& State){
     else State = LEAVE;
 }
 
-
+int count_number_of_change_edges(const vertex_trajectory s, const vertex_descriptor v, const graph& g){
+    if(s == LEAVE || s == ADD)return (out_degree(v,g) + in_degree(v, g));
+    else return 0;
+}
 
 vector<graph> construct_sub_graph(graph& g){
     //　サブグラフを格納するリスト
@@ -192,13 +196,13 @@ vector<graph> construct_sub_graph(graph& g){
         vertex_iterator i,j;
         int cluster_size = 0;
         double row_sum = 0;
+        int max_degree = 0;
         // エッジのリスト
         std::vector<edge> edge_vector;
         // 各エッジの属性値の構造体のリスト
         std::vector<edge_property> property_vector;
-
+        int count_edge_change = 0;
         int edge_sum = 0;
-
         for (boost::tie(i, j) = vertices(g); i!=j; i++) {
                 // ノードがターゲットタイプかつ該当クラスタに所属する場合以下の処理を行う
                     // アトリビュートタイプノードからはいってくるエッジのプロパティをコピー
@@ -222,6 +226,10 @@ vector<graph> construct_sub_graph(graph& g){
                 }else{
                     update_not_belongs_vertex_state_for_cluster(g[*i].state[clusterNum]);
                 }
+                if(g[*i].state[clusterNum] == ADD || g[*i].state[clusterNum] == LEAVE)max_degree = max(max_degree, (int)(in_degree(*i, g)+out_degree(*i, g)));
+                count_edge_change += count_number_of_change_edges(g[*i].state[clusterNum], *i, g);
+                //cout << out_degree(*i , g) + in_degree(*i, g)<< endl;
+                if(count_edge_change != 0)cout << "count : "<< count_edge_change << "[" << max_degree << "]"<< endl;
             } else {
                 for (auto e = out_edges(*i, g); e.first!=e.second; e.first++) {
                     //　入次してくるエッジのもとのノードのタイプがattributeのときに以下の処理を行う（ターゲットタイプには行わない）
@@ -252,6 +260,7 @@ vector<graph> construct_sub_graph(graph& g){
         // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
         graph sub_g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
         subgraph_vector.push_back(sub_g);
+        //cout << "global :: "<< num_edges(sub_g) << endl;
         }
     return subgraph_vector;
 }
