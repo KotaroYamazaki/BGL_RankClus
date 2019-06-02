@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
         }
 
 	ofstream file1;
-        file1.open("result_time_compare.csv",ios_base::app);
+        file1.open("results/result_time_compare.csv",ios_base::app);
 	int comp_num = 2;	
         for(int i = 0; i< comp_num;i++){
 		file1 << time[i] << flush;
@@ -80,7 +80,7 @@ int main(int argc, char* argv[])
         cout << "Difference: " << time[0] - time[1] << endl;
         //cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
         cout << "NMI: " << flush;
-        system("python NMI.py");
+        system("python src/NMI.py");
 	}   
 
     
@@ -106,7 +106,7 @@ int do_main(){
     for(t = 0; t < iterNum && convflag == false; t++){
         subgraph = construct_sub_graph(g);
         //print_cluster_with_label(g);
-        print_cluster_with_label(g);
+        //print_cluster_with_label(g);
         cout << "===== Iteration Number : " << t + 1  << " =======" << endl;
         ranking_start = chrono::system_clock::now();
         for(int clusterNum = 0; clusterNum < K; clusterNum++){
@@ -143,8 +143,8 @@ int do_main(){
 
 void write_result_for_NMI(graph& g){
     string filename;
-    if(iteration_num == 0)filename = "correct.csv";
-    if(iteration_num == 1)filename = "result.csv";
+    if(iteration_num == 0)filename = "results/correct.csv";
+    if(iteration_num == 1)filename = "results/result.csv";
 
     fstream file;
     file.open(filename,ios::out);

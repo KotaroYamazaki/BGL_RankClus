@@ -6,4 +6,3 @@ datasets/
 main
 *.txt
 *.ipynb
-NMI.py
