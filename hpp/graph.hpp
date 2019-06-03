@@ -19,8 +19,8 @@ enum vertex_trajectory{
 class vertex_property
 {
     public:
-        std::string label;
-        std::string name;
+        string label;
+        string name;
         int int_descriptor;
         //ランク情報
         double ry;
@@ -41,7 +41,7 @@ class vertex_property
 class edge_property
 {
     public:
-        std::string label;
+        string label;
         double weight;
 };
 
@@ -73,7 +73,7 @@ using graph = boost::compressed_sparse_row_graph<
     >;
 
 // 簡単のために、名前をつける
-using edge = std::pair<int, int>;
+using edge = pair<int, int>;
 using vertex_iterator = boost::graph_traits<graph>::vertex_iterator;
 using edge_iterator = boost::graph_traits<graph>::edge_iterator;
 using vertex_descriptor = boost::graph_traits<graph>::vertex_descriptor;
