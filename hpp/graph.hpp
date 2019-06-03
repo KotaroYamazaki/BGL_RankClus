@@ -16,35 +16,37 @@ enum vertex_trajectory{
 };
 
 // ノードの属性値を自由に定義
-struct vertex_property
+class vertex_property
 {
-    std::string label;
-    std::string name;
-    int int_descriptor;
-    //ランク情報
-    double ry;
-    double rx;
-    double p_rank;
-    double conditional_rank;
-    vector<vertex_trajectory> state;
-    // クラスタ所属情報
-    int cluster_label;
-    bool same_previous_cluster;
+    public:
+        std::string label;
+        std::string name;
+        int int_descriptor;
+        //ランク情報
+        double ry;
+        double rx;
+        double p_rank;
+        double conditional_rank;
+        vector<vertex_trajectory> state;
+        // クラスタ所属情報
+        int cluster_label;
+        bool same_previous_cluster;
 
-    bool belongs_to_cluster(int _label){
-        return (cluster_label == _label);
-    }
+        bool belongs_to_cluster(int _label){
+            return (cluster_label == _label);
+        }
 };
 
 // エッジの属性値を自由に定義
-struct edge_property
+class edge_property
 {
-    std::string label;
-    double weight;
+    public:
+        std::string label;
+        double weight;
 };
 
 // グラフの属性値を自由に定義
-struct graph_property
+class graph_property
 {
     //アクセス方法がわからない
     //int xNum;
