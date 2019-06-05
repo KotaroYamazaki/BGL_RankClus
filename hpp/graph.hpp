@@ -49,9 +49,10 @@ class edge_property
 class graph_property
 {
     //アクセス方法がわからない
-    //int xNum;
-    //int yNum;
-    //double edge_sum;
+    public:
+        int _xNum;
+        int _yNum;
+        double _edge_sum;
 };
 
 
