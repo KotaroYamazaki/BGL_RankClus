@@ -76,7 +76,7 @@ void ranking(graph& g, int clusterNum){
     normalize_outedge_weight(g, clusterNum);
     //epsi = 0.01/(xNum+yNum);
     //epsi = 0;
-    epsi = 1e-9;
+    epsi = 1e-5;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);
@@ -227,46 +227,30 @@ void pagerank_from_scratch(graph& g, int clusterNum){
     for(v = 0; v < rankiter; v++){
         double change = 0;
         bool conv_flag = true;
+        double ranksum = 0;
+
         for(boost::tie(i,j) = vertices(g); i !=j; i++){
             for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
                 tmp_rank[*i] += g[*e.first].weight * rank[source(*e.first, g)];
             }
             tmp_rank[*i] = alpha * tmp_rank[*i] + (1 - alpha) * b;
+            ranksum += tmp_rank[*i];
+        }
+
+        for(boost::tie(i,j) = vertices(g); i !=j; i++){
+            tmp_rank[*i] /= ranksum;
+
             change = fabs(rank[*i] - tmp_rank[*i]);
             if(change > epsi)conv_flag = false;
+            
             rank[*i] = tmp_rank[*i];
+            g[*i].p_rank = rank[*i];
             tmp_rank[*i] = 0;
         }
         if(conv_flag)break;
     }
-    for(boost::tie(i,j) = vertices(g); i !=j; i++){
-        //if(*i < xNum)cout << *i << ": " << rank[*i] << "<- " << tmp_rank[*i] << endl;  
-        g[*i].p_rank = rank[*i];
-    }
-    //cout << "ranking converged at " << v << endl;
-}
 
-void get_rank_for_rankclus(graph& g, vector<double>& r, int cluster_label){
-    //Calc rankscore for rankclus.(Convert single-graph rank score -> bi-type network graph.)
-    vertex_iterator i, j;
-    double rxsum = 0;
-    double rysum = 0;
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        if(*i < xNum && g[*i].belongs_to_cluster(cluster_label)){
-            rxsum += r[*i];
-        }else{
-            rysum += r[*i];
-        }
-    }
-
-    for (boost::tie(i, j) = vertices(g); i!=j; i++) {
-        if(*i < xNum && g[*i].belongs_to_cluster(cluster_label)){
-            g[*i].rx = r[*i]/rxsum;
-        }else{
-            g[*i].ry = r[*i]/rysum;
-        }
-        g[*i].p_rank = r[*i];
-    }
+    cout << "ranking converged at " << v << endl;
 }
 
 void get_rank_for_rankclus(graph& g, int cluster_label){
