@@ -137,7 +137,6 @@ vector<vector<int>> clustering::update_cluster_label(graph &g, vector<graph>& su
     auto p = get_generating_probability();
     auto conditional_p = calc_conditional_distribution(g, subgraph, p);
     auto pi = calc_pi_using_bayesian_rule(g, subgraph, conditional_p);
-
     auto s = get_K_dimentional_vector(pi);
     auto center_vec = get_center_vector(g, s);
     vertex_iterator m,n;

@@ -172,14 +172,14 @@ void conditional_ranking(graph& g, graph& subgraph){
     for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
         double tmp = 0;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-            if(isnan(subgraph[source(*e.first, g)].ry)) exit(1);
-             tmp += g[*e.first].weight/out_degree(source(*e.first, g), g) * subgraph[source(*e.first, g)].ry; 
-             if(isnan(subgraph[source(*e.first, g)].ry)){
-                 cout << "ry is nan" << endl;
-                 exit(1);
-             }
+            tmp += g[*e.first].weight/out_degree(source(*e.first, g), g) * subgraph[source(*e.first, g)].ry; 
+            // if(isnan(subgraph[source(*e.first, g)].ry)){
+            //     cout << "ry is nan" << endl;
+            //     exit(1);
+            // }
             //if(!isnan(subgraph[source(*e.first, g)].ry))cout  << source(*e.first, g) << ": " << subgraph[source(*e.first, g)].ry << endl;
         }
+       
         if(isnan(tmp)){
             cout << "tpm is nan" << endl;
             exit(1);
