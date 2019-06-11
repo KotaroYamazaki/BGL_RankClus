@@ -105,7 +105,7 @@ double clustering::calc_distance_by_one_minus_cosine_similarity(vector<double> s
 int clustering::get_index_of_nearest_cluster(vector<double> s_x,const vector<vector<double>> center_vec){
     vector<double> D;
         int index = -1;
-        double minDis = 1;
+        double minDis = 10;
         for (int k = 0; k < K; k++){
             D.push_back(calc_distance_by_one_minus_cosine_similarity(s_x,center_vec, k));
             if(D[k] < minDis){
@@ -140,7 +140,6 @@ vector<vector<int>> clustering::update_cluster_label(graph &g, vector<graph>& su
 
     auto s = get_K_dimentional_vector(pi);
     auto center_vec = get_center_vector(g, s);
-    
     vertex_iterator m,n;
     vector<vector<int>> new_cluster_label(K);
     for (boost::tie(m, n) = vertices(g); *m < xNum; m++) {
