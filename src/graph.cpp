@@ -61,7 +61,7 @@ graph construct_graph(){
             exit(0);
     }
     if(ifs_WYY.fail()){
-            cout << "Warning: Excute RankClus without WYY file:" << file_WYY  << "."<< endl;
+            cout << "Warning: Execute RankClus without WYY file:" << file_WYY  << "."<< endl;
     }
 
     
