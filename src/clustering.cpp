@@ -113,6 +113,10 @@ int clustering::get_index_of_nearest_cluster(vector<double> s_x,const vector<vec
                 index = k;
             }
         }
+    if(index == -1){
+        cout << "Error! there may be the node that has no edges." << endl;
+        exit(1);
+    }
     return index;
 }
 
