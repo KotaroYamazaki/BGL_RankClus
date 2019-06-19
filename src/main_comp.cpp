@@ -28,7 +28,7 @@ string cast_state(const vertex_trajectory& State);
 void write_result_for_NMI(graph& g);
 int do_main();
 
-const int iterNum = 15;
+const int iterNum = 30;
 extern int xNum;
 extern double WXY_sum;
 extern vector<double> WkXY_sum;
@@ -92,6 +92,8 @@ int do_main(){
     chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
     // グラフの構築
     graph g = construct_graph();
+    std::ofstream file("test.dot");
+    boost::write_graphviz(file, g, boost::make_label_writer(name.c_str()));
 
     start = chrono::system_clock::now();
     // グラフの属性値を初期化
@@ -132,8 +134,8 @@ int do_main(){
     }
     //print_cluster(g);
     end = chrono::system_clock::now();
-    double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
-    cout << " Time[micro]: " << elapsed << endl;
+    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+    cout << " Time[milli]: " << elapsed << endl;
     cout << " Iteration Number: " << t << endl;
     cout << endl;
     //write_result(subgraph, out_file);

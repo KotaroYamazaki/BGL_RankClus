@@ -103,13 +103,14 @@ double clustering::calc_distance_by_one_minus_cosine_similarity(vector<double> s
 }
 
 int clustering::get_index_of_nearest_cluster(vector<double> s_x,const vector<vector<double>> center_vec){
-    vector<double> D;
+    //vector<double> D;
         int index = -1;
         double minDis = 10;
         for (int k = 0; k < K; k++){
-            D.push_back(calc_distance_by_one_minus_cosine_similarity(s_x,center_vec, k));
-            if(D[k] < minDis){
-                minDis = D[k];
+            //D.push_back(calc_distance_by_one_minus_cosine_similarity(s_x,center_vec, k));
+            double D = calc_distance_by_one_minus_cosine_similarity(s_x,center_vec, k);
+            if(D < minDis){
+                minDis = D;
                 index = k;
             }
         }

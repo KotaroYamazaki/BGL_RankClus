@@ -82,7 +82,6 @@ graph construct_graph(){
     // Target type
 	while(getline(ifs_WXY, str)){
         vector<string> strvec = split(str, ',');
-
         from = stoi(strvec.at(0));
         to = stoi(strvec.at(1));
         val = stoi(strvec.at(2));

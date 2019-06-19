@@ -74,9 +74,9 @@ void ranking_with_time(graph &g, int clusterNum){
 
 void ranking(graph& g, int clusterNum){
     normalize_outedge_weight(g, clusterNum);
-    //epsi = 0.01/(xNum+yNum);
-    //epsi = 0;
-    epsi = 1e-5;
+    //epsi = 0.0001/(xNum+yNum);
+    epsi = 1e-9;
+    //epsi = 1e-11;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);
@@ -250,7 +250,7 @@ void pagerank_from_scratch(graph& g, int clusterNum){
         if(conv_flag)break;
     }
 
-    cout << "ranking converged at " << v << endl;
+    //cout << "ranking converged at " << v << endl;
 }
 
 void get_rank_for_rankclus(graph& g, int cluster_label){
