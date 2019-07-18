@@ -92,8 +92,6 @@ int do_main(){
     chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
     // グラフの構築
     graph g = construct_graph();
-    std::ofstream file("test.dot");
-    boost::write_graphviz(file, g, boost::make_label_writer(name.c_str()));
 
     start = chrono::system_clock::now();
     // グラフの属性値を初期化
