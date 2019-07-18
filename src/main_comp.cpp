@@ -9,16 +9,7 @@
 #include "clustering.hpp"
 using namespace std;
 
-graph construct_graph();
-vector<graph> construct_sub_graph(graph& g);
-void init_graph(graph& g);
-void init_graph(graph& g, graph& global_g);
-void init_subgraph(graph& g, int clusterNum);
-void print_graph_detail(graph& g);
-void print_rank_within_cluster(graph& g, int clusterNum);
-void print_cluster_with_name(graph &g);
-void print_cluster_with_label(graph &g);
-bool check_converge_cluster(graph& g);
+
 void ranking(graph& subgraph, int clusterNum);
 void conditional_ranking(graph& g, graph& subgraph);
 void get_intial_partitions(graph& g);
@@ -123,7 +114,6 @@ int do_main(){
         clustering_start = chrono::system_clock::now();
         clustering cl(WkXY_sum, K, WXY_sum, xNum, cluster_label);
         cluster_label = cl.update_cluster_label(g, subgraph);
-        //clustering(g,subgraph);
         clustering_end = chrono::system_clock::now();
         double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
         cout << "clustering time[micro]: " << clustering_time << endl; 

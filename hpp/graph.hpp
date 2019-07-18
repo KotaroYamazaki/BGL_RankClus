@@ -81,4 +81,15 @@ using vertex_descriptor = boost::graph_traits<graph>::vertex_descriptor;
 using edge_descriptor = boost::graph_traits<graph>::edge_descriptor;
 using adjacency_iterator = boost::graph_traits<graph>::adjacency_iterator;
 
+graph construct_graph();
+vector<graph> construct_sub_graph(graph& g);
+void init_graph(graph& g);
+void init_graph(graph& g, graph& global_g);
+void init_subgraph(graph& g, int clusterNum);
+void print_graph_detail(graph& g);
+void print_rank_within_cluster(graph& g, int clusterNum);
+void print_cluster_with_name(graph &g);
+void print_cluster_with_label(graph &g);
+bool check_converge_cluster(graph& g);
+
 #endif
