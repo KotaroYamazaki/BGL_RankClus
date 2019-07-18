@@ -441,11 +441,6 @@ void conditional_ranking(graph& g, graph& subgraph){
         double tmp = 0;
         for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
             tmp += g[*e.first].weight/out_degree(source(*e.first, g), g) * subgraph[source(*e.first, g)].ry; 
-            // if(isnan(subgraph[source(*e.first, g)].ry)){
-            //     cout << "ry is nan" << endl;
-            //     exit(1);
-            // }
-            //if(!isnan(subgraph[source(*e.first, g)].ry))cout  << source(*e.first, g) << ": " << subgraph[source(*e.first, g)].ry << endl;
         }
         if(isnan(tmp)){
             cout << "tpm is nan" << endl;
@@ -469,3 +464,30 @@ bool check_converge_cluster(graph& g){
     cout << "---------- CLUSTERS HAVE BEEN CONVERGED ---------" << endl;
     return true;
 }
+
+    void write_result_to_csv(vector<int> time){
+        ofstream file1;
+        file1.open("results/result_time_compare.csv",ios_base::app);
+        int comp_num = 2;	
+            for(int i = 0; i< comp_num;i++){
+            file1 << time[i] << flush;
+            if(i != comp_num - 1)file1  << "," << flush;
+            }
+        file1.close();
+    }
+
+    void write_result_for_NMI(graph& g, int iteration_num){
+        string filename;
+        if(iteration_num == 0)filename = "results/correct.csv";
+        if(iteration_num == 1)filename = "results/result.csv";
+
+        fstream file;
+        file.open(filename,ios::out);
+
+        vertex_iterator i,j;
+        for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
+            file << g[*i].cluster_label << flush;
+            if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
+        }
+        iteration_num++;
+    }

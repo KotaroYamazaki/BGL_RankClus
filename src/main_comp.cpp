@@ -9,10 +9,7 @@
 #include "clustering.hpp"
 using namespace std;
 
-
 void ranking(graph& subgraph, int clusterNum);
-void write_result_for_NMI(graph& g);
-int do_main();
 
 const int iterNum = 30;
 extern int xNum;
@@ -89,8 +86,6 @@ int main(int argc, char* argv[])
                 double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
                 cout << "clustering time[micro]: " << clustering_time << endl; 
                 convflag = check_converge_cluster(g);
-                //write_result_for_NMI(g);
-                //system("python src/NMI_in_each_itr.py");
             }
             //print_cluster(g);
             end = chrono::system_clock::now();
@@ -102,8 +97,8 @@ int main(int argc, char* argv[])
             cout << endl;
 
             time.push_back(elapsed);
+            write_result_for_NMI(g,i);
         }
-
         write_result_to_csv(time);
 
         cout<< "RankClus Time[milli]: " << time[0] << endl;
@@ -111,34 +106,8 @@ int main(int argc, char* argv[])
         cout << "Difference: " << time[0] - time[1] << endl;
         //cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
         cout << "NMI: " << flush;
-//        system("python src/NMI.py");
-	}   
+        system("python src/NMI.py");
+	}
 
-    void write_result_to_csv(vector<int> time){
-        ofstream file1;
-        file1.open("results/result_time_compare.csv",ios_base::app);
-        int comp_num = 2;	
-            for(int i = 0; i< comp_num;i++){
-            file1 << time[i] << flush;
-            if(i != comp_num - 1)file1  << "," << flush;
-            }
-        file1.close();
-    }
-    
 
-    void write_result_for_NMI(graph& g){
-        string filename;
-        if(iteration_num == 0)filename = "results/correct.csv";
-        if(iteration_num == 1)filename = "results/result.csv";
-
-        fstream file;
-        file.open(filename,ios::out);
-
-        vertex_iterator i,j;
-        for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
-            file << g[*i].cluster_label << flush;
-            if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
-        }
-        iteration_num++;
-    }
 
