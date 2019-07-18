@@ -75,7 +75,7 @@ void ranking_with_time(graph &g, int clusterNum){
 void ranking(graph& g, int clusterNum){
     normalize_outedge_weight(g, clusterNum);
     //epsi = 0.0001/(xNum+yNum);
-    epsi = 1e-9;
+    epsi = 1e-1;
     //epsi = 1e-11;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);
@@ -224,9 +224,11 @@ void pagerank_from_scratch(graph& g, int clusterNum){
     
     vertex_iterator i,j;
     int v;
-    for(v = 0; v < rankiter; v++){
-        double change = 0;
-        bool conv_flag = true;
+    bool conv_flag = false;
+    //for(v = 0; v < rankiter; v++){
+      while(!conv_flag){
+	conv_flag = true;
+	double change = 0;
         double ranksum = 0;
 
         for(boost::tie(i,j) = vertices(g); i !=j; i++){

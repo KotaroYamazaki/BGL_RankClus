@@ -433,3 +433,39 @@ void write_result(vector<graph>& sub_g, string out_file){
     file2.close();
     file3.close();
 }
+
+void conditional_ranking(graph& g, graph& subgraph){
+    vertex_iterator i,j;
+    double ranksum = 0;
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
+        double tmp = 0;
+        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
+            tmp += g[*e.first].weight/out_degree(source(*e.first, g), g) * subgraph[source(*e.first, g)].ry; 
+            // if(isnan(subgraph[source(*e.first, g)].ry)){
+            //     cout << "ry is nan" << endl;
+            //     exit(1);
+            // }
+            //if(!isnan(subgraph[source(*e.first, g)].ry))cout  << source(*e.first, g) << ": " << subgraph[source(*e.first, g)].ry << endl;
+        }
+        if(isnan(tmp)){
+            cout << "tpm is nan" << endl;
+            exit(1);
+        }
+        subgraph[*i].conditional_rank = tmp;
+        ranksum += tmp;
+    }
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
+        if(ranksum != 0)subgraph[*i].conditional_rank /= ranksum;
+        else subgraph[*i].conditional_rank = 0;
+        //cout << subgraph[*i].conditional_rank  << endl;
+    }
+}
+
+bool check_converge_cluster(graph& g){
+    vertex_iterator i,j;
+    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
+        if(!g[*i].same_previous_cluster) return false;
+    }
+    cout << "---------- CLUSTERS HAVE BEEN CONVERGED ---------" << endl;
+    return true;
+}

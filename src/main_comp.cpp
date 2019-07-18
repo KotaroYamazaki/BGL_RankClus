@@ -11,11 +11,6 @@ using namespace std;
 
 
 void ranking(graph& subgraph, int clusterNum);
-void conditional_ranking(graph& g, graph& subgraph);
-void get_intial_partitions(graph& g);
-void write_result(vector<graph>& sub_g, string out_file);
-string cast_state(const vertex_trajectory& State);
-
 void write_result_for_NMI(graph& g);
 int do_main();
 
@@ -32,7 +27,7 @@ string out_file;
 vector<vector<int>> cluster_label;
 
 bool convflag = false;
-int iteration_num =0;
+int iteration_num = 0;
 
 int main(int argc, char* argv[])
 {
@@ -50,137 +45,100 @@ int main(int argc, char* argv[])
 			exit(0);
 		}
 	}
+
         vector<int> time;
         for(int i = 0; i  < 2; i++){
             if(i == 0){cout << "############# <RankClus> #############" << endl;}
             else{cout << "############# Proposal #############" << endl;}
-            time.push_back(do_main());
+
+            cluster_label = vector<vector<int>> (K);
+            convflag = false;
+            chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
+            // グラフの構築
+            graph g = construct_graph();
+
+            start = chrono::system_clock::now();
+            // グラフの属性値を初期化
+            init_start = chrono::system_clock::now();
+            init_graph(g);
+            get_intial_partitions(g);
+            init_end = chrono::system_clock::now();
+            double init_time = std::chrono::duration_cast<std::chrono::microseconds>(init_end - init_start).count();
+            cout << "initialization time[micro]: " << init_time << endl;
+
+            vector<graph> subgraph;
+            for(t = 0; t < iterNum && convflag == false; t++){
+                subgraph = construct_sub_graph(g);
+                cout << "===== Iteration Number : " << t + 1  << " =======" << endl;
+                ranking_start = chrono::system_clock::now();
+                for(int clusterNum = 0; clusterNum < K; clusterNum++){
+                    init_graph(subgraph[clusterNum], g);
+                    ranking(subgraph[clusterNum], clusterNum);
+                    conditional_ranking(g, subgraph[clusterNum]);
+                    // print_graph_detail(subgraph[clusterNum]);
+                    //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+                }
+                ranking_end = chrono::system_clock::now();
+                double ranking_time = std::chrono::duration_cast<std::chrono::microseconds>(ranking_end - ranking_start).count();
+                cout << "ranking time[micro]: " << ranking_time << endl; 
+
+                clustering_start = chrono::system_clock::now();
+                clustering cl(WkXY_sum, K, WXY_sum, xNum, cluster_label);
+                cluster_label = cl.update_cluster_label(g, subgraph);
+                clustering_end = chrono::system_clock::now();
+                double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
+                cout << "clustering time[micro]: " << clustering_time << endl; 
+                convflag = check_converge_cluster(g);
+                //write_result_for_NMI(g);
+                //system("python src/NMI_in_each_itr.py");
+            }
+            //print_cluster(g);
+            end = chrono::system_clock::now();
+            double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+            cout << " Time[milli]: " << elapsed << endl;
+            //double elapsed = std::chrono::duration_cast<std::chrono::microseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+            //double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
+            cout << " Iteration Number: " << t << endl;
+            cout << endl;
+
+            time.push_back(elapsed);
         }
 
-	ofstream file1;
-        file1.open("results/result_time_compare.csv",ios_base::app);
-	int comp_num = 2;	
-        for(int i = 0; i< comp_num;i++){
-		file1 << time[i] << flush;
-		if(i != comp_num - 1)file1  << "," << flush;
-	}
-        file1.close();
+        write_result_to_csv(time);
 
-        cout<< "RankClus Time[micro]: " << time[0] << endl;
-        cout << "Proposal time[micro]: " << time[1] << endl;
+        cout<< "RankClus Time[milli]: " << time[0] << endl;
+        cout << "Proposal time[milli]: " << time[1] << endl;
         cout << "Difference: " << time[0] - time[1] << endl;
         //cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
         cout << "NMI: " << flush;
-        system("python src/NMI.py");
+//        system("python src/NMI.py");
 	}   
 
+    void write_result_to_csv(vector<int> time){
+        ofstream file1;
+        file1.open("results/result_time_compare.csv",ios_base::app);
+        int comp_num = 2;	
+            for(int i = 0; i< comp_num;i++){
+            file1 << time[i] << flush;
+            if(i != comp_num - 1)file1  << "," << flush;
+            }
+        file1.close();
+    }
     
 
+    void write_result_for_NMI(graph& g){
+        string filename;
+        if(iteration_num == 0)filename = "results/correct.csv";
+        if(iteration_num == 1)filename = "results/result.csv";
 
-int do_main(){
-    cluster_label = vector<vector<int>> (K);
-    convflag = false;
-    chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
-    // グラフの構築
-    graph g = construct_graph();
+        fstream file;
+        file.open(filename,ios::out);
 
-    start = chrono::system_clock::now();
-    // グラフの属性値を初期化
-    init_start = chrono::system_clock::now();
-    init_graph(g);
-    get_intial_partitions(g);
-    init_end = chrono::system_clock::now();
-    double init_time = std::chrono::duration_cast<std::chrono::microseconds>(init_end - init_start).count();
-    cout << "initialization time[micro]: " << init_time << endl;
-
-    vector<graph> subgraph;
-    for(t = 0; t < iterNum && convflag == false; t++){
-        subgraph = construct_sub_graph(g);
-        //print_cluster_with_label(g);
-        //print_cluster_with_label(g);
-        cout << "===== Iteration Number : " << t + 1  << " =======" << endl;
-        ranking_start = chrono::system_clock::now();
-        for(int clusterNum = 0; clusterNum < K; clusterNum++){
-            init_graph(subgraph[clusterNum], g);
-            ranking(subgraph[clusterNum], clusterNum);
-            conditional_ranking(g, subgraph[clusterNum]);
-            // print_graph_detail(subgraph[clusterNum]);
-            //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
+        vertex_iterator i,j;
+        for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
+            file << g[*i].cluster_label << flush;
+            if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
         }
-        ranking_end = chrono::system_clock::now();
-        double ranking_time = std::chrono::duration_cast<std::chrono::microseconds>(ranking_end - ranking_start).count();
-        cout << "ranking time[micro]: " << ranking_time << endl; 
-
-        clustering_start = chrono::system_clock::now();
-        clustering cl(WkXY_sum, K, WXY_sum, xNum, cluster_label);
-        cluster_label = cl.update_cluster_label(g, subgraph);
-        clustering_end = chrono::system_clock::now();
-        double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
-        cout << "clustering time[micro]: " << clustering_time << endl; 
-        convflag = check_converge_cluster(g);
-        
+        iteration_num++;
     }
-    //print_cluster(g);
-    end = chrono::system_clock::now();
-    double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
-    cout << " Time[milli]: " << elapsed << endl;
-    cout << " Iteration Number: " << t << endl;
-    cout << endl;
-    //write_result(subgraph, out_file);
-    write_result_for_NMI(g);
-    return elapsed;
-}
-
-void write_result_for_NMI(graph& g){
-    string filename;
-    if(iteration_num == 0)filename = "results/correct.csv";
-    if(iteration_num == 1)filename = "results/result.csv";
-
-    fstream file;
-    file.open(filename,ios::out);
-
-    vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
-        file << g[*i].cluster_label << flush;
-        if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
-    }
-    iteration_num++;
-}
-
-bool check_converge_cluster(graph& g){
-    vertex_iterator i,j;
-    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum ; i++) {
-        if(!g[*i].same_previous_cluster) return false;
-    }
-    cout << "---------- CLUSTERS HAVE BEEN CONVERGED ---------" << endl;
-    return true;
-}
-
-void conditional_ranking(graph& g, graph& subgraph){
-    vertex_iterator i,j;
-    double ranksum = 0;
-    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
-        double tmp = 0;
-        for (auto e = in_edges(*i, g); e.first!=e.second; e.first++) {
-            tmp += g[*e.first].weight/out_degree(source(*e.first, g), g) * subgraph[source(*e.first, g)].ry; 
-            // if(isnan(subgraph[source(*e.first, g)].ry)){
-            //     cout << "ry is nan" << endl;
-            //     exit(1);
-            // }
-            //if(!isnan(subgraph[source(*e.first, g)].ry))cout  << source(*e.first, g) << ": " << subgraph[source(*e.first, g)].ry << endl;
-        }
-       
-        if(isnan(tmp)){
-            cout << "tpm is nan" << endl;
-            exit(1);
-        }
-        subgraph[*i].conditional_rank = tmp;
-        ranksum += tmp;
-    }
-    for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++) {
-        if(ranksum != 0)subgraph[*i].conditional_rank /= ranksum;
-        else subgraph[*i].conditional_rank = 0;
-        //cout << subgraph[*i].conditional_rank  << endl;
-    }
-}
 

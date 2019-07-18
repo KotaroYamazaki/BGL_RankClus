@@ -91,5 +91,10 @@ void print_rank_within_cluster(graph& g, int clusterNum);
 void print_cluster_with_name(graph &g);
 void print_cluster_with_label(graph &g);
 bool check_converge_cluster(graph& g);
+void conditional_ranking(graph& g, graph& subgraph);
+void get_intial_partitions(graph& g);
+void write_result(vector<graph>& sub_g, string out_file);
+string cast_state(const vertex_trajectory& State);
+void write_result_to_csv(vector<int> time);
 
 #endif
