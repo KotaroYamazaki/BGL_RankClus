@@ -465,7 +465,7 @@ bool check_converge_cluster(graph& g){
     return true;
 }
 
-    void write_result_to_csv(vector<int> time){
+void write_result_to_csv(vector<int> time){
         ofstream file1;
         file1.open("results/result_time_compare.csv",ios_base::app);
         int comp_num = 2;	
@@ -476,7 +476,7 @@ bool check_converge_cluster(graph& g){
         file1.close();
     }
 
-    void write_result_for_NMI(graph& g, int iteration_num){
+void write_result_for_NMI(graph& g, int iteration_num){
         string filename;
         if(iteration_num == 0)filename = "results/correct.csv";
         if(iteration_num == 1)filename = "results/result.csv";
@@ -489,5 +489,25 @@ bool check_converge_cluster(graph& g){
             file << g[*i].cluster_label << flush;
             if(g[*i].int_descriptor < xNum - 1) file << "," << flush;
         }
-        iteration_num++;
+    }
+
+    void write_result_in_each_iteration(graph& g, int iteration_num, int t){
+        string filename;
+        if(iteration_num == 0)filename = "results/cluster_result_rankclus.csv";
+        if(iteration_num == 1)filename = "results/cluster_result_proposal.csv";
+
+        fstream file;
+        if(t == 0) file.open(filename, ios::out);
+        else file.open(filename, ios::app);
+
+        vertex_iterator i, j;
+        file << "iteration" << t+1 << "," << flush;
+        for (boost::tie(i, j) = vertices(g); g[*i].int_descriptor < xNum; i++)
+        {
+            file << g[*i].cluster_label << flush;
+            if (g[*i].int_descriptor < xNum - 1)
+                file << "," << flush;
+        }
+        file << endl;
+        file.close();
     }

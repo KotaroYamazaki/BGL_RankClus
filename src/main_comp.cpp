@@ -86,8 +86,8 @@ int main(int argc, char* argv[])
                 double clustering_time = std::chrono::duration_cast<std::chrono::microseconds>(clustering_end - clustering_start).count();
                 cout << "clustering time[micro]: " << clustering_time << endl; 
                 convflag = check_converge_cluster(g);
+                write_result_in_each_iteration(g, i, t);
             }
-            //print_cluster(g);
             end = chrono::system_clock::now();
             double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
             cout << " Time[milli]: " << elapsed << endl;

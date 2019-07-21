@@ -97,5 +97,6 @@ void write_result(vector<graph>& sub_g, string out_file);
 string cast_state(const vertex_trajectory& State);
 void write_result_to_csv(vector<int> time);
 void write_result_for_NMI(graph& g, int iteration_num);
+void write_result_in_each_iteration(graph &g, int iteration_num, int t);
 
 #endif
