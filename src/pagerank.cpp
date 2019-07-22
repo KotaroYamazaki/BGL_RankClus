@@ -11,7 +11,6 @@ extern int xNum;
 extern int yNum;
 extern int K;
 extern int t;
-extern int iteration_num;
 extern vector<vector<int>> cluster_label;
 extern vector<vector<double>> row_sum_vec;
 
@@ -72,10 +71,10 @@ void ranking_with_time(graph &g, int clusterNum){
 }
 
 
-void ranking(graph& g, int clusterNum){
+void ranking(graph& g, int clusterNum, int iteration_num){
     normalize_outedge_weight(g, clusterNum);
     //epsi = 0.0001/(xNum+yNum);
-    epsi = 1e-1;
+    epsi = 1e-9;
     //epsi = 1e-11;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);

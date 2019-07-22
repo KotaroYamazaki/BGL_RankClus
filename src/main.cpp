@@ -9,9 +9,9 @@
 #include "clustering.hpp"
 using namespace std;
 
-void ranking(graph& subgraph, int clusterNum);
+void ranking(graph& subgraph, int clusterNum, int iteration_num);
 
-const int iterNum = 30;
+const int iterNum = 3;
 extern int xNum;
 extern double WXY_sum;
 extern vector<double> WkXY_sum;
@@ -24,7 +24,6 @@ string out_file;
 vector<vector<int>> cluster_label;
 
 bool convflag = false;
-int iteration_num = 0;
 
 int main(int argc, char* argv[])
 {
@@ -60,8 +59,8 @@ int main(int argc, char* argv[])
             init_graph(g);
             get_intial_partitions(g);
             init_end = chrono::system_clock::now();
-            double init_time = std::chrono::duration_cast<std::chrono::microseconds>(init_end - init_start).count();
-            cout << "initialization time[micro]: " << init_time << endl;
+            double init_time = std::chrono::duration_cast<std::chrono::milliseconds>(init_end - init_start).count();
+            cout << "initialization time[milli]: " << init_time << endl;
 
             vector<graph> subgraph;
             for(t = 0; t < iterNum && convflag == false; t++){
@@ -70,7 +69,7 @@ int main(int argc, char* argv[])
                 ranking_start = chrono::system_clock::now();
                 for(int clusterNum = 0; clusterNum < K; clusterNum++){
                     init_graph(subgraph[clusterNum], g);
-                    ranking(subgraph[clusterNum], clusterNum);
+                    ranking(subgraph[clusterNum], clusterNum, i);
                     conditional_ranking(g, subgraph[clusterNum]);
                     // print_graph_detail(subgraph[clusterNum]);
                     //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
@@ -107,6 +106,7 @@ int main(int argc, char* argv[])
         //cout << "Ratio: " << 1.0*time[1]/time[0] << endl;
         cout << "NMI: " << flush;
         system("python src/NMI.py");
+        system("python src/NMI_in_each_itr.py");
 	}
 
 
