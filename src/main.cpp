@@ -11,7 +11,7 @@ using namespace std;
 
 void ranking(graph& subgraph, int clusterNum, int iteration_num);
 
-const int iterNum = 3;
+const int iterNum = 10;
 extern int xNum;
 extern double WXY_sum;
 extern vector<double> WkXY_sum;

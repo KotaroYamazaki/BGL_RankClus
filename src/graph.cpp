@@ -84,7 +84,8 @@ graph construct_graph(){
         vector<string> strvec = split(str, ',');
         from = stoi(strvec.at(0));
         to = stoi(strvec.at(1));
-        val = stoi(strvec.at(2));
+        // val = stoi(strvec.at(2));
+        val = 1;
 
         struct edge_property a;
         a.label = "AtoT";
@@ -104,7 +105,8 @@ graph construct_graph(){
         vector<string> strvec = split(str, ',');
         from = stoi(strvec[0]);
         to = stoi(strvec[1]);
-        val = stoi(strvec[2]);
+        // val = stoi(strvec[2]);
+        val = 1;
 
         if(from != to){
             struct edge_property a;

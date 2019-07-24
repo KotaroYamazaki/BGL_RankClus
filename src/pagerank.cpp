@@ -203,8 +203,6 @@ pair<queue<int>, vector<bool>> calc_tracking_residual(graph& g,int clusterNum){
     return make_pair(q, occupied_flag);
 }
 
-
-
 void normalize_outedge_weight(graph& g, int clusterNum){
     vertex_iterator i,j;
     for (boost::tie(i, j) = vertices(g); i!=j; i++) {
