@@ -16,8 +16,8 @@ extern vector<vector<double>> row_sum_vec;
 
 const double alpha = 0.85;
 const int rankiter = 10000;
-double epsi;
-const int gauss_start = 7;
+extern double epsi;
+const int gauss_start = 1;
 
 vector<graph> pre_graph;
 vector<vector<double>> residual;
@@ -73,9 +73,6 @@ void ranking_with_time(graph &g, int clusterNum){
 
 void ranking(graph& g, int clusterNum, int iteration_num){
     normalize_outedge_weight(g, clusterNum);
-    //epsi = 0.0001/(xNum+yNum);
-    epsi = 1e-9;
-    //epsi = 1e-11;
     if(iteration_num == 0){
         pagerank_from_scratch(g, clusterNum);
         get_rank_for_rankclus(g, clusterNum);

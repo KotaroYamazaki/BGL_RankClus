@@ -49,8 +49,9 @@ graph construct_graph(){
     ifstream ifs_Y(file_Y);
 
     if(ifs_X.fail()){
-            cout << "Error! Failed to read " << file_X  << "."<< endl;
-            exit(0);
+        return (construct_graph_by_repository());
+        cout << "Error! Failed to read " << file_X << "." << endl;
+        exit(0);
     }
     if(ifs_Y.fail()){
             cout << "Error! Failed to read " << file_Y  << "."<< endl;
@@ -128,6 +129,75 @@ graph construct_graph(){
     // グラフのコンストラクタ
     // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
     graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
+
+    return g;
+}
+
+graph construct_graph_by_repository()
+{
+    xNum = 0;
+    yNum = 0;
+    // エッジのリスト
+    vector<edge> edge_vector;
+    // 各エッジの属性値の構造体のリスト
+    vector<edge_property> property_vector;
+
+    string str, name_X, name_Y;
+    string file_edge = path + "edges.csv";
+    string file_type = path + "node_types.csv";
+
+    ifstream ifs_edge(file_edge);
+    ifstream ifs_type(file_type);
+
+    if (ifs_edge.fail()){
+        cout << "Error! Failed to read " << file_edge << "." << endl;
+        exit(0);
+    }
+    if (ifs_type.fail()){
+        cout << "Error! Failed to read " << file_type << "." << endl;
+        exit(0);
+    }
+
+    while(getline(ifs_type, str)){
+        vector<string> strvec = split(str, ',');
+        string name = strvec.at(0);
+        int type = stoi(strvec.at(1));
+
+        if(type == 1){
+            yNum++;
+        }else{
+            xNum++;
+        }
+    }
+    cout << xNum << endl;
+    cout << yNum << endl;
+    // WXY_sum = 0;
+    int from, to, val;
+    // Target type
+    while (getline(ifs_edge, str)){
+        vector<string> strvec = split(str, ',');
+        from = stoi(strvec.at(0)) - 1;
+        to = stoi(strvec.at(1)) - 1;
+        from = ((from >= yNum ) ? from - yNum : from + xNum);
+        to = ((to >= yNum) ? to - yNum : to + xNum);
+        val = 1;
+
+        if (from > xNum && to > xNum)WXY_sum += 2 * val;
+
+        struct edge_property a;
+        a.weight = val;
+        property_vector.push_back(a);
+        edge_vector.push_back(edge(from, to));
+        //逆方向
+        property_vector.push_back(a);
+        edge_vector.push_back(edge(to, from));
+    }
+    // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
+    auto tag = boost::edges_are_unsorted_multi_pass;
+    // グラフのコンストラクタ
+    // エッジのコンテナの begin と end、エッジのプロパティのコンテナの begin、ノード数を渡す
+    graph g(tag, edge_vector.begin(), edge_vector.end(), property_vector.begin(), xNum + yNum);
+    cout << "Done construct graph, " << endl;
 
     return g;
 }
@@ -277,14 +347,15 @@ void init_graph(graph& g){
         if(g[*i].int_descriptor < xNum ){
             g[*i].label = "target";
             g[*i].rx = 0;
-            g[*i].name = name_vector[*i];
+            //g[*i].name = name_vector[*i];
+            g[*i].name = ((name_vector.empty()) ? to_string(g[*i].int_descriptor) : name_vector[*i]);
             g[*i].conditional_rank = 0;
             g[*i].cluster_label = -1;
             g[*i].state = vector<vertex_trajectory>(K, NOTHING);
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
-            g[*i].name = name_vector[*i];
+            g[*i].name = ((name_vector.empty()) ? to_string(g[*i].int_descriptor) : name_vector[*i]);
         }
         g[*i].int_descriptor = static_cast<int>(*i);
     }
@@ -300,12 +371,12 @@ void init_graph(graph& g, graph& global_g){
         if(g[*i].int_descriptor < xNum ){
             g[*i].label = "target";
             g[*i].rx = 0;
-            g[*i].name = name_vector[*i];
+            g[*i].name = ((name_vector.empty()) ? to_string(g[*i].int_descriptor) : name_vector[*i]);
             g[*i].cluster_label = global_g[*i].cluster_label;
         } else {
             g[*i].label = "attribute";
             g[*i].ry = 0;
-            g[*i].name = name_vector[*i];
+            g[*i].name = ((name_vector.empty()) ? to_string(g[*i].int_descriptor) : name_vector[*i]);
         }
         g[*i].int_descriptor = static_cast<int>(*i);
     }
@@ -470,11 +541,10 @@ bool check_converge_cluster(graph& g){
 void write_result_to_csv(vector<int> time){
         ofstream file1;
         file1.open("results/result_time_compare.csv",ios_base::app);
-        int comp_num = 2;	
-            for(int i = 0; i< comp_num;i++){
+        for(int i = 0; i< time.size();i++){
             file1 << time[i] << flush;
-            if(i != comp_num - 1)file1  << "," << flush;
-            }
+            if(i != time.size() - 1)file1  << "," << flush;
+        }
         file1.close();
     }
 

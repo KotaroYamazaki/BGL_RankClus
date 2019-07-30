@@ -82,7 +82,8 @@ using edge_descriptor = boost::graph_traits<graph>::edge_descriptor;
 using adjacency_iterator = boost::graph_traits<graph>::adjacency_iterator;
 
 graph construct_graph();
-vector<graph> construct_sub_graph(graph& g);
+graph construct_graph_by_repository();
+vector<graph> construct_sub_graph(graph &g);
 void init_graph(graph& g);
 void init_graph(graph& g, graph& global_g);
 void init_subgraph(graph& g, int clusterNum);
