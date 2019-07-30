@@ -115,7 +115,8 @@ int clustering::get_index_of_nearest_cluster(vector<double> s_x,const vector<vec
             }
         }
     if(index == -1){
-        cout << "Error in Clustering Step! there may be the node that has no edges." << endl;
+        cout << "Error! there may be the node that has no edges." << endl;
+        cout << "It may caused by including the target node that has no edge in input file." << endl;
             exit(1);
     }
     return index;
