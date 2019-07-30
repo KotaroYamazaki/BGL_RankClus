@@ -169,8 +169,8 @@ graph construct_graph_by_repository()
             xNum++;
         }
     }
-    cout << xNum << endl;
-    cout << yNum << endl;
+    cout << "|X| : " << xNum << endl;
+    cout << "|Y| : " << yNum << endl;
     // WXY_sum = 0;
     int from, to, val;
     // Target type

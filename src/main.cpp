@@ -38,6 +38,7 @@ int main(int argc, char* argv[])
         if(argc >= 3)input_seed = atoi(argv[3]);
         if(argc > 3)epsi = atoi(argv[4]);
         epsi = pow(10,-epsi);
+        cout <<"Cluster Number: " << K << endl;
         cout << "Input seed: " << input_seed << endl;
         cout << "Epsilon: " << epsi << endl;
 
