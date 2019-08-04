@@ -12,7 +12,6 @@ extern int yNum;
 extern int K;
 extern int t;
 extern vector<vector<int>> cluster_label;
-extern vector<vector<double>> row_sum_vec;
 
 const double alpha = 0.85;
 const int rankiter = 10000;
