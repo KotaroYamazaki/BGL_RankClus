@@ -81,6 +81,8 @@ int main(int argc, char* argv[])
                 for(int clusterNum = 0; clusterNum < K; clusterNum++){
                     init_graph(subgraph[clusterNum], g);
                     ranking(subgraph[clusterNum], clusterNum, i);
+                    // ranking rk(K, xNum, cluster_label);
+                    // rk.solve(subgraph[clusterNum]);
                     conditional_ranking(g, subgraph[clusterNum]);
                     // print_graph_detail(subgraph[clusterNum]);
                     //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
