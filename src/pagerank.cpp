@@ -5,7 +5,6 @@
 #include "gauss_southwell.hpp"
 #include <chrono>
 
-
 using namespace std;
 
 extern int xNum;
@@ -19,49 +18,15 @@ const int rankiter = 10000;
 extern double epsi;
 const int gauss_start = 1;
 
-
-
 void normalize_outedge_weight(graph& g, int clusterNum);
 void pagerank_from_scratch(graph& g, int clusterNum);
 void get_rank_for_rankclus(graph& g, vector<double>& r, int cluster_label);
 void get_rank_for_rankclus(graph& g, int cluster_label);
 
-
 // for debug
 void print_cluster_with_label(graph& g);
 void print_rank_within_cluster(graph& g, int clusterNum);
 void print_x_p_rank(graph& g);
-
-// void ranking_with_time(graph &g, int clusterNum){
-//     auto start_r = std::chrono::system_clock::now();
-//     pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
-//     auto end_r = std::chrono::system_clock::now();
-//     auto dur_r = end_r - start_r;        // 要した時間を計算
-//     auto msec_r = std::chrono::duration_cast<std::chrono::milliseconds>(dur_r).count();
-//     std::cout << "cluster = "<<clusterNum << " residu time [milli] : "<< msec_r << "\n";
-
-//     auto start_g = std::chrono::system_clock::now(); 
-//     gauss_southwell(g, clusterNum, p.first, p.second);
-//     auto end_g = std::chrono::system_clock::now();
-//     auto dur = end_g - start_g;        // 要した時間を計算
-//     auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-//     std::cout << "cluster = "<<clusterNum << " gauss time[milli] : "<< msec << endl;
-
-//     auto start_get = std::chrono::system_clock::now(); 
-//     get_rank_for_rankclus(g, clusterNum);
-//     auto end_get = std::chrono::system_clock::now();
-//     auto dur_get = end_get - start_get;        // 要した時間を計算
-//     auto msec_get = std::chrono::duration_cast<std::chrono::milliseconds>(dur_get).count();
-//     std::cout << "cluster = "<<clusterNum << " get rank time[milli] : "<< msec_get << endl;
-
-//     auto start_p = std::chrono::system_clock::now();
-//     pre_graph[clusterNum] = g;
-//     auto end_p = std::chrono::system_clock::now();
-//     auto dur_p = end_p - start_p;        // 要した時間を計算
-//     auto msec_p = std::chrono::duration_cast<std::chrono::milliseconds>(dur_p).count();
-//     std::cout << "cluster = "<<clusterNum << " pregraohp time[milli] : "<< msec_p << endl;
-// }
-
 
 void ranking(graph& g, int clusterNum, int iteration_num){
     normalize_outedge_weight(g, clusterNum);
@@ -74,16 +39,11 @@ void ranking(graph& g, int clusterNum, int iteration_num){
             get_rank_for_rankclus(g, clusterNum);
             gauss_southwell gs(epsi, alpha, clusterNum);
             gs.init(g);
-            // if(t == gauss_start - 1)calc_initial_residual(g);
-            // if(t == gauss_start - 1)pre_graph.push_back(g);
         }else{
             gauss_southwell gs(epsi, alpha, clusterNum);
             gs.solve(g);
-            // pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
-            // gauss_southwell(g, clusterNum, p.first, p.second);
             get_rank_for_rankclus(g, clusterNum);
             gs.update_pregraph(g,clusterNum);
-            //pre_graph[clusterNum] = g;
         }   
     }
 }
@@ -116,7 +76,7 @@ void pagerank_from_scratch(graph& g, int clusterNum){
     int v;
     bool conv_flag = false;
     //for(v = 0; v < rankiter; v++){
-      while(!conv_flag){
+    while(!conv_flag){
 	conv_flag = true;
 	double change = 0;
         double ranksum = 0;

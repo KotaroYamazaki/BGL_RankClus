@@ -1,3 +1,6 @@
+#ifndef _GAUSS_SOUTHWELL_H_
+#define _GAUSS_SOUTHWELL_H_
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -26,3 +29,5 @@ public:
 	void update_pregraph(graph &g, int index);
 	void solve(graph &g);
 };
+
+#endif

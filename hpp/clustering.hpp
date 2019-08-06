@@ -1,3 +1,6 @@
+#ifndef _CLUSTERING_H_
+#define _CLUSTERING_H_
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -29,3 +32,5 @@ class clustering{
         clustering(vector<double>& _WkXY_sum, int _K, double _WXY_sum,int _xNum, vector<vector<int>>& _cluster_label);
         vector<vector<int>> update_cluster_label(graph &g, vector<graph>& subgraph);
 };
+
+#endif
