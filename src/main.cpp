@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
             chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
             
             // グラフの構築
-            graph g = construct_graph();
+            graph g = construct_graph(path);
             start = chrono::system_clock::now();
 
             // Step0: Initialization
@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
             init_graph(g);
 
             cout << "get initial partition." << endl;
-            get_intial_partitions(g);
+            get_intial_partitions(g, input_seed);
 
             init_end = chrono::system_clock::now();
             double init_time = std::chrono::duration_cast<std::chrono::milliseconds>(init_end - init_start).count();

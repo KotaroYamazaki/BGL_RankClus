@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <vector>
+#include <random>
+#include <algorithm>
+#include <fstream>
+
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/compressed_sparse_row_graph.hpp>
 
@@ -31,7 +35,6 @@ class vertex_property
         // クラスタ所属情報
         int cluster_label;
         bool same_previous_cluster;
-
         bool belongs_to_cluster(int _label){
             return (cluster_label == _label);
         }
@@ -81,9 +84,11 @@ using vertex_descriptor = boost::graph_traits<graph>::vertex_descriptor;
 using edge_descriptor = boost::graph_traits<graph>::edge_descriptor;
 using adjacency_iterator = boost::graph_traits<graph>::adjacency_iterator;
 
-graph construct_graph();
-graph construct_graph_by_repository();
+graph construct_graph(string path);
+graph construct_graph_by_repository(string path);
 vector<graph> construct_sub_graph(graph &g);
+void get_intial_partitions(graph& g, int input_seed);
+
 void init_graph(graph& g);
 void init_graph(graph& g, graph& global_g);
 void init_subgraph(graph& g, int clusterNum);
@@ -93,7 +98,6 @@ void print_cluster_with_name(graph &g);
 void print_cluster_with_label(graph &g);
 bool check_converge_cluster(graph& g);
 void conditional_ranking(graph& g, graph& subgraph);
-void get_intial_partitions(graph& g);
 void write_result(vector<graph>& sub_g, string out_file);
 string cast_state(const vertex_trajectory& State);
 void write_result_to_csv(vector<int> time);

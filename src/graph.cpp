@@ -1,11 +1,4 @@
-#include <iostream>
-#include <fstream>
-#include <vector>
-#include <random>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/compressed_sparse_row_graph.hpp>
 #include "graph.hpp"
-#include <algorithm>
 using namespace std;
 
 int xNum;
@@ -14,12 +7,9 @@ double WXY_sum = 0;
 vector<double> WkXY_sum;
 extern int K;
 int top_k = 10;
-extern int input_seed;
-extern string path;
 extern vector<vector<int>> cluster_label;
 
 vector<string> name_vector;
-vector<vector<double>> row_sum_vec;
 
 vector<string> split(string& input, char delimiter){
     istringstream stream(input);
@@ -31,7 +21,7 @@ vector<string> split(string& input, char delimiter){
     return result;
 }
 
-graph construct_graph(){
+graph construct_graph(string path){
     // エッジのリスト
     vector<edge> edge_vector;
     // 各エッジの属性値の構造体のリスト
@@ -49,7 +39,7 @@ graph construct_graph(){
     ifstream ifs_Y(file_Y);
 
     if(ifs_X.fail()){
-        return (construct_graph_by_repository());
+        return (construct_graph_by_repository(path));
         cout << "Error! Failed to read " << file_X << "." << endl;
         exit(0);
     }
@@ -122,6 +112,9 @@ graph construct_graph(){
             property_vector.push_back(a);
             edge_vector.push_back(edge(to, from));
         }
+
+        cout << "|X| : " << xNum << endl;
+        cout << "|Y| : " << yNum << endl;
 	}
 
     // tag は特に指定がなければ edges_are_unsorted_multi_pass で良い
@@ -133,7 +126,7 @@ graph construct_graph(){
     return g;
 }
 
-graph construct_graph_by_repository()
+graph construct_graph_by_repository(string path)
 {
     xNum = 0;
     yNum = 0;
@@ -202,7 +195,7 @@ graph construct_graph_by_repository()
     return g;
 }
 
-void get_intial_partitions(graph& g){
+void get_intial_partitions(graph& g, int input_seed){
     //random_device rnd;
     mt19937 rnd(input_seed);
     vertex_iterator i, j;
@@ -219,7 +212,7 @@ void get_intial_partitions(graph& g){
     //check
     for(auto itr = check_flag.begin(); itr != check_flag.end(); itr++){
         if(check_flag[*itr] == false){
-            get_intial_partitions(g);
+            get_intial_partitions(g, rnd()%input_seed);
         }
     }
 }
