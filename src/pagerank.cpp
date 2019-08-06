@@ -2,8 +2,6 @@
 #include "pagerank.hpp"
 #include "gauss_southwell.hpp"
 
-const int gauss_start = 1;
-
 pagerank::pagerank(int _xNum, int _t, int _clusterNum, double _epsi){
     xNum = _xNum;
 	t = _t;

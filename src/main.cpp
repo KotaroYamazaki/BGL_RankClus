@@ -35,9 +35,13 @@ int main(int argc, char* argv[])
         path = argv[1];
 		K = atoi(argv[2]);
         if(argc >= 3)input_seed = atoi(argv[3]);
-        if(argc > 3)epsi = atoi(argv[4]);
-        epsi = pow(10,-epsi);
-        cout <<"Cluster Number: " << K << endl;
+        if(argc > 3){
+            epsi = pow(10,-atoi(argv[4]));
+        }else{
+            epsi = 1e9;
+        }
+
+        cout << "Cluster Number: " << K << endl;
         cout << "Input seed: " << input_seed << endl;
         cout << "Epsilon: " << epsi << endl;
 
@@ -57,20 +61,25 @@ int main(int argc, char* argv[])
 
             cluster_label = vector<vector<int>> (K);
             convflag = false;
+
             chrono::system_clock::time_point start, end,init_start, init_end, ranking_start, ranking_end, clustering_start, clustering_end;
+            
             // グラフの構築
             graph g = construct_graph();
-
             start = chrono::system_clock::now();
-            // グラフの属性値を初期化
+
+            // Step0: Initialization
             init_start = chrono::system_clock::now();
             cout << "init graph." << endl;
             init_graph(g);
+
             cout << "get initial partition." << endl;
             get_intial_partitions(g);
+
             init_end = chrono::system_clock::now();
             double init_time = std::chrono::duration_cast<std::chrono::milliseconds>(init_end - init_start).count();
             cout << "initialization time[milli]: " << init_time << endl;
+            //
 
             vector<graph> subgraph;
             for(t = 0; t < iterNum && convflag == false; t++){
@@ -101,7 +110,6 @@ int main(int argc, char* argv[])
             end = chrono::system_clock::now();
             double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
             cout << " Time[milli]: " << elapsed << endl;
-            //double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
             //double elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(end-start).count(); //処理に要した時間をミリ秒に変換
             cout << " Iteration Number: " << t << endl;
             cout << endl;
