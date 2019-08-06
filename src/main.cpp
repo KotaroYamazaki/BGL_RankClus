@@ -1,12 +1,11 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/compressed_sparse_row_graph.hpp>
-#include "graph.hpp"
 #include <chrono>
 #include <stdlib.h>
+#include "graph.hpp"
 #include "clustering.hpp"
+#include "pagerank.hpp"
 using namespace std;
 
 void ranking(graph& subgraph, int clusterNum, int iteration_num);
@@ -80,12 +79,9 @@ int main(int argc, char* argv[])
                 ranking_start = chrono::system_clock::now();
                 for(int clusterNum = 0; clusterNum < K; clusterNum++){
                     init_graph(subgraph[clusterNum], g);
-                    ranking(subgraph[clusterNum], clusterNum, i);
-                    // ranking rk(K, xNum, cluster_label);
-                    // rk.solve(subgraph[clusterNum]);
+                    pagerank pr(xNum, t, clusterNum, epsi);
+                    pr.solve(subgraph[clusterNum], i);
                     conditional_ranking(g, subgraph[clusterNum]);
-                    // print_graph_detail(subgraph[clusterNum]);
-                    //print_rank_within_cluster(subgraph[clusterNum], clusterNum);
                 }
                 ranking_end = chrono::system_clock::now();
                 double ranking_time = std::chrono::duration_cast<std::chrono::milliseconds>(ranking_end - ranking_start).count();

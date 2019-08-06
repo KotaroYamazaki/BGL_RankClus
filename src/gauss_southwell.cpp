@@ -10,7 +10,7 @@ gauss_southwell::gauss_southwell(double _epsi, double _alpha,int _clusterNum){
 }
 
 void gauss_southwell::solve(graph &g){
-	pair<queue<int>, vector<bool>> p = calc_tracking_residual(g, clusterNum);
+	pair<queue<int>, vector<bool>> p = calc_tracking_residual(g);
 	queue<int> q = p.first;
 	vector<bool> occupied_flag = p.second;
 	vector<double> &res = residual[clusterNum];
@@ -43,8 +43,8 @@ void gauss_southwell::solve(graph &g){
 	}
 }
 
-void gauss_southwell::update_pregraph(graph& g,int index){
-	pre_graph[index] = g;
+void gauss_southwell::update_pregraph(graph& g){
+	pre_graph[clusterNum] = g;
 }
 
 void gauss_southwell::init(graph& g){
@@ -77,7 +77,7 @@ void gauss_southwell::calc_initial_residual(graph &g)
 
 }
 
-pair<queue<int>, vector<bool>> gauss_southwell::calc_tracking_residual(graph &g, int clusterNum)
+pair<queue<int>, vector<bool>> gauss_southwell::calc_tracking_residual(graph &g)
 {
 	queue<int> q;
 	vector<bool> occupied_flag = vector<bool>(num_vertices(g));

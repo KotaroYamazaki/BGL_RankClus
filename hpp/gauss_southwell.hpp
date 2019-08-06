@@ -20,13 +20,13 @@ private:
 
 	void calc_initial_residual(graph &g);
 	void init_pregraph(graph& g);
-	pair<queue<int>, vector<bool>> calc_tracking_residual(graph &g, int clusterNum);
+	pair<queue<int>, vector<bool>> calc_tracking_residual(graph &g);
 
 
 public:
 	gauss_southwell(double _epsi, double _alpha, int _clusterNum);
 	void init(graph &g);
-	void update_pregraph(graph &g, int index);
+	void update_pregraph(graph &g);
 	void solve(graph &g);
 };
 
